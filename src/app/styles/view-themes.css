@@ -1,0 +1,1980 @@
+/* ===========================================
+   VIEW THEME SYSTEM - BRANDUP NETWORK
+   =========================================== */
+
+/* View Theme: Mikrosystem (Azul) */
+:root.view-mikrosystem {
+  --view-primary: #3b82f6;
+  --view-primary-hover: #2563eb;
+  --view-sidebar-bg: #2D353C;
+  --view-header-bg: #1e40af;
+}
+
+.dark.view-mikrosystem {
+  --view-sidebar-bg: #2D353C;
+  --view-header-bg: #1e3a8a;
+}
+
+/* Sidebar Mikrosystem */
+.view-mikrosystem .sidebar {
+  background: #2D353C !important;
+  border-right: none !important;
+}
+
+/* Header del logo en sidebar Mikrosystem */
+.view-mikrosystem .sidebar .px-6.py-4.border-b,
+.view-mikrosystem .sidebar div[class*="px-6"][class*="py-4"][class*="border-b"] {
+  background: #2196F3 !important;
+  border-bottom-color: #1976D2 !important;
+}
+
+/* Títulos de cards en todo el sistema - Mikrosystem */
+.view-mikrosystem .px-6.py-4.border-b,
+.view-mikrosystem div[class*="px-6"][class*="py-4"][class*="border-b"],
+.view-mikrosystem [class*="CardHeader"] {
+  background: #2196F3 !important;
+  border-bottom-color: #1976D2 !important;
+}
+
+.view-mikrosystem .px-6.py-4.border-b *,
+.view-mikrosystem div[class*="px-6"][class*="py-4"][class*="border-b"] *,
+.view-mikrosystem [class*="CardHeader"] * {
+  color: white !important;
+}
+
+.view-mikrosystem .sidebar * {
+  color: white !important;
+}
+
+.view-mikrosystem .sidebar a,
+.view-mikrosystem .sidebar button {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.view-mikrosystem .sidebar a:hover,
+.view-mikrosystem .sidebar button:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+}
+
+.view-mikrosystem .sidebar a.active,
+.view-mikrosystem .sidebar .active {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+}
+
+.view-mikrosystem .sidebar svg {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Header Mikrosystem */
+html.view-mikrosystem header {
+  background: #2196F3 !important;
+  border-bottom: 1px solid #1976D2 !important;
+}
+
+html.view-mikrosystem.dark header {
+  background: #2196F3 !important;
+  border-bottom: 1px solid #1976D2 !important;
+}
+
+/* Logo en el header - Mikrosystem */
+html.view-mikrosystem header img[alt*="BRANDUP"],
+html.view-mikrosystem.dark header img[alt*="BRANDUP"] {
+  filter: brightness(0) invert(1);
+}
+
+html.view-mikrosystem header *:not(input) {
+  color: white !important;
+}
+
+html.view-mikrosystem.dark header *:not(input) {
+  color: white !important;
+}
+
+html.view-mikrosystem header button {
+  color: white !important;
+}
+
+html.view-mikrosystem.dark header button {
+  color: white !important;
+}
+
+html.view-mikrosystem header button:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+html.view-mikrosystem.dark header button:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+html.view-mikrosystem header svg {
+  color: white !important;
+}
+
+html.view-mikrosystem.dark header svg {
+  color: white !important;
+}
+
+/* Submenús del header en Mikrosystem */
+html.view-mikrosystem header .border-t,
+html.view-mikrosystem.dark header .border-t {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-top-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+html.view-mikrosystem header nav a {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+html.view-mikrosystem.dark header nav a {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+html.view-mikrosystem header nav a.active,
+html.view-mikrosystem header nav a:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+}
+
+html.view-mikrosystem.dark header nav a.active,
+html.view-mikrosystem.dark header nav a:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+}
+
+/* View Theme: Wisphub (Verde) */
+:root.view-wisphub {
+  --view-primary: #10b981;
+  --view-primary-hover: #059669;
+  --view-sidebar-bg: #49BF67;
+  --view-header-bg: #49BF67;
+}
+
+.dark.view-wisphub {
+  --view-sidebar-bg: #2D353C;
+  --view-header-bg: #49BF67;
+}
+
+/* ========================================
+   MODO CLARO - WISPHUB
+   ======================================== */
+
+/* Sidebar Wisphub - Modo Claro - Fondo gris oscuro */
+.view-wisphub .sidebar {
+  background: #2B2D30 !important;
+  border-right: none !important;
+}
+
+/* Header del logo en sidebar Wisphub - Modo Claro - Verde */
+.view-wisphub .sidebar .px-6.py-4.border-b,
+.view-wisphub .sidebar div[class*="px-6"][class*="py-4"][class*="border-b"] {
+  background: #49BF67 !important;
+  border-bottom-color: #3da856 !important;
+}
+
+/* Textos y elementos en sidebar Wisphub - Modo Claro */
+.view-wisphub .sidebar * {
+  color: white !important;
+}
+
+.view-wisphub .sidebar a,
+.view-wisphub .sidebar button {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Hover - Fondo verde semi-transparente */
+.view-wisphub .sidebar a:hover,
+.view-wisphub .sidebar button:hover {
+  background: rgba(73, 191, 103, 0.15) !important;
+  color: white !important;
+}
+
+/* Active - Fondo blanco con texto e íconos verdes */
+.view-wisphub .sidebar a.active,
+.view-wisphub .sidebar .active {
+  background: white !important;
+  color: #27703A !important;
+}
+
+.view-wisphub .sidebar a.active *,
+.view-wisphub .sidebar .active * {
+  color: #27703A !important;
+}
+
+/* Íconos SVG - Verde brillante por defecto */
+.view-wisphub .sidebar svg {
+  color: #49BF67 !important;
+}
+
+.view-wisphub .sidebar a:hover svg,
+.view-wisphub .sidebar button:hover svg {
+  color: #49BF67 !important;
+}
+
+/* Íconos en elementos activos - Verde oscuro */
+.view-wisphub .sidebar a.active svg,
+.view-wisphub .sidebar .active svg {
+  color: #27703A !important;
+}
+
+/* ===========================================
+   BORDES VERDES - WISPHUB MODO CLARO
+   =========================================== */
+
+/* Bordes generales en cards, divs y containers */
+.view-wisphub .border,
+.view-wisphub .border-gray-200,
+.view-wisphub .border-gray-300,
+.view-wisphub [class*="border-"],
+.view-wisphub .border-t,
+.view-wisphub .border-b,
+.view-wisphub .border-l,
+.view-wisphub .border-r {
+  border-color: #49BF67 !important;
+}
+
+/* Cards y contenedores con bordes */
+.view-wisphub .bg-white {
+  border: 1px solid #49BF67 !important;
+}
+
+/* Tablas */
+.view-wisphub table,
+.view-wisphub table th,
+.view-wisphub table td {
+  border-color: #49BF67 !important;
+}
+
+/* Headers de tablas */
+.view-wisphub table thead {
+  border-bottom: 2px solid #49BF67 !important;
+}
+
+/* Zebra striping - mantener sutil */
+.view-wisphub table tbody tr:nth-child(even) {
+  background-color: rgba(73, 191, 103, 0.03) !important;
+}
+
+/* Hover en filas de tabla */
+.view-wisphub table tbody tr:hover {
+  background-color: rgba(73, 191, 103, 0.08) !important;
+}
+
+/* Inputs, textareas y selects */
+.view-wisphub input[type="text"],
+.view-wisphub input[type="email"],
+.view-wisphub input[type="password"],
+.view-wisphub input[type="number"],
+.view-wisphub input[type="search"],
+.view-wisphub input[type="date"],
+.view-wisphub input[type="tel"],
+.view-wisphub textarea,
+.view-wisphub select {
+  border-color: #49BF67 !important;
+}
+
+/* Focus en inputs */
+.view-wisphub input:focus,
+.view-wisphub textarea:focus,
+.view-wisphub select:focus {
+  border-color: #27703A !important;
+  outline-color: #49BF67 !important;
+  box-shadow: 0 0 0 3px rgba(73, 191, 103, 0.2) !important;
+}
+
+/* Dividers y separadores */
+.view-wisphub hr,
+.view-wisphub .divide-y > *,
+.view-wisphub [class*="divide-"] {
+  border-color: #49BF67 !important;
+}
+
+/* Bordes de componentes específicos */
+.view-wisphub .rounded,
+.view-wisphub .rounded-lg,
+.view-wisphub .rounded-md {
+  border-color: #49BF67 !important;
+}
+
+/* Badges y pills con bordes */
+.view-wisphub .badge,
+.view-wisphub [class*="badge"] {
+  border-color: #49BF67 !important;
+}
+
+/* Modal y dialog borders */
+.view-wisphub [role="dialog"],
+.view-wisphub .modal,
+.view-wisphub .dialog {
+  border: 2px solid #49BF67 !important;
+}
+
+/* Popover borders */
+.view-wisphub .popover,
+.view-wisphub [role="tooltip"] {
+  border-color: #49BF67 !important;
+}
+
+/* ========================================
+   MODO OSCURO - WISPHUB
+   ======================================== */
+
+/* Sidebar Wisphub - Modo Oscuro */
+.dark.view-wisphub .sidebar {
+  background: #2D353C !important;
+  border-right: none !important;
+}
+
+/* Header del logo en sidebar Wisphub - Modo Oscuro - Verde como el header */
+.dark.view-wisphub .sidebar .px-6.py-4.border-b,
+.dark.view-wisphub .sidebar div[class*="px-6"][class*="py-4"][class*="border-b"] {
+  background: #49BF67 !important;
+  border-bottom-color: #3da856 !important;
+}
+
+/* Textos y elementos en sidebar Wisphub - Modo Oscuro */
+.dark.view-wisphub .sidebar * {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.dark.view-wisphub .sidebar a,
+.dark.view-wisphub .sidebar button {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* Hover - Verde oscuro en modo oscuro */
+.dark.view-wisphub .sidebar a:hover,
+.dark.view-wisphub .sidebar button:hover {
+  background: rgba(73, 191, 103, 0.15) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.dark.view-wisphub .sidebar a:hover *,
+.dark.view-wisphub .sidebar button:hover * {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Active - Fondo verde con texto blanco en modo oscuro */
+.dark.view-wisphub .sidebar a.active,
+.dark.view-wisphub .sidebar .active {
+  background: #49BF67 !important;
+  color: white !important;
+}
+
+.dark.view-wisphub .sidebar a.active *,
+.dark.view-wisphub .sidebar .active * {
+  color: white !important;
+}
+
+.dark.view-wisphub .sidebar svg {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.dark.view-wisphub .sidebar a:hover svg,
+.dark.view-wisphub .sidebar button:hover svg {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.dark.view-wisphub .sidebar a.active svg,
+.dark.view-wisphub .sidebar .active svg {
+  color: white !important;
+}
+
+/* Logo en sidebar Wisphub */
+.view-wisphub .sidebar img[alt*="BRANDUP"] {
+  filter: brightness(0) invert(1);
+}
+
+.dark.view-wisphub .sidebar img[alt*="BRANDUP"] {
+  filter: brightness(0) invert(1);
+}
+
+/* ========================================
+   HEADER - WISPHUB (Ambos modos)
+   ======================================== */
+
+/* Header Wisphub - Verde en ambos modos */
+.view-wisphub header,
+.dark.view-wisphub header {
+  background: #49BF67 !important;
+  border-bottom: 1px solid #3da856 !important;
+}
+
+.view-wisphub header *:not(input),
+.dark.view-wisphub header *:not(input) {
+  color: white !important;
+}
+
+.view-wisphub header button,
+.dark.view-wisphub header button {
+  color: white !important;
+}
+
+.view-wisphub header button:hover,
+.dark.view-wisphub header button:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+}
+
+.view-wisphub header button:hover svg,
+.dark.view-wisphub header button:hover svg {
+  color: white !important;
+}
+
+.view-wisphub header svg,
+.dark.view-wisphub header svg {
+  color: white !important;
+}
+
+.view-wisphub header nav a,
+.dark.view-wisphub header nav a {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.view-wisphub header nav a.active,
+.view-wisphub header nav a:hover,
+.dark.view-wisphub header nav a.active,
+.dark.view-wisphub header nav a:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+}
+
+/* ===========================================
+   TABLAS COMPACTAS - ESTILO ERP CLÁSICO
+   =========================================== */
+
+/* Altura reducida en filas */
+table tbody tr {
+  height: 40px;
+  max-height: 40px;
+}
+
+/* Bordes finos entre celdas */
+table {
+  border-collapse: collapse;
+}
+
+table th,
+table td {
+  border: 1px solid #e5e7eb;
+}
+
+.dark table th,
+.dark table td {
+  border-color: #374151;
+}
+
+/* Headers con fondo claro */
+table thead tr {
+  background: #f9fafb;
+}
+
+.dark table thead tr {
+  background: #1f2937;
+}
+
+/* Zebra striping sutil */
+table tbody tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+.dark table tbody tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+/* Hover en filas */
+table tbody tr:hover {
+  background-color: #f0f9ff !important;
+}
+
+.dark table tbody tr:hover {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+}
+
+/* Tipografía compacta */
+table {
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+table th {
+  font-weight: 600;
+  font-size: 12px;
+}
+
+/* Badges rectangulares pequeños */
+table .inline-flex {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: 500;
+}
+
+/* Botones de acción compactos */
+table button {
+  padding: 4px;
+}
+
+table button svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ===========================================
+   GLOBAL STYLES FOR ALL VIEWS
+   =========================================== */
+
+/* Logo en sidebar */
+.view-mikrosystem .sidebar img[alt*="BRANDUP"] {
+  filter: brightness(0) invert(1);
+}
+
+/* Texto del usuario en sidebar - Mikrosystem */
+.view-mikrosystem .sidebar .text-gray-900,
+.view-mikrosystem .sidebar .dark\:text-white {
+  color: white !important;
+}
+
+.view-mikrosystem .sidebar .text-gray-600,
+.view-mikrosystem .sidebar .dark\:text-gray-400 {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* Texto del usuario en sidebar - Wisphub */
+.view-wisphub .sidebar .text-gray-900,
+.view-wisphub .sidebar .dark\:text-white {
+  color: white !important;
+}
+
+.view-wisphub .sidebar .text-gray-600,
+.view-wisphub .sidebar .dark\:text-gray-400 {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Texto del usuario en sidebar - Wisphub Modo Oscuro - Legible */
+.dark.view-wisphub .sidebar .text-gray-900,
+.dark.view-wisphub .sidebar .dark\:text-white {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.dark.view-wisphub .sidebar .text-gray-600,
+.dark.view-wisphub .sidebar .dark\:text-gray-400 {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Avatar en sidebar */
+.view-mikrosystem .sidebar img {
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.view-wisphub .sidebar img:not([alt*="BRANDUP"]) {
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Botón de cerrar sesión - Mikrosystem */
+.view-mikrosystem .sidebar .text-red-600,
+.view-mikrosystem .sidebar .dark\:text-red-400 {
+  color: #fecaca !important;
+}
+
+.view-mikrosystem .sidebar .hover\:text-red-700:hover {
+  color: white !important;
+}
+
+/* Botón de cerrar sesión - Wisphub */
+.view-wisphub .sidebar .text-red-600,
+.view-wisphub .sidebar .dark\:text-red-400 {
+  color: #fecaca !important;
+}
+
+.view-wisphub .sidebar .hover\:text-red-700:hover {
+  color: white !important;
+}
+
+/* Badge de notificación en header */
+.view-mikrosystem header .bg-red-500,
+.view-wisphub header .bg-red-500 {
+  background: #ef4444 !important;
+}
+
+/* Botón del selector de vista */
+.view-mikrosystem header .view-theme-button {
+  color: white !important;
+}
+
+.view-mikrosystem.dark header .view-theme-button {
+  color: white !important;
+}
+
+.view-mikrosystem header .view-theme-button:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+.view-mikrosystem.dark header .view-theme-button:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+.view-wisphub header .view-theme-button {
+  color: white !important;
+}
+
+.view-wisphub header .view-theme-button:hover {
+  background: rgba(39, 112, 58, 0.3) !important;
+  color: white !important;
+}
+
+/* Transiciones suaves */
+.sidebar,
+header {
+  transition: background 0.3s ease !important;
+}
+
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Submenú en header (Mikrosystem) */
+body.view-mikrosystem header .border-t,
+html.view-mikrosystem header .border-t,
+:root.view-mikrosystem header .border-t {
+  background: #f9fafb !important;
+  border-top-color: #e5e7eb !important;
+}
+
+body.view-mikrosystem.dark header .border-t,
+html.view-mikrosystem.dark header .border-t,
+:root.view-mikrosystem.dark header .border-t {
+  background: #111827 !important;
+  border-top-color: #374151 !important;
+}
+
+/* Cards y componentes */
+.stat-card,
+.dashboard-card {
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover,
+.dashboard-card:hover {
+  transform: translateY(-2px);
+}
+
+/* ===========================================
+   BOTONES EN WISPHUB - Texto oscuro
+   =========================================== */
+
+/* Botones outline en Wisphub - Modo Claro */
+.view-wisphub button[class*="outline"],
+.view-wisphub .border-gray-300 button,
+.view-wisphub button.border {
+  color: #1f2937 !important;
+}
+
+.view-wisphub button[class*="outline"] svg,
+.view-wisphub .border-gray-300 button svg,
+.view-wisphub button.border svg {
+  color: #1f2937 !important;
+}
+
+/* Botones outline en Wisphub - Modo Oscuro */
+.dark.view-wisphub button.border-gray-300,
+.dark.view-wisphub button[class*="border"][class*="gray"] {
+  background: white !important;
+  border-color: #d1d5db !important;
+  color: #1f2937 !important;
+}
+
+.dark.view-wisphub button.border-gray-300 svg,
+.dark.view-wisphub button[class*="border"][class*="gray"] svg {
+  color: #1f2937 !important;
+}
+
+.dark.view-wisphub button.border-gray-300:hover,
+.dark.view-wisphub button[class*="border"][class*="gray"]:hover {
+  background: #f9fafb !important;
+}
+
+/* ===========================================
+   BOTONES "NUEVO" - Adaptados a paleta de temas
+   =========================================== */
+
+/* Tema Mikrosystem - Botones primarios azules */
+.view-mikrosystem button.bg-blue-600,
+.view-mikrosystem button[class*="bg-blue"] {
+  background: #2196F3 !important;
+  color: white !important;
+}
+
+.view-mikrosystem button.bg-blue-600:hover,
+.view-mikrosystem button[class*="bg-blue"]:hover {
+  background: #1976D2 !important;
+}
+
+.view-mikrosystem.dark button.bg-blue-600,
+.view-mikrosystem.dark button[class*="bg-blue"] {
+  background: #2196F3 !important;
+  color: white !important;
+}
+
+.view-mikrosystem.dark button.bg-blue-600:hover,
+.view-mikrosystem.dark button[class*="bg-blue"]:hover {
+  background: #1976D2 !important;
+}
+
+/* Tema Wisphub - Botones primarios verdes en MODO CLARO */
+.view-wisphub button.bg-blue-600,
+.view-wisphub button[class*="bg-blue"] {
+  background: #27703A !important;
+  color: white !important;
+  border: none !important;
+}
+
+.view-wisphub button.bg-blue-600:hover,
+.view-wisphub button[class*="bg-blue"]:hover {
+  background: #1f5a2e !important;
+}
+
+.view-wisphub button.bg-blue-600 svg,
+.view-wisphub button[class*="bg-blue"] svg {
+  color: white !important;
+}
+
+/* Tema Wisphub - Botones primarios verdes en MODO OSCURO */
+.dark.view-wisphub button.bg-blue-600,
+.dark.view-wisphub button[class*="bg-blue"] {
+  background: #49BF67 !important;
+  color: white !important;
+  border: none !important;
+}
+
+.dark.view-wisphub button.bg-blue-600:hover,
+.dark.view-wisphub button[class*="bg-blue"]:hover {
+  background: #3da856 !important;
+}
+
+.dark.view-wisphub button.bg-blue-600 svg,
+.dark.view-wisphub button[class*="bg-blue"] svg {
+  color: white !important;
+}
+
+/* ===========================================
+   PERFIL USUARIO EN SIDEBAR - Corrección de fondos
+   =========================================== */
+
+/* Wisphub Modo Claro - Fondo del perfil visible */
+.view-wisphub .sidebar .bg-gray-50 {
+  background: rgba(255, 255, 255, 0.25) !important;
+}
+
+/* Wisphub Modo Oscuro - Fondo del perfil visible */
+.dark.view-wisphub .sidebar .bg-gray-50,
+.dark.view-wisphub .sidebar .dark\:bg-gray-700\/50 {
+  background: rgba(73, 191, 103, 0.15) !important;
+}
+
+/* Mikrosystem - Fondo del perfil visible en ambos modos */
+.view-mikrosystem .sidebar .bg-gray-50,
+.view-mikrosystem .sidebar .dark\:bg-gray-700\/50 {
+  background: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* ===========================================
+   DROPDOWN SELECTOR DE VISTA - Estilos específicos por tema
+   =========================================== */
+
+/* ===== TEMA MIKROSYSTEM ===== */
+
+/* Dropdown - Fondo y bordes */
+.view-mikrosystem .view-theme-dropdown {
+  background: #1f2937 !important;
+  border-color: #374151 !important;
+}
+
+.view-mikrosystem.dark .view-theme-dropdown {
+  background: #1f2937 !important;
+  border-color: #374151 !important;
+}
+
+/* Header del dropdown - Mikrosystem */
+.view-mikrosystem .view-theme-dropdown-header {
+  background: #2196F3 !important;
+  border-bottom-color: #1976D2 !important;
+}
+
+.view-mikrosystem .view-theme-dropdown-header h3,
+.view-mikrosystem .view-theme-dropdown-header p {
+  color: white !important;
+}
+
+.view-mikrosystem.dark .view-theme-dropdown-header {
+  background: #2196F3 !important;
+  border-bottom-color: #1976D2 !important;
+}
+
+.view-mikrosystem.dark .view-theme-dropdown-header h3,
+.view-mikrosystem.dark .view-theme-dropdown-header p {
+  color: white !important;
+}
+
+/* Opciones del dropdown - Mikrosystem */
+.view-mikrosystem .view-theme-option-title {
+  color: white !important;
+}
+
+.view-mikrosystem .view-theme-option-description {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.view-mikrosystem.dark .view-theme-option-title {
+  color: white !important;
+}
+
+.view-mikrosystem.dark .view-theme-option-description {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* Opción inactiva - Mikrosystem */
+.view-mikrosystem .view-theme-option-inactive {
+  background: transparent !important;
+}
+
+.view-mikrosystem .view-theme-option-inactive:hover {
+  background: rgba(33, 150, 243, 0.15) !important;
+}
+
+.view-mikrosystem.dark .view-theme-option-inactive {
+  background: transparent !important;
+}
+
+.view-mikrosystem.dark .view-theme-option-inactive:hover {
+  background: rgba(33, 150, 243, 0.15) !important;
+}
+
+/* Opción activa - Mikrosystem */
+.view-mikrosystem .view-theme-option-active {
+  background: #2196F3 !important;
+  border: 2px solid #1976D2 !important;
+}
+
+.view-mikrosystem.dark .view-theme-option-active {
+  background: #2196F3 !important;
+  border: 2px solid #1976D2 !important;
+}
+
+/* Check icon - Mikrosystem */
+.view-mikrosystem .view-theme-check-icon {
+  color: white !important;
+}
+
+.view-mikrosystem.dark .view-theme-check-icon {
+  color: white !important;
+}
+
+/* Footer del dropdown - Mikrosystem */
+.view-mikrosystem .view-theme-dropdown-footer {
+  background: rgba(33, 150, 243, 0.1) !important;
+  border-top-color: #374151 !important;
+}
+
+.view-mikrosystem .view-theme-dropdown-footer p {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.view-mikrosystem.dark .view-theme-dropdown-footer {
+  background: rgba(33, 150, 243, 0.1) !important;
+  border-top-color: #374151 !important;
+}
+
+.view-mikrosystem.dark .view-theme-dropdown-footer p {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* ===== TEMA WISPHUB - MODO CLARO ===== */
+
+/* Dropdown - Fondo y bordes */
+.view-wisphub .view-theme-dropdown {
+  background: #ffffff !important;
+  border-color: #49BF67 !important;
+  border-width: 2px !important;
+}
+
+/* Header del dropdown - Wisphub Claro */
+.view-wisphub .view-theme-dropdown-header {
+  background: linear-gradient(135deg, #49BF67 0%, #3da856 100%) !important;
+  border-bottom-color: #3da856 !important;
+}
+
+.view-wisphub .view-theme-dropdown-header h3,
+.view-wisphub .view-theme-dropdown-header p {
+  color: white !important;
+}
+
+/* Opciones del dropdown - Wisphub Claro */
+.view-wisphub .view-theme-option-title {
+  color: #1f2937 !important;
+}
+
+.view-wisphub .view-theme-option-description {
+  color: #6b7280 !important;
+}
+
+/* Opción inactiva - Wisphub Claro */
+.view-wisphub .view-theme-option-inactive {
+  background: #f9fafb !important;
+  border: 2px solid transparent !important;
+}
+
+.view-wisphub .view-theme-option-inactive:hover {
+  background: #f3f4f6 !important;
+  border: 2px solid #49BF67 !important;
+}
+
+/* Opción activa - Wisphub Claro */
+.view-wisphub .view-theme-option-active {
+  background: linear-gradient(135deg, #27703A 0%, #1f5a2e 100%) !important;
+  border: 2px solid #1f5a2e !important;
+}
+
+.view-wisphub .view-theme-option-active .view-theme-option-title {
+  color: white !important;
+}
+
+.view-wisphub .view-theme-option-active .view-theme-option-description {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Check icon - Wisphub Claro */
+.view-wisphub .view-theme-check-icon {
+  color: white !important;
+}
+
+/* Footer del dropdown - Wisphub Claro */
+.view-wisphub .view-theme-dropdown-footer {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%) !important;
+  border-top-color: #49BF67 !important;
+}
+
+.view-wisphub .view-theme-dropdown-footer p {
+  color: #27703A !important;
+}
+
+/* ===== TEMA WISPHUB - MODO OSCURO ===== */
+
+/* Dropdown - Fondo y bordes */
+.dark.view-wisphub .view-theme-dropdown {
+  background: #1f2937 !important;
+  border-color: #49BF67 !important;
+  border-width: 2px !important;
+}
+
+/* Header del dropdown - Wisphub Oscuro */
+.dark.view-wisphub .view-theme-dropdown-header {
+  background: linear-gradient(135deg, #49BF67 0%, #3da856 100%) !important;
+  border-bottom-color: #3da856 !important;
+}
+
+.dark.view-wisphub .view-theme-dropdown-header h3,
+.dark.view-wisphub .view-theme-dropdown-header p {
+  color: white !important;
+}
+
+/* Opciones del dropdown - Wisphub Oscuro */
+.dark.view-wisphub .view-theme-option-title {
+  color: white !important;
+}
+
+.dark.view-wisphub .view-theme-option-description {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Opción inactiva - Wisphub Oscuro */
+.dark.view-wisphub .view-theme-option-inactive {
+  background: #374151 !important;
+  border: 2px solid transparent !important;
+}
+
+.dark.view-wisphub .view-theme-option-inactive:hover {
+  background: #4b5563 !important;
+  border: 2px solid #49BF67 !important;
+}
+
+/* Opción activa - Wisphub Oscuro */
+.dark.view-wisphub .view-theme-option-active {
+  background: linear-gradient(135deg, #49BF67 0%, #3da856 100%) !important;
+  border: 2px solid #3da856 !important;
+}
+
+.dark.view-wisphub .view-theme-option-active .view-theme-option-title {
+  color: white !important;
+}
+
+.dark.view-wisphub .view-theme-option-active .view-theme-option-description {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Check icon - Wisphub Oscuro */
+.dark.view-wisphub .view-theme-check-icon {
+  color: white !important;
+}
+
+/* Footer del dropdown - Wisphub Oscuro */
+.dark.view-wisphub .view-theme-dropdown-footer {
+  background: rgba(73, 191, 103, 0.1) !important;
+  border-top-color: #49BF67 !important;
+}
+
+.dark.view-wisphub .view-theme-dropdown-footer p {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* ===========================================
+   MEJORAS DE LEGIBILIDAD - MODO OSCURO
+   Análisis exhaustivo para mejorar contraste de textos
+   =========================================== */
+
+/* ===== TEXTOS GENERALES ===== */
+
+/* Textos secundarios más claros en modo oscuro */
+.dark .text-gray-500 {
+  color: #9ca3af !important;
+}
+
+.dark .text-gray-600 {
+  color: #d1d5db !important;
+}
+
+.dark .text-gray-700 {
+  color: #e5e7eb !important;
+}
+
+/* Mejorar íconos en modo oscuro */
+.dark svg {
+  opacity: 0.9;
+}
+
+.dark .text-gray-400 {
+  color: #d1d5db !important;
+}
+
+/* ===== TABLAS ===== */
+
+/* Headers de tabla más visibles */
+.dark table thead th {
+  color: #f3f4f6 !important;
+}
+
+.dark table tbody td {
+  color: #e5e7eb !important;
+}
+
+/* Texto en celdas de tabla */
+.dark table .text-gray-600,
+.dark table .text-gray-700 {
+  color: #e5e7eb !important;
+}
+
+/* ===== CARDS Y COMPONENTES ===== */
+
+/* Títulos de cards */
+.dark .card-title,
+.dark [class*="CardTitle"] {
+  color: #f9fafb !important;
+}
+
+/* Descripciones y subtítulos */
+.dark .card-description,
+.dark [class*="CardDescription"] {
+  color: #d1d5db !important;
+}
+
+/* ===== BADGES Y CHIPS ===== */
+
+/* Badges con mejor contraste */
+.dark .badge,
+.dark [class*="badge"] {
+  border-width: 1px;
+}
+
+/* Badge success - verde más claro */
+.dark .bg-green-100 {
+  background-color: #065f46 !important;
+}
+
+.dark .text-green-800 {
+  color: #86efac !important;
+}
+
+/* Badge warning - amarillo más claro */
+.dark .bg-yellow-100 {
+  background-color: #78350f !important;
+}
+
+.dark .text-yellow-800 {
+  color: #fde047 !important;
+}
+
+/* Badge danger - rojo más claro */
+.dark .bg-red-100 {
+  background-color: #7f1d1d !important;
+}
+
+.dark .text-red-800 {
+  color: #fca5a5 !important;
+}
+
+/* Badge info - azul más claro */
+.dark .bg-blue-100 {
+  background-color: #1e3a8a !important;
+}
+
+.dark .text-blue-800 {
+  color: #93c5fd !important;
+}
+
+/* Badge neutral - gris más claro */
+.dark .bg-gray-100 {
+  background-color: #374151 !important;
+}
+
+.dark .text-gray-800 {
+  color: #f3f4f6 !important;
+}
+
+/* Badge orange */
+.dark .bg-orange-100 {
+  background-color: #7c2d12 !important;
+}
+
+.dark .text-orange-800 {
+  color: #fdba74 !important;
+}
+
+/* Badge purple */
+.dark .bg-purple-100 {
+  background-color: #581c87 !important;
+}
+
+.dark .text-purple-800 {
+  color: #d8b4fe !important;
+}
+
+/* ===== FORMULARIOS ===== */
+
+/* Labels más visibles */
+.dark label {
+  color: #f3f4f6 !important;
+}
+
+/* Placeholders ms legibles */
+.dark input::placeholder,
+.dark textarea::placeholder,
+.dark select::placeholder {
+  color: #9ca3af !important;
+}
+
+/* Texto de ayuda en formularios */
+.dark .text-muted-foreground,
+.dark .form-description {
+  color: #d1d5db !important;
+}
+
+/* ===== BOTONES SECUNDARIOS ===== */
+
+/* Botones ghost con mejor contraste */
+.dark button[class*="ghost"] {
+  color: #f3f4f6 !important;
+}
+
+.dark button[class*="ghost"]:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Botones outline más visibles */
+.dark button[class*="outline"] {
+  color: #f3f4f6 !important;
+  border-color: #4b5563 !important;
+}
+
+.dark button[class*="outline"]:hover {
+  background-color: #374151 !important;
+}
+
+/* ===== LISTAS Y ELEMENTOS DE NAVEGACIÓN ===== */
+
+/* Items de lista más legibles */
+.dark li {
+  color: #e5e7eb !important;
+}
+
+/* Links y enlaces */
+.dark a:not(.active) {
+  color: #93c5fd !important;
+}
+
+.dark a:not(.active):hover {
+  color: #bfdbfe !important;
+}
+
+/* ===== TOOLTIPS Y POPOVERS ===== */
+
+.dark [role="tooltip"] {
+  background-color: #1f2937 !important;
+  color: #f3f4f6 !important;
+  border: 1px solid #4b5563 !important;
+}
+
+/* ===== ICONOS DE ESTADO ===== */
+
+/* Success icons */
+.dark .text-green-600 {
+  color: #86efac !important;
+}
+
+.dark .text-green-500 {
+  color: #86efac !important;
+}
+
+/* Warning icons */
+.dark .text-yellow-600 {
+  color: #fde047 !important;
+}
+
+.dark .text-yellow-500 {
+  color: #fde047 !important;
+}
+
+/* Danger icons */
+.dark .text-red-600 {
+  color: #fca5a5 !important;
+}
+
+.dark .text-red-500 {
+  color: #fca5a5 !important;
+}
+
+/* Info icons */
+.dark .text-blue-600 {
+  color: #93c5fd !important;
+}
+
+.dark .text-blue-500 {
+  color: #93c5fd !important;
+}
+
+/* ===== SEPARADORES Y BORDES ===== */
+
+/* Bordes más visibles en modo oscuro */
+.dark .border-gray-200 {
+  border-color: #4b5563 !important;
+}
+
+.dark .border-gray-300 {
+  border-color: #6b7280 !important;
+}
+
+/* ===== ENCABEZADOS Y TÍTULOS ===== */
+
+/* H1-H6 más brillantes */
+.dark h1,
+.dark h2,
+.dark h3,
+.dark h4,
+.dark h5,
+.dark h6 {
+  color: #f9fafb !important;
+}
+
+/* ===== DASHBOARD ESPECÍFICO ===== */
+
+/* Métricas y estadísticas */
+.dark .metric-value {
+  color: #ffffff !important;
+}
+
+.dark .metric-label {
+  color: #d1d5db !important;
+}
+
+/* ===== SUBMENÚS DE NAVEGACIÓN ===== */
+
+/* Mejorar contraste en submenús del header */
+.dark header nav a:not(.active) {
+  color: #d1d5db !important;
+}
+
+.dark header nav a:not(.active):hover {
+  color: #f3f4f6 !important;
+}
+
+/* Enlaces activos en submenús */
+.dark header nav a.active,
+.dark header nav a[class*="bg-blue"] {
+  background: #1e3a8a !important;
+  color: #93c5fd !important;
+}
+
+/* ===== EXCEPCIONES PARA TEMAS ===== */
+
+/* No aplicar a elementos dentro de sidebar y header de temas */
+.view-mikrosystem .sidebar .dark *,
+.view-wisphub .sidebar .dark *,
+.dark.view-mikrosystem header *,
+.dark.view-wisphub header * {
+  /* Los estilos de temas tienen prioridad */
+}
+
+/* ===========================================
+   SUBMENÚS HEADER - Mejora específica para modo oscuro
+   =========================================== */
+
+/* Submenús de navegación en header - legibilidad mejorada */
+.dark header .bg-gray-50 {
+  background: #1f2937 !important;
+}
+
+.dark header .border-t {
+  border-top-color: #374151 !important;
+}
+
+/* Enlaces inactivos en submenús más legibles */
+.dark header nav a {
+  color: #d1d5db !important;
+}
+
+.dark header nav a:hover {
+  background: #374151 !important;
+  color: #f3f4f6 !important;
+}
+
+/* Enlaces activos en submenús */
+.dark header nav a.active,
+.dark header nav a[class*="bg-blue"] {
+  background: #1e3a8a !important;
+  color: #93c5fd !important;
+}
+
+/* ===========================================
+   CONTENIDO PRINCIPAL - Mejoras globales
+   =========================================== */
+
+/* Main content area con mejor contraste */
+.dark main {
+  color: #e5e7eb !important;
+}
+
+/* Párrafos más legibles */
+.dark p {
+  color: #d1d5db !important;
+}
+
+/* Spans con texto secundario */
+.dark span.text-sm {
+  color: #d1d5db !important;
+}
+
+/* Divs con contenido de texto */
+.dark div[class*="text-"] {
+  opacity: 1;
+}
+
+/* ===========================================
+   INPUTS Y SELECTS - Modo Oscuro
+   =========================================== */
+
+/* Inputs con mejor contraste */
+.dark input[type="text"],
+.dark input[type="email"],
+.dark input[type="password"],
+.dark input[type="number"],
+.dark input[type="search"],
+.dark textarea,
+.dark select {
+  background-color: #374151 !important;
+  border-color: #4b5563 !important;
+  color: #f3f4f6 !important;
+}
+
+.dark input[type="text"]:focus,
+.dark input[type="email"]:focus,
+.dark input[type="password"]:focus,
+.dark input[type="number"]:focus,
+.dark input[type="search"]:focus,
+.dark textarea:focus,
+.dark select:focus {
+  border-color: #6b7280 !important;
+  background-color: #4b5563 !important;
+}
+
+/* Disabled inputs */
+.dark input:disabled,
+.dark textarea:disabled,
+.dark select:disabled {
+  background-color: #1f2937 !important;
+  color: #6b7280 !important;
+  opacity: 0.6;
+}
+
+/* ===========================================
+   RECHARTS - Gráficos en modo oscuro
+   =========================================== */
+
+/* Texto en gráficos más visible */
+.dark .recharts-text {
+  fill: #d1d5db !important;
+}
+
+.dark .recharts-cartesian-axis-tick-value {
+  fill: #d1d5db !important;
+}
+
+.dark .recharts-label {
+  fill: #f3f4f6 !important;
+}
+
+.dark .recharts-legend-item-text {
+  color: #d1d5db !important;
+}
+
+/* Tooltip de gráficos */
+.dark .recharts-tooltip-wrapper {
+  background-color: #1f2937 !important;
+  border: 1px solid #4b5563 !important;
+}
+
+.dark .recharts-default-tooltip {
+  background-color: #1f2937 !important;
+  border: 1px solid #4b5563 !important;
+}
+
+/* Grid de gráficos */
+.dark .recharts-cartesian-grid-horizontal line,
+.dark .recharts-cartesian-grid-vertical line {
+  stroke: #374151 !important;
+  opacity: 0.5;
+}
+
+/* ===========================================
+   PRESENTATION SHELLS FOR SIDEBAR SECTIONS
+   =========================================== */
+
+@keyframes themedViewFloat {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(0, -18px, 0) scale(1.04);
+  }
+}
+
+@keyframes themedViewPulse {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes themedViewReveal {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.themed-view-shell {
+  position: relative;
+  min-height: 100%;
+  padding: 24px;
+  overflow: hidden;
+}
+
+.themed-view-shell > * {
+  position: relative;
+  z-index: 1;
+}
+
+.themed-view-shell__orb {
+  position: absolute;
+  inset: auto;
+  pointer-events: none;
+  border-radius: 9999px;
+  filter: blur(14px);
+  opacity: 0.7;
+  animation: themedViewFloat 16s ease-in-out infinite;
+  z-index: 0;
+}
+
+.themed-view-shell__orb--one {
+  width: 280px;
+  height: 280px;
+  top: 18px;
+  right: -80px;
+}
+
+.themed-view-shell__orb--two {
+  width: 220px;
+  height: 220px;
+  bottom: 90px;
+  left: -60px;
+  animation-duration: 20s;
+}
+
+.themed-view-hero,
+.themed-view-panel,
+.themed-view-stat {
+  animation: themedViewReveal 0.45s ease-out both;
+}
+
+.themed-view-hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 28px;
+  border-radius: 32px;
+  border: 1px solid transparent;
+  box-shadow: 0 24px 64px rgba(15, 23, 42, 0.12);
+  overflow: hidden;
+}
+
+.themed-view-hero__content {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 780px;
+}
+
+.themed-view-hero__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.themed-view-hero__title {
+  font-size: clamp(1.85rem, 3vw, 2.7rem);
+  line-height: 1.05;
+  font-weight: 800;
+  margin: 0;
+}
+
+.themed-view-hero__description {
+  max-width: 62ch;
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.65;
+}
+
+.themed-view-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  min-width: 240px;
+}
+
+.themed-view-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.themed-view-stat {
+  position: relative;
+  padding: 20px;
+  border-radius: 24px;
+  border: 1px solid transparent;
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.08);
+  overflow: hidden;
+}
+
+.themed-view-stat__icon {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  margin-bottom: 16px;
+}
+
+.themed-view-stat__label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.themed-view-stat__value {
+  font-size: clamp(1.25rem, 2vw, 2rem);
+  line-height: 1.1;
+  font-weight: 800;
+  margin: 0;
+}
+
+.themed-view-stat__helper {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.themed-view-content {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.themed-view-panel {
+  position: relative;
+  border-radius: 28px;
+  border: 1px solid transparent;
+  box-shadow: 0 22px 48px rgba(15, 23, 42, 0.1);
+  overflow: hidden;
+}
+
+.themed-view-panel > * {
+  position: relative;
+  z-index: 1;
+}
+
+.view-mikrosystem .themed-view-shell {
+  background:
+    radial-gradient(circle at top right, rgba(59, 130, 246, 0.22), transparent 28%),
+    linear-gradient(180deg, rgba(239, 246, 255, 0.95), rgba(248, 250, 252, 0.98));
+}
+
+.dark.view-mikrosystem .themed-view-shell {
+  background:
+    radial-gradient(circle at top right, rgba(59, 130, 246, 0.22), transparent 26%),
+    linear-gradient(180deg, rgba(8, 15, 31, 0.96), rgba(12, 22, 40, 0.98));
+}
+
+.view-mikrosystem .themed-view-shell__orb--one {
+  background: rgba(59, 130, 246, 0.18);
+}
+
+.view-mikrosystem .themed-view-shell__orb--two {
+  background: rgba(56, 189, 248, 0.16);
+}
+
+.dark.view-mikrosystem .themed-view-shell__orb--one {
+  background: rgba(37, 99, 235, 0.22);
+}
+
+.dark.view-mikrosystem .themed-view-shell__orb--two {
+  background: rgba(14, 165, 233, 0.16);
+}
+
+.view-mikrosystem .themed-view-hero {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(219, 234, 254, 0.86)),
+    linear-gradient(120deg, rgba(59, 130, 246, 0.12), transparent 58%);
+  border-color: rgba(59, 130, 246, 0.2);
+}
+
+.view-mikrosystem .themed-view-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, transparent, rgba(96, 165, 250, 0.14), transparent);
+  transform: translateX(-100%);
+  animation: themedViewPulse 7s ease-in-out infinite;
+}
+
+.dark.view-mikrosystem .themed-view-hero {
+  background:
+    linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(30, 64, 175, 0.36)),
+    linear-gradient(120deg, rgba(30, 64, 175, 0.28), transparent 62%);
+  border-color: rgba(96, 165, 250, 0.24);
+}
+
+.view-mikrosystem .themed-view-hero__eyebrow {
+  background: rgba(37, 99, 235, 0.12);
+  color: #1d4ed8;
+}
+
+.dark.view-mikrosystem .themed-view-hero__eyebrow {
+  background: rgba(59, 130, 246, 0.18);
+  color: #bfdbfe;
+}
+
+.view-mikrosystem .themed-view-hero__title {
+  color: #0f172a;
+}
+
+.view-mikrosystem .themed-view-hero__description {
+  color: #334155;
+}
+
+.dark.view-mikrosystem .themed-view-hero__title {
+  color: #eff6ff;
+}
+
+.dark.view-mikrosystem .themed-view-hero__description {
+  color: #cbd5e1;
+}
+
+.view-mikrosystem .themed-view-stat,
+.view-mikrosystem .themed-view-panel {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(239, 246, 255, 0.82));
+  border-color: rgba(59, 130, 246, 0.14);
+}
+
+.dark.view-mikrosystem .themed-view-stat,
+.dark.view-mikrosystem .themed-view-panel {
+  background:
+    linear-gradient(180deg, rgba(15, 23, 42, 0.88), rgba(12, 22, 40, 0.95));
+  border-color: rgba(96, 165, 250, 0.2);
+}
+
+.view-mikrosystem .themed-view-stat__icon {
+  background: rgba(59, 130, 246, 0.12);
+  color: #1d4ed8;
+}
+
+.dark.view-mikrosystem .themed-view-stat__icon {
+  background: rgba(59, 130, 246, 0.18);
+  color: #dbeafe;
+}
+
+.view-mikrosystem .themed-view-stat__label {
+  color: #475569;
+}
+
+.view-mikrosystem .themed-view-stat__value {
+  color: #0f172a;
+}
+
+.view-mikrosystem .themed-view-stat__helper {
+  color: #64748b;
+}
+
+.dark.view-mikrosystem .themed-view-stat__label {
+  color: #93c5fd;
+}
+
+.dark.view-mikrosystem .themed-view-stat__value {
+  color: #f8fafc;
+}
+
+.dark.view-mikrosystem .themed-view-stat__helper {
+  color: #cbd5e1;
+}
+
+.view-wisphub .themed-view-shell {
+  background:
+    radial-gradient(circle at 8% 12%, rgba(16, 185, 129, 0.18), transparent 28%),
+    linear-gradient(180deg, rgba(240, 253, 244, 0.98), rgba(248, 250, 252, 0.98));
+}
+
+.dark.view-wisphub .themed-view-shell {
+  background:
+    radial-gradient(circle at 8% 12%, rgba(16, 185, 129, 0.12), transparent 26%),
+    linear-gradient(180deg, rgba(12, 20, 18, 0.98), rgba(15, 23, 21, 0.98));
+}
+
+.view-wisphub .themed-view-shell__orb--one {
+  background: rgba(34, 197, 94, 0.18);
+}
+
+.view-wisphub .themed-view-shell__orb--two {
+  background: rgba(16, 185, 129, 0.14);
+}
+
+.dark.view-wisphub .themed-view-shell__orb--one {
+  background: rgba(34, 197, 94, 0.14);
+}
+
+.dark.view-wisphub .themed-view-shell__orb--two {
+  background: rgba(16, 185, 129, 0.12);
+}
+
+.view-wisphub .themed-view-hero {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(220, 252, 231, 0.88)),
+    radial-gradient(circle at top right, rgba(16, 185, 129, 0.14), transparent 32%);
+  border-color: rgba(16, 185, 129, 0.16);
+}
+
+.view-wisphub .themed-view-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(16, 185, 129, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16, 185, 129, 0.08) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.9), transparent);
+}
+
+.dark.view-wisphub .themed-view-hero {
+  background:
+    linear-gradient(135deg, rgba(13, 30, 24, 0.92), rgba(17, 94, 89, 0.26)),
+    radial-gradient(circle at top right, rgba(16, 185, 129, 0.14), transparent 32%);
+  border-color: rgba(74, 222, 128, 0.22);
+}
+
+.view-wisphub .themed-view-hero__eyebrow {
+  background: rgba(22, 163, 74, 0.12);
+  color: #15803d;
+}
+
+.dark.view-wisphub .themed-view-hero__eyebrow {
+  background: rgba(22, 163, 74, 0.18);
+  color: #bbf7d0;
+}
+
+.view-wisphub .themed-view-hero__title {
+  color: #14532d;
+}
+
+.view-wisphub .themed-view-hero__description {
+  color: #355047;
+}
+
+.dark.view-wisphub .themed-view-hero__title {
+  color: #ecfdf5;
+}
+
+.dark.view-wisphub .themed-view-hero__description {
+  color: #cce8de;
+}
+
+.view-wisphub .themed-view-stat,
+.view-wisphub .themed-view-panel {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(240, 253, 244, 0.86));
+  border-color: rgba(16, 185, 129, 0.16);
+}
+
+.dark.view-wisphub .themed-view-stat,
+.dark.view-wisphub .themed-view-panel {
+  background:
+    linear-gradient(180deg, rgba(15, 23, 21, 0.92), rgba(12, 20, 18, 0.96));
+  border-color: rgba(74, 222, 128, 0.18);
+}
+
+.view-wisphub .themed-view-stat__icon {
+  background: rgba(22, 163, 74, 0.12);
+  color: #166534;
+}
+
+.dark.view-wisphub .themed-view-stat__icon {
+  background: rgba(22, 163, 74, 0.18);
+  color: #dcfce7;
+}
+
+.view-wisphub .themed-view-stat__label {
+  color: #4d6b60;
+}
+
+.view-wisphub .themed-view-stat__value {
+  color: #14532d;
+}
+
+.view-wisphub .themed-view-stat__helper {
+  color: #5f7a70;
+}
+
+.dark.view-wisphub .themed-view-stat__label {
+  color: #86efac;
+}
+
+.dark.view-wisphub .themed-view-stat__value {
+  color: #f0fdf4;
+}
+
+.dark.view-wisphub .themed-view-stat__helper {
+  color: #cce8de;
+}
+
+.themed-view-stat--success .themed-view-stat__icon {
+  background: rgba(34, 197, 94, 0.12);
+  color: #15803d;
+}
+
+.themed-view-stat--warning .themed-view-stat__icon {
+  background: rgba(245, 158, 11, 0.14);
+  color: #b45309;
+}
+
+.themed-view-stat--danger .themed-view-stat__icon {
+  background: rgba(239, 68, 68, 0.14);
+  color: #b91c1c;
+}
+
+.themed-view-stat--neutral .themed-view-stat__icon {
+  background: rgba(100, 116, 139, 0.14);
+  color: #475569;
+}
+
+.dark .themed-view-stat--success .themed-view-stat__icon {
+  color: #bbf7d0;
+}
+
+.dark .themed-view-stat--warning .themed-view-stat__icon {
+  color: #fde68a;
+}
+
+.dark .themed-view-stat--danger .themed-view-stat__icon {
+  color: #fecaca;
+}
+
+.dark .themed-view-stat--neutral .themed-view-stat__icon {
+  color: #e2e8f0;
+}
+
+@media (max-width: 1024px) {
+  .themed-view-shell {
+    padding: 18px;
+  }
+
+  .themed-view-hero {
+    flex-direction: column;
+    padding: 24px;
+  }
+
+  .themed-view-hero__actions {
+    justify-content: flex-start;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .themed-view-shell {
+    padding: 14px;
+  }
+
+  .themed-view-hero,
+  .themed-view-panel,
+  .themed-view-stat {
+    border-radius: 22px;
+  }
+
+  .themed-view-hero {
+    padding: 20px;
+  }
+
+  .themed-view-stats {
+    grid-template-columns: 1fr;
+  }
+}

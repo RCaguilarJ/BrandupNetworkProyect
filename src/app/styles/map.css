@@ -1,0 +1,173 @@
+/* Estilos para el mapa de Leaflet */
+
+/* Controles del mapa en tema oscuro */
+.dark .leaflet-control-zoom a,
+.dark .leaflet-control-attribution {
+  background-color: rgb(31, 41, 55) !important;
+  color: rgb(229, 231, 235) !important;
+  border-color: rgb(55, 65, 81) !important;
+}
+
+.dark .leaflet-control-zoom a:hover {
+  background-color: rgb(55, 65, 81) !important;
+}
+
+.dark .leaflet-control-attribution a {
+  color: rgb(147, 197, 253) !important;
+}
+
+/* Popups del mapa */
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  background-color: white !important;
+  color: #111827 !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+.dark .leaflet-popup-content-wrapper,
+.dark .leaflet-popup-tip {
+  background-color: rgb(31, 41, 55) !important;
+  color: rgb(243, 244, 246) !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Forzar colores en contenido del popup para tema oscuro */
+.dark .leaflet-popup-content h3 {
+  color: rgb(243, 244, 246) !important;
+}
+
+.dark .leaflet-popup-content span {
+  color: rgb(156, 163, 175) !important;
+}
+
+.dark .leaflet-popup-content svg {
+  color: rgb(156, 163, 175) !important;
+}
+
+.dark .leaflet-popup-content div[style*="border-top"] {
+  border-top-color: rgb(55, 65, 81) !important;
+}
+
+.dark .leaflet-popup-close-button {
+  color: rgb(156, 163, 175) !important;
+}
+
+.dark .leaflet-popup-close-button:hover {
+  color: rgb(243, 244, 246) !important;
+}
+
+/* Contenedor del mapa */
+.leaflet-container {
+  background-color: #f3f4f6 !important;
+  font-family: inherit !important;
+}
+
+.dark .leaflet-container {
+  background-color: rgb(17, 24, 39) !important;
+}
+
+/* Tiles del mapa en tema oscuro */
+.dark .leaflet-tile-pane {
+  filter: brightness(0.7) invert(1) contrast(1.1) hue-rotate(200deg) saturate(0.5);
+}
+
+/* Marcadores personalizados */
+.custom-marker {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Estilos para los elementos dentro del popup */
+.popup-container {
+  padding: 8px;
+  min-width: 200px;
+}
+
+.popup-title {
+  font-weight: 600;
+  margin-bottom: 12px;
+  font-size: 16px;
+  color: #111827;
+}
+
+.dark .popup-title {
+  color: rgb(243, 244, 246) !important;
+}
+
+.popup-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.popup-info-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.dark .popup-info-item {
+  color: rgb(156, 163, 175) !important;
+}
+
+.popup-info-item svg {
+  flex-shrink: 0;
+}
+
+.popup-info-item span {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.dark .popup-info-item span {
+  color: rgb(156, 163, 175) !important;
+}
+
+.popup-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 8px;
+  border-top: 1px solid #e5e7eb;
+  margin-top: 8px;
+}
+
+.dark .popup-footer {
+  border-top-color: rgb(55, 65, 81) !important;
+}
+
+.popup-status-badge {
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.popup-button {
+  padding: 4px 12px;
+  background: #3b82f6;
+  color: white !important;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.popup-button:hover {
+  background: #2563eb;
+}
+
+.dark .popup-button {
+  background: #3b82f6 !important;
+  color: white !important;
+}
+
+.dark .popup-button:hover {
+  background: #60a5fa !important;
+}

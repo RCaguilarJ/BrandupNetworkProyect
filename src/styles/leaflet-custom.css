@@ -1,0 +1,76 @@
+/* Estilos personalizados para el mapa de Leaflet */
+
+/* Ocultar la clase custom-marker por defecto ya que usamos HTML personalizado */
+.custom-marker {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Ajustar popups en modo oscuro */
+.dark .leaflet-popup-content-wrapper {
+  background-color: #1f2937;
+  color: #f9fafb;
+}
+
+.dark .leaflet-popup-tip {
+  background-color: #1f2937;
+}
+
+.dark .leaflet-popup-content {
+  color: #f9fafb;
+}
+
+/* Ajustar controles del mapa en modo oscuro */
+.dark .leaflet-control-zoom a,
+.dark .leaflet-control-layers-toggle {
+  background-color: #1f2937;
+  color: #f9fafb;
+  border-color: #374151;
+}
+
+.dark .leaflet-control-zoom a:hover,
+.dark .leaflet-control-layers-toggle:hover {
+  background-color: #374151;
+}
+
+/* Ajustar atribución en modo oscuro */
+.dark .leaflet-control-attribution {
+  background-color: rgba(31, 41, 55, 0.8);
+  color: #d1d5db;
+}
+
+.dark .leaflet-control-attribution a {
+  color: #93c5fd;
+}
+
+/* Mejorar apariencia de los controles */
+.leaflet-control-zoom,
+.leaflet-control-layers {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Transiciones suaves para los marcadores */
+.leaflet-marker-icon {
+  transition: transform 0.2s ease;
+}
+
+.leaflet-marker-icon:hover {
+  transform: scale(1.1);
+  z-index: 1000 !important;
+}
+
+/* Estilos para popups */
+.leaflet-popup-content {
+  margin: 0;
+  padding: 0;
+}
+
+.leaflet-popup {
+  margin-bottom: 40px;
+}
+
+/* Sombra para popups */
+.leaflet-popup-content-wrapper {
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
