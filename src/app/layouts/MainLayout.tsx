@@ -187,8 +187,8 @@ const navigationItems: NavItem[] = [
         roles: ["super_admin", "isp_admin", "soporte"],
       },
       {
-        name: "Tickets Vencidos",
-        path: "/tickets/overdue",
+        name: "Tickets en Proceso",
+        path: "/tickets/in-progress",
         icon: <Clock className="w-4 h-4" />,
         roles: ["super_admin", "isp_admin", "soporte"],
       },

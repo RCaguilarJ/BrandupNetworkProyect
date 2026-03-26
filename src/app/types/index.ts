@@ -671,3 +671,157 @@ export interface WispHubListaPagosPendientesDatos {
     totalSeleccionados: number;
   };
 }
+
+export interface WispHubListaTicketsBoton {
+  id: string;
+  etiqueta: string;
+  icono:
+    | 'copiar'
+    | 'documento'
+    | 'tabla'
+    | 'ojo'
+    | 'cliente'
+    | 'usuarios'
+    | 'lista'
+    | 'ubicacion'
+    | 'ia';
+  color: 'verde' | 'azul' | 'cian' | 'morado';
+  variante: 'selector' | 'icono' | 'menu' | 'boton';
+}
+
+export interface WispHubListaTicketsColumna {
+  clave:
+    | 'accion'
+    | 'numeroTicket'
+    | 'cliente'
+    | 'asunto'
+    | 'abierto'
+    | 'estado'
+    | 'prioridad'
+    | 'numeroIp'
+    | 'ticketCerrado'
+    | 'ticketIniciado'
+    | 'duracionTicket';
+  titulo: string;
+  placeholderFiltro: string;
+}
+
+export interface WispHubListaTicketsFila {
+  id: string;
+  accion: string;
+  numeroTicket: string;
+  cliente: string;
+  asunto: string;
+  abierto: string;
+  estado: string;
+  prioridad: string;
+  numeroIp: string;
+  ticketCerrado: string;
+  ticketIniciado: string;
+  duracionTicket: string;
+}
+
+export interface WispHubListaTicketsDatos {
+  tituloPagina: string;
+  filtros: {
+    desde: string;
+    hasta: string;
+    vistaSeleccionada: string;
+    opcionesVista: WispHubListaClientesOpcion[];
+    botonTexto: string;
+  };
+  buscadorCliente: {
+    placeholder: string;
+    botonTexto: string;
+  };
+  accionMasiva: {
+    placeholder: string;
+    botonTexto: string;
+  };
+  tabla: {
+    selectorRegistrosLabel: string;
+    placeholderBusquedaGeneral: string;
+    botonesExportacion: WispHubListaTicketsBoton[];
+    botonesAccion: WispHubListaTicketsBoton[];
+    columnas: WispHubListaTicketsColumna[];
+    filas: WispHubListaTicketsFila[];
+    totalSeleccionados: number;
+  };
+}
+
+export interface MikrosystemListaTicketsAccion {
+  id: string;
+  etiqueta: string;
+  icono: 'lista' | 'nuevo' | 'refrescar';
+  variante: 'icono' | 'boton';
+}
+
+export interface MikrosystemListaTicketsColumna {
+  clave:
+    | 'numero'
+    | 'departamento'
+    | 'remitente'
+    | 'asunto'
+    | 'tecnico'
+    | 'fecha'
+    | 'ubicacion'
+    | 'abiertoPor'
+    | 'ultimaRespuesta';
+  titulo: string;
+  placeholderFiltro: string;
+}
+
+export interface MikrosystemListaTicketsFila {
+  id: string;
+  numero: string;
+  departamento: string;
+  remitente: string;
+  asunto: string;
+  tecnico: string;
+  fecha: string;
+  ubicacion: string;
+  abiertoPor: string;
+  ultimaRespuesta: string;
+}
+
+export interface MikrosystemListaTicketsDatos {
+  tituloPagina: string;
+  tituloPanel: string;
+  breadcrumb: {
+    inicio: string;
+    modulo: string;
+  };
+  accionesRapidas: MikrosystemListaTicketsAccion[];
+  filtros: {
+    estado: string;
+    departamento: string;
+    opcionesEstado: WispHubListaClientesOpcion[];
+    opcionesDepartamento: WispHubListaClientesOpcion[];
+  };
+  tabla: {
+    placeholderBusquedaGeneral: string;
+    tamanoPagina: number;
+    paginaActual: number;
+    total: number;
+    columnas: MikrosystemListaTicketsColumna[];
+    filas: MikrosystemListaTicketsFila[];
+  };
+}
+
+export interface WispHubTicketsFinalizadosDatos
+  extends WispHubListaTicketsDatos {}
+
+export interface MikrosystemTicketsFinalizadosDatos
+  extends MikrosystemListaTicketsDatos {}
+
+export interface WispHubTicketsEnProcesoDatos
+  extends WispHubListaTicketsDatos {}
+
+export interface MikrosystemTicketsEnProcesoDatos
+  extends MikrosystemListaTicketsDatos {}
+
+export interface WispHubTicketsHoyDatos
+  extends WispHubListaTicketsDatos {}
+
+export interface MikrosystemTicketsHoyDatos
+  extends MikrosystemListaTicketsDatos {}

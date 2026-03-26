@@ -763,3 +763,839 @@ interface WispHubListaPagosPendientesDatos {
 - Si cambia una clave del contrato `WispHubListaPagosPendientesDatos`, actualizar `src/app/types/index.ts`, `src/app/pages/billing/PendingInvoices.tsx` y este README en el mismo cambio.
 - La referencia recibida para WispHub solo define layout y estilo, no contenido inicial.
 - La variante Mikrosystem de `PendingInvoices` se conserva como está actualmente hasta que se indique otro rediseño.
+
+## Lista de Tickets WispHub
+
+Archivos clave del rediseño:
+
+- `src/app/pages/Tickets.tsx`
+- `src/app/types/index.ts`
+
+La variante WispHub del listado de tickets ahora se rige por `WispHubListaTicketsDatos`. La captura de referencia define únicamente estructura visual, distribución y controles. La tabla debe permanecer vacía mientras no existan tickets reales.
+
+### Contrato esperado para backend
+
+```ts
+interface WispHubListaTicketsDatos {
+  tituloPagina: string;
+  filtros: {
+    desde: string;
+    hasta: string;
+    vistaSeleccionada: string;
+    opcionesVista: Array<{
+      valor: string;
+      etiqueta: string;
+    }>;
+    botonTexto: string;
+  };
+  buscadorCliente: {
+    placeholder: string;
+    botonTexto: string;
+  };
+  accionMasiva: {
+    placeholder: string;
+    botonTexto: string;
+  };
+  tabla: {
+    selectorRegistrosLabel: string;
+    placeholderBusquedaGeneral: string;
+    botonesExportacion: Array<{
+      id: string;
+      etiqueta: string;
+      icono:
+        | 'copiar'
+        | 'documento'
+        | 'tabla'
+        | 'ojo'
+        | 'cliente'
+        | 'usuarios'
+        | 'lista'
+        | 'ubicacion'
+        | 'ia';
+      color: 'verde' | 'azul' | 'cian' | 'morado';
+      variante: 'selector' | 'icono' | 'menu' | 'boton';
+    }>;
+    botonesAccion: Array<{
+      id: string;
+      etiqueta: string;
+      icono:
+        | 'copiar'
+        | 'documento'
+        | 'tabla'
+        | 'ojo'
+        | 'cliente'
+        | 'usuarios'
+        | 'lista'
+        | 'ubicacion'
+        | 'ia';
+      color: 'verde' | 'azul' | 'cian' | 'morado';
+      variante: 'selector' | 'icono' | 'menu' | 'boton';
+    }>;
+    columnas: Array<{
+      clave:
+        | 'accion'
+        | 'numeroTicket'
+        | 'cliente'
+        | 'asunto'
+        | 'abierto'
+        | 'estado'
+        | 'prioridad'
+        | 'numeroIp'
+        | 'ticketCerrado'
+        | 'ticketIniciado'
+        | 'duracionTicket';
+      titulo: string;
+      placeholderFiltro: string;
+    }>;
+    filas: Array<{
+      id: string;
+      accion: string;
+      numeroTicket: string;
+      cliente: string;
+      asunto: string;
+      abierto: string;
+      estado: string;
+      prioridad: string;
+      numeroIp: string;
+      ticketCerrado: string;
+      ticketIniciado: string;
+      duracionTicket: string;
+    }>;
+    totalSeleccionados: number;
+  };
+}
+```
+
+### Mapeo visual por bloque
+
+- `tituloPagina`: encabezado principal. En la referencia actual se muestra como `Lista de Tickets`.
+- `filtros`: primera fila con fechas `Desde`, `Hasta`, selector `Ver` y botón `Filtrar`.
+- `buscadorCliente`: segunda fila con input para cliente/servicio/IP y botón `Crear Ticket`.
+- `accionMasiva`: tercera franja con selector de acción, botón `Ejecutar` y contador de seleccionados.
+- `tabla.selectorRegistrosLabel`: botón verde de cantidad de registros.
+- `tabla.botonesExportacion` y `tabla.botonesAccion`: toolbar superior del listado.
+- `tabla.placeholderBusquedaGeneral`: buscador superior derecho.
+- `tabla.columnas`: encabezados de tabla y placeholders de filtros.
+- `tabla.filas`: debe venir vacío cuando no haya tickets reales.
+
+### Notas de mantenimiento
+
+- Si cambia una clave del contrato `WispHubListaTicketsDatos`, actualizar `src/app/types/index.ts`, `src/app/pages/Tickets.tsx` y este README en el mismo cambio.
+- La referencia de WispHub para tickets solo define estilo y estructura; no debe usarse para sembrar filas de ejemplo.
+- Cualquier dato inicial de la tabla debe provenir del backend cuando exista integración real.
+
+## Lista de Tickets Mikrosystem
+
+Archivos clave del rediseño:
+
+- `src/app/pages/Tickets.tsx`
+- `src/app/types/index.ts`
+
+La variante Mikrosystem de tickets ahora se documenta con `MikrosystemListaTicketsDatos`. Igual que en las demás listas, la captura solo sirve de referencia visual. No se deben conservar tickets mock dentro de la tabla.
+
+### Contrato esperado para backend
+
+```ts
+interface MikrosystemListaTicketsDatos {
+  tituloPagina: string;
+  tituloPanel: string;
+  breadcrumb: {
+    inicio: string;
+    modulo: string;
+  };
+  accionesRapidas: Array<{
+    id: string;
+    etiqueta: string;
+    icono: 'lista' | 'nuevo' | 'refrescar';
+    variante: 'icono' | 'boton';
+  }>;
+  filtros: {
+    estado: string;
+    departamento: string;
+    opcionesEstado: Array<{
+      valor: string;
+      etiqueta: string;
+    }>;
+    opcionesDepartamento: Array<{
+      valor: string;
+      etiqueta: string;
+    }>;
+  };
+  tabla: {
+    placeholderBusquedaGeneral: string;
+    tamanoPagina: number;
+    paginaActual: number;
+    total: number;
+    columnas: Array<{
+      clave:
+        | 'numero'
+        | 'departamento'
+        | 'remitente'
+        | 'asunto'
+        | 'tecnico'
+        | 'fecha'
+        | 'ubicacion'
+        | 'abiertoPor'
+        | 'ultimaRespuesta';
+      titulo: string;
+      placeholderFiltro: string;
+    }>;
+    filas: Array<{
+      id: string;
+      numero: string;
+      departamento: string;
+      remitente: string;
+      asunto: string;
+      tecnico: string;
+      fecha: string;
+      ubicacion: string;
+      abiertoPor: string;
+      ultimaRespuesta: string;
+    }>;
+  };
+}
+```
+
+### Mapeo visual por bloque
+
+- `tituloPagina`: título superior fuera del panel. En la referencia se muestra como `Ticket Abiertos`.
+- `breadcrumb`: texto superior derecho `Inicio / soporte`.
+- `tituloPanel`: barra turquesa del módulo.
+- `accionesRapidas`: selector de tamaño, icono de lista y botón `Nuevo`.
+- `filtros.estado` y `filtros.departamento`: combos superiores a la izquierda.
+- `tabla.placeholderBusquedaGeneral`: campo de búsqueda superior derecho.
+- `tabla.columnas`: encabezados y placeholders de búsqueda por columna.
+- `tabla.filas`: debe llegar vacío hasta contar con tickets reales.
+- `tabla.paginaActual` y `tabla.total`: controlan el pie con paginación y resumen del listado.
+
+### Notas de mantenimiento
+
+- Si cambia una clave del contrato `MikrosystemListaTicketsDatos`, actualizar `src/app/types/index.ts`, `src/app/pages/Tickets.tsx` y este README en el mismo cambio.
+- La captura de Mikrosystem solo se usa para replicar layout, controles y estilo visual.
+- No se deben reintroducir `MOCK_TICKETS` en esta vista.
+
+## Tickets Finalizados WispHub
+
+Archivos clave del rediseño:
+
+- `src/app/pages/tickets/CompletedTickets.tsx`
+- `src/app/types/index.ts`
+
+La variante WispHub de tickets finalizados ahora se documenta con `WispHubTicketsFinalizadosDatos`. La referencia visual solo define estructura, controles y composición. La tabla debe llegar vacía mientras no existan tickets cerrados reales.
+
+### Contrato esperado para backend
+
+```ts
+interface WispHubTicketsFinalizadosDatos {
+  tituloPagina: string;
+  filtros: {
+    desde: string;
+    hasta: string;
+    vistaSeleccionada: string;
+    opcionesVista: Array<{
+      valor: string;
+      etiqueta: string;
+    }>;
+    botonTexto: string;
+  };
+  buscadorCliente: {
+    placeholder: string;
+    botonTexto: string;
+  };
+  accionMasiva: {
+    placeholder: string;
+    botonTexto: string;
+  };
+  tabla: {
+    selectorRegistrosLabel: string;
+    placeholderBusquedaGeneral: string;
+    botonesExportacion: Array<{
+      id: string;
+      etiqueta: string;
+      icono:
+        | 'copiar'
+        | 'documento'
+        | 'tabla'
+        | 'ojo'
+        | 'cliente'
+        | 'usuarios'
+        | 'lista'
+        | 'ubicacion'
+        | 'ia';
+      color: 'verde' | 'azul' | 'cian' | 'morado';
+      variante: 'selector' | 'icono' | 'menu' | 'boton';
+    }>;
+    botonesAccion: Array<{
+      id: string;
+      etiqueta: string;
+      icono:
+        | 'copiar'
+        | 'documento'
+        | 'tabla'
+        | 'ojo'
+        | 'cliente'
+        | 'usuarios'
+        | 'lista'
+        | 'ubicacion'
+        | 'ia';
+      color: 'verde' | 'azul' | 'cian' | 'morado';
+      variante: 'selector' | 'icono' | 'menu' | 'boton';
+    }>;
+    columnas: Array<{
+      clave:
+        | 'accion'
+        | 'numeroTicket'
+        | 'cliente'
+        | 'asunto'
+        | 'abierto'
+        | 'estado'
+        | 'prioridad'
+        | 'numeroIp'
+        | 'ticketCerrado'
+        | 'ticketIniciado'
+        | 'duracionTicket';
+      titulo: string;
+      placeholderFiltro: string;
+    }>;
+    filas: Array<{
+      id: string;
+      accion: string;
+      numeroTicket: string;
+      cliente: string;
+      asunto: string;
+      abierto: string;
+      estado: string;
+      prioridad: string;
+      numeroIp: string;
+      ticketCerrado: string;
+      ticketIniciado: string;
+      duracionTicket: string;
+    }>;
+    totalSeleccionados: number;
+  };
+}
+```
+
+### Mapeo visual por bloque
+
+- `filtros`: primera franja superior con fechas `Desde`, `Hasta`, selector `Ver` y botón `Filtrar`.
+- `buscadorCliente`: segunda franja con input para cliente/servicio/IP y botón `Crear Ticket`.
+- `accionMasiva`: tercera franja con selector de acción, botón `Ejecutar` y contador de seleccionados.
+- `tabla.selectorRegistrosLabel`: botón verde de registros.
+- `tabla.botonesExportacion` y `tabla.botonesAccion`: toolbar superior del listado.
+- `tabla.placeholderBusquedaGeneral`: buscador superior derecho.
+- `tabla.columnas`: encabezados y placeholders de filtros por columna.
+- `tabla.filas`: debe permanecer vacío hasta tener tickets finalizados reales.
+
+### Notas de mantenimiento
+
+- Si cambia una clave del contrato `WispHubTicketsFinalizadosDatos`, actualizar `src/app/types/index.ts`, `src/app/pages/tickets/CompletedTickets.tsx` y este README en el mismo cambio.
+- La captura de WispHub no debe usarse para sembrar registros de ejemplo.
+- Cualquier futura integración debe llenar la tabla con datos reales del backend.
+
+## Tickets Finalizados Mikrosystem
+
+Archivos clave del rediseño:
+
+- `src/app/pages/tickets/CompletedTickets.tsx`
+- `src/app/types/index.ts`
+
+La variante Mikrosystem de tickets finalizados quedó documentada con `MikrosystemTicketsFinalizadosDatos`. La captura solo marca el estilo del panel rojo, el breadcrumb y el layout de tabla. No deben mantenerse tickets mock dentro de la vista.
+
+### Contrato esperado para backend
+
+```ts
+interface MikrosystemTicketsFinalizadosDatos {
+  tituloPagina: string;
+  tituloPanel: string;
+  breadcrumb: {
+    inicio: string;
+    modulo: string;
+  };
+  accionesRapidas: Array<{
+    id: string;
+    etiqueta: string;
+    icono: 'lista' | 'nuevo' | 'refrescar';
+    variante: 'icono' | 'boton';
+  }>;
+  filtros: {
+    estado: string;
+    departamento: string;
+    opcionesEstado: Array<{
+      valor: string;
+      etiqueta: string;
+    }>;
+    opcionesDepartamento: Array<{
+      valor: string;
+      etiqueta: string;
+    }>;
+  };
+  tabla: {
+    placeholderBusquedaGeneral: string;
+    tamanoPagina: number;
+    paginaActual: number;
+    total: number;
+    columnas: Array<{
+      clave:
+        | 'numero'
+        | 'departamento'
+        | 'remitente'
+        | 'asunto'
+        | 'tecnico'
+        | 'fecha'
+        | 'ubicacion'
+        | 'abiertoPor'
+        | 'ultimaRespuesta';
+      titulo: string;
+      placeholderFiltro: string;
+    }>;
+    filas: Array<{
+      id: string;
+      numero: string;
+      departamento: string;
+      remitente: string;
+      asunto: string;
+      tecnico: string;
+      fecha: string;
+      ubicacion: string;
+      abiertoPor: string;
+      ultimaRespuesta: string;
+    }>;
+  };
+}
+```
+
+### Mapeo visual por bloque
+
+- `tituloPagina`: título superior fuera del panel. En la referencia se muestra como `Ticket Cerrados`.
+- `breadcrumb`: bloque superior derecho `Inicio / soporte`.
+- `tituloPanel`: barra roja del módulo.
+- `accionesRapidas`: selector de tamaño, icono de lista y botón `Nuevo`.
+- `filtros.estado` y `filtros.departamento`: combos superiores del listado.
+- `tabla.placeholderBusquedaGeneral`: buscador superior derecho.
+- `tabla.columnas`: encabezados y placeholders de búsqueda por columna.
+- `tabla.filas`: debe venir vacío hasta contar con tickets finalizados reales.
+- `tabla.paginaActual` y `tabla.total`: definen el pie con paginación y resumen.
+
+### Notas de mantenimiento
+
+- Si cambia una clave del contrato `MikrosystemTicketsFinalizadosDatos`, actualizar `src/app/types/index.ts`, `src/app/pages/tickets/CompletedTickets.tsx` y este README en el mismo cambio.
+- La captura de Mikrosystem se usa solo como guía visual.
+- No se deben reintroducir arreglos mock en `CompletedTickets`.
+
+## Tickets en Proceso WispHub
+
+Archivos clave del ajuste:
+
+- `src/app/layouts/MainLayout.tsx`
+- `src/app/routes.tsx`
+- `src/app/pages/tickets/OverdueTickets.tsx`
+- `src/app/types/index.ts`
+
+La antigua entrada visual de `Tickets vencidos` pasa a representar `Tickets en Proceso`. La variante WispHub se documenta con `WispHubTicketsEnProcesoDatos`. La lista debe poblarse desde backend con tickets cuyo estado operativo sea `in_progress`, filtrados según el usuario/rol que tenga sesión y la selección que aplique el flujo de revisión.
+
+### Contrato esperado para backend
+
+```ts
+interface WispHubTicketsEnProcesoDatos {
+  tituloPagina: string;
+  filtros: {
+    desde: string;
+    hasta: string;
+    vistaSeleccionada: string;
+    opcionesVista: Array<{
+      valor: string;
+      etiqueta: string;
+    }>;
+    botonTexto: string;
+  };
+  buscadorCliente: {
+    placeholder: string;
+    botonTexto: string;
+  };
+  accionMasiva: {
+    placeholder: string;
+    botonTexto: string;
+  };
+  tabla: {
+    selectorRegistrosLabel: string;
+    placeholderBusquedaGeneral: string;
+    botonesExportacion: Array<{
+      id: string;
+      etiqueta: string;
+      icono:
+        | 'copiar'
+        | 'documento'
+        | 'tabla'
+        | 'ojo'
+        | 'cliente'
+        | 'usuarios'
+        | 'lista'
+        | 'ubicacion'
+        | 'ia';
+      color: 'verde' | 'azul' | 'cian' | 'morado';
+      variante: 'selector' | 'icono' | 'menu' | 'boton';
+    }>;
+    botonesAccion: Array<{
+      id: string;
+      etiqueta: string;
+      icono:
+        | 'copiar'
+        | 'documento'
+        | 'tabla'
+        | 'ojo'
+        | 'cliente'
+        | 'usuarios'
+        | 'lista'
+        | 'ubicacion'
+        | 'ia';
+      color: 'verde' | 'azul' | 'cian' | 'morado';
+      variante: 'selector' | 'icono' | 'menu' | 'boton';
+    }>;
+    columnas: Array<{
+      clave:
+        | 'accion'
+        | 'numeroTicket'
+        | 'cliente'
+        | 'asunto'
+        | 'abierto'
+        | 'estado'
+        | 'prioridad'
+        | 'numeroIp'
+        | 'ticketCerrado'
+        | 'ticketIniciado'
+        | 'duracionTicket';
+      titulo: string;
+      placeholderFiltro: string;
+    }>;
+    filas: Array<{
+      id: string;
+      accion: string;
+      numeroTicket: string;
+      cliente: string;
+      asunto: string;
+      abierto: string;
+      estado: string;
+      prioridad: string;
+      numeroIp: string;
+      ticketCerrado: string;
+      ticketIniciado: string;
+      duracionTicket: string;
+    }>;
+    totalSeleccionados: number;
+  };
+}
+```
+
+### Mapeo visual por bloque
+
+- `tituloPagina`: encabezado principal. En esta variante se muestra como `Tickets en Proceso`.
+- `filtros`: primera franja con rango de fechas, selector `Ver` y botón `Filtrar`.
+- `buscadorCliente`: segunda franja con búsqueda por cliente/servicio/IP y botón `Crear Ticket`.
+- `accionMasiva`: selector de acción con botón `Ejecutar`.
+- `tabla.selectorRegistrosLabel`: botón verde de registros.
+- `tabla.botonesExportacion` y `tabla.botonesAccion`: toolbar superior del listado.
+- `tabla.filas`: debe alimentarse desde backend con tickets en revisión/en progreso; mientras no exista integración real debe permanecer vacío.
+
+### Notas de mantenimiento
+
+- Si cambia una clave del contrato `WispHubTicketsEnProcesoDatos`, actualizar `src/app/types/index.ts`, `src/app/pages/tickets/OverdueTickets.tsx` y este README en el mismo cambio.
+- La ruta canónica de la vista es `/tickets/in-progress`.
+- `/tickets/overdue` se conserva solo como redirección de compatibilidad.
+- No se deben volver a usar `MOCK_TICKETS` para esta pantalla.
+
+## Tickets en Proceso Mikrosystem
+
+Archivos clave del ajuste:
+
+- `src/app/layouts/MainLayout.tsx`
+- `src/app/routes.tsx`
+- `src/app/pages/tickets/OverdueTickets.tsx`
+- `src/app/types/index.ts`
+
+La variante Mikrosystem para esta misma vista se documenta con `MikrosystemTicketsEnProcesoDatos`. Debe recibir desde backend únicamente tickets que ya fueron puestos en revisión o trabajo activo (`status === 'in_progress'`), con el filtro correspondiente al usuario que los haya seleccionado o tenga permiso para verlos.
+
+### Contrato esperado para backend
+
+```ts
+interface MikrosystemTicketsEnProcesoDatos {
+  tituloPagina: string;
+  tituloPanel: string;
+  breadcrumb: {
+    inicio: string;
+    modulo: string;
+  };
+  accionesRapidas: Array<{
+    id: string;
+    etiqueta: string;
+    icono: 'lista' | 'nuevo' | 'refrescar';
+    variante: 'icono' | 'boton';
+  }>;
+  filtros: {
+    estado: string;
+    departamento: string;
+    opcionesEstado: Array<{
+      valor: string;
+      etiqueta: string;
+    }>;
+    opcionesDepartamento: Array<{
+      valor: string;
+      etiqueta: string;
+    }>;
+  };
+  tabla: {
+    placeholderBusquedaGeneral: string;
+    tamanoPagina: number;
+    paginaActual: number;
+    total: number;
+    columnas: Array<{
+      clave:
+        | 'numero'
+        | 'departamento'
+        | 'remitente'
+        | 'asunto'
+        | 'tecnico'
+        | 'fecha'
+        | 'ubicacion'
+        | 'abiertoPor'
+        | 'ultimaRespuesta';
+      titulo: string;
+      placeholderFiltro: string;
+    }>;
+    filas: Array<{
+      id: string;
+      numero: string;
+      departamento: string;
+      remitente: string;
+      asunto: string;
+      tecnico: string;
+      fecha: string;
+      ubicacion: string;
+      abiertoPor: string;
+      ultimaRespuesta: string;
+    }>;
+  };
+}
+```
+
+### Mapeo visual por bloque
+
+- `tituloPagina`: título superior fuera del panel. En esta variante se muestra como `Ticket en Proceso`.
+- `breadcrumb`: bloque superior derecho `Inicio / soporte`.
+- `tituloPanel`: barra ámbar del módulo.
+- `accionesRapidas`: selector de tamaño, icono de lista y botón `Nuevo`.
+- `filtros.estado` y `filtros.departamento`: combos superiores del listado.
+- `tabla.placeholderBusquedaGeneral`: buscador superior derecho.
+- `tabla.columnas`: encabezados y filtros por columna.
+- `tabla.filas`: debe llegar desde backend con tickets en progreso del contexto del usuario; mientras no exista integración real debe permanecer vacío.
+
+### Notas de mantenimiento
+
+- Si cambia una clave del contrato `MikrosystemTicketsEnProcesoDatos`, actualizar `src/app/types/index.ts`, `src/app/pages/tickets/OverdueTickets.tsx` y este README en el mismo cambio.
+- El nombre visual en menú y pantalla debe mantenerse como `Tickets en Proceso`.
+- La ruta canónica es `/tickets/in-progress` y la ruta anterior queda solo como alias de compatibilidad.
+- No se deben reintroducir arreglos mock en `OverdueTickets`.
+
+## Tickets de Hoy WispHub
+
+Archivos clave del ajuste:
+
+- `src/app/pages/tickets/TodayTickets.tsx`
+- `src/app/types/index.ts`
+
+La variante WispHub de `Tickets de Hoy` ahora se documenta con `WispHubTicketsHoyDatos`. Igual que en las otras listas de tickets, la tabla queda vacía hasta recibir tickets reales desde backend y el toolbar se redujo a botones no duplicados para mantener consistencia visual.
+
+### Contrato esperado para backend
+
+```ts
+interface WispHubTicketsHoyDatos {
+  tituloPagina: string;
+  filtros: {
+    desde: string;
+    hasta: string;
+    vistaSeleccionada: string;
+    opcionesVista: Array<{
+      valor: string;
+      etiqueta: string;
+    }>;
+    botonTexto: string;
+  };
+  buscadorCliente: {
+    placeholder: string;
+    botonTexto: string;
+  };
+  accionMasiva: {
+    placeholder: string;
+    botonTexto: string;
+  };
+  tabla: {
+    selectorRegistrosLabel: string;
+    placeholderBusquedaGeneral: string;
+    botonesExportacion: Array<{
+      id: string;
+      etiqueta: string;
+      icono:
+        | 'copiar'
+        | 'documento'
+        | 'tabla'
+        | 'ojo'
+        | 'cliente'
+        | 'usuarios'
+        | 'lista'
+        | 'ubicacion'
+        | 'ia';
+      color: 'verde' | 'azul' | 'cian' | 'morado';
+      variante: 'selector' | 'icono' | 'menu' | 'boton';
+    }>;
+    botonesAccion: Array<{
+      id: string;
+      etiqueta: string;
+      icono:
+        | 'copiar'
+        | 'documento'
+        | 'tabla'
+        | 'ojo'
+        | 'cliente'
+        | 'usuarios'
+        | 'lista'
+        | 'ubicacion'
+        | 'ia';
+      color: 'verde' | 'azul' | 'cian' | 'morado';
+      variante: 'selector' | 'icono' | 'menu' | 'boton';
+    }>;
+    columnas: Array<{
+      clave:
+        | 'accion'
+        | 'numeroTicket'
+        | 'cliente'
+        | 'asunto'
+        | 'abierto'
+        | 'estado'
+        | 'prioridad'
+        | 'numeroIp'
+        | 'ticketCerrado'
+        | 'ticketIniciado'
+        | 'duracionTicket';
+      titulo: string;
+      placeholderFiltro: string;
+    }>;
+    filas: Array<{
+      id: string;
+      accion: string;
+      numeroTicket: string;
+      cliente: string;
+      asunto: string;
+      abierto: string;
+      estado: string;
+      prioridad: string;
+      numeroIp: string;
+      ticketCerrado: string;
+      ticketIniciado: string;
+      duracionTicket: string;
+    }>;
+    totalSeleccionados: number;
+  };
+}
+```
+
+### Mapeo visual por bloque
+
+- `tituloPagina`: encabezado principal. En esta variante se muestra como `Tickets de Hoy`.
+- `filtros`: primera fila con fechas, selector `Ver` y botón `Filtrar`.
+- `buscadorCliente`: segunda fila con búsqueda por cliente/servicio/IP y botón `Crear Ticket`.
+- `accionMasiva`: tercera fila con selector de acción y botón `Ejecutar`.
+- `tabla.botonesAccion`: toolbar superior unificado sin duplicar acciones; solo conserva accesos visuales distintos.
+- `tabla.filas`: debe llegar vacío mientras no exista integración real de tickets creados el día actual.
+
+### Notas de mantenimiento
+
+- Si cambia una clave del contrato `WispHubTicketsHoyDatos`, actualizar `src/app/types/index.ts`, `src/app/pages/tickets/TodayTickets.tsx` y este README en el mismo cambio.
+- No se deben reintroducir `mockTickets` ni `CompactTable` en esta pantalla.
+- El toolbar de acción debe mantenerse alineado con el resto de listas de tickets y sin botones repetidos.
+
+## Tickets de Hoy Mikrosystem
+
+Archivos clave del ajuste:
+
+- `src/app/pages/tickets/TodayTickets.tsx`
+- `src/app/types/index.ts`
+
+La variante Mikrosystem de `Tickets de Hoy` se documenta con `MikrosystemTicketsHoyDatos`. Sigue la misma línea gráfica de las otras vistas de tickets y queda vacía hasta recibir datos reales desde backend.
+
+### Contrato esperado para backend
+
+```ts
+interface MikrosystemTicketsHoyDatos {
+  tituloPagina: string;
+  tituloPanel: string;
+  breadcrumb: {
+    inicio: string;
+    modulo: string;
+  };
+  accionesRapidas: Array<{
+    id: string;
+    etiqueta: string;
+    icono: 'lista' | 'nuevo' | 'refrescar';
+    variante: 'icono' | 'boton';
+  }>;
+  filtros: {
+    estado: string;
+    departamento: string;
+    opcionesEstado: Array<{
+      valor: string;
+      etiqueta: string;
+    }>;
+    opcionesDepartamento: Array<{
+      valor: string;
+      etiqueta: string;
+    }>;
+  };
+  tabla: {
+    placeholderBusquedaGeneral: string;
+    tamanoPagina: number;
+    paginaActual: number;
+    total: number;
+    columnas: Array<{
+      clave:
+        | 'numero'
+        | 'departamento'
+        | 'remitente'
+        | 'asunto'
+        | 'tecnico'
+        | 'fecha'
+        | 'ubicacion'
+        | 'abiertoPor'
+        | 'ultimaRespuesta';
+      titulo: string;
+      placeholderFiltro: string;
+    }>;
+    filas: Array<{
+      id: string;
+      numero: string;
+      departamento: string;
+      remitente: string;
+      asunto: string;
+      tecnico: string;
+      fecha: string;
+      ubicacion: string;
+      abiertoPor: string;
+      ultimaRespuesta: string;
+    }>;
+  };
+}
+```
+
+### Mapeo visual por bloque
+
+- `tituloPagina`: título superior fuera del panel. En esta variante se muestra como `Ticket de Hoy`.
+- `tituloPanel`: barra turquesa del módulo.
+- `accionesRapidas`: selector de tamaño, icono de lista y botón `Nuevo`.
+- `filtros.estado` y `filtros.departamento`: filtros superiores del listado.
+- `tabla.placeholderBusquedaGeneral`: buscador superior derecho.
+- `tabla.filas`: debe llegar vacío mientras no haya tickets de hoy reales para el usuario.
+
+### Notas de mantenimiento
+
+- Si cambia una clave del contrato `MikrosystemTicketsHoyDatos`, actualizar `src/app/types/index.ts`, `src/app/pages/tickets/TodayTickets.tsx` y este README en el mismo cambio.
+- No se deben reintroducir arreglos mock en `TodayTickets`.
+- La línea gráfica y el set de acciones deben mantenerse consistentes con `Tickets`, `Tickets en Proceso` y `Tickets Finalizados`.
