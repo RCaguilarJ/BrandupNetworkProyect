@@ -42,7 +42,7 @@ export default function ClientForm() {
           phone: client.phone,
           address: client.address,
           planId: client.planId,
-          fiscalId: client.fiscalId || '',
+          fiscalId: client.fiscalId ?? '',
           status: client.status,
         });
       }

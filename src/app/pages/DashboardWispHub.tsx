@@ -1,326 +1,547 @@
-import { useAuth } from '../context/AuthContext';
-import { Card } from '../components/ui/card';
-import { 
-  DollarSign,
-  Users,
+import type { CSSProperties } from 'react';
+import { cn } from '../lib/utils';
+import type {
+  DashboardWispHubBloqueResumen,
+  DashboardWispHubDatos,
+  DashboardWispHubTarjetaResumen,
+  DashboardWispHubTarjetaTrafico,
+} from '../types';
+import {
+  CalendarDays,
+  CircleDollarSign,
+  CloudDownload,
+  CloudUpload,
+  Gauge,
+  RefreshCcw,
   Ticket,
-  Download,
-  Upload,
-  Calendar,
-  TrendingUp
+  TicketPlus,
+  Clock3,
+  UserRoundPlus,
+  Users,
 } from 'lucide-react';
 import {
-  MOCK_CLIENTS,
-  MOCK_INVOICES,
-  MOCK_TICKETS,
-} from '../data/mockData';
-import { formatCurrency } from '../lib/utils';
-import { 
-  LineChart, 
-  Line, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
+  CartesianGrid,
+  Line,
+  LineChart,
   ResponsiveContainer,
-  Legend
+  Tooltip,
+  XAxis,
+  YAxis,
 } from 'recharts';
-import { useMemo } from 'react';
+
+const fuenteWispHubClasica =
+  '"Trebuchet MS", "Segoe UI", Tahoma, Geneva, sans-serif';
+
+const estilos = {
+  pagina: {
+    minHeight: '100%',
+    backgroundColor: '#ffffff',
+    color: '#1f2f42',
+    fontFamily: fuenteWispHubClasica,
+    padding: '30px 28px 22px',
+  } satisfies CSSProperties,
+  encabezado: {
+    borderBottom: '1px solid #dde2e8',
+    paddingBottom: '22px',
+    marginBottom: '28px',
+  } satisfies CSSProperties,
+  gruposResumen: {
+    gap: '28px',
+  } satisfies CSSProperties,
+  grupoResumen: {
+    minWidth: 0,
+  } satisfies CSSProperties,
+  tarjeta: {
+    border: '1px solid #d8dee6',
+    backgroundColor: '#ffffff',
+    padding: '14px 14px 12px',
+    minHeight: '71px',
+    marginBottom: '6px',
+  } satisfies CSSProperties,
+  seccion: {
+    marginTop: '34px',
+  } satisfies CSSProperties,
+  traficoGrid: {
+    gap: '30px',
+  } satisfies CSSProperties,
+  tarjetaTrafico: {
+    border: '1px solid #d8dee6',
+    backgroundColor: '#ffffff',
+    padding: '12px 14px',
+    minHeight: '70px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: '16px',
+  } satisfies CSSProperties,
+  graficaLayout: {
+    gap: '30px',
+  } satisfies CSSProperties,
+  graficaContenedor: {
+    minHeight: '430px',
+  } satisfies CSSProperties,
+  piePagina: {
+    marginTop: '26px',
+    fontSize: '12px',
+    lineHeight: 1.7,
+    color: '#2c3b4d',
+  } satisfies CSSProperties,
+} as const;
+
+function obtenerIconoTitulo(
+  iconoTitulo: DashboardWispHubBloqueResumen['iconoTitulo'],
+) {
+  switch (iconoTitulo) {
+    case 'pagos':
+      return <CircleDollarSign className="h-6 w-6" aria-hidden="true" />;
+    case 'clientes':
+      return <Users className="h-6 w-6" aria-hidden="true" />;
+    default:
+      return <Ticket className="h-6 w-6" aria-hidden="true" />;
+  }
+}
+
+function obtenerIconoResumen(icono: DashboardWispHubTarjetaResumen['icono']) {
+  switch (icono) {
+    case 'dinero':
+      return <CircleDollarSign className="h-7 w-7" aria-hidden="true" />;
+    case 'reloj':
+      return <Clock3 className="h-7 w-7" aria-hidden="true" />;
+    case 'calendario':
+      return <CalendarDays className="h-7 w-7" aria-hidden="true" />;
+    case 'cliente_nuevo':
+      return <UserRoundPlus className="h-7 w-7" aria-hidden="true" />;
+    case 'clientes':
+      return <Users className="h-7 w-7" aria-hidden="true" />;
+    default:
+      return <TicketPlus className="h-7 w-7" aria-hidden="true" />;
+  }
+}
+
+function obtenerIconoTrafico(icono: DashboardWispHubTarjetaTrafico['icono']) {
+  if (icono === 'descarga') {
+    return <CloudDownload className="h-8 w-8" aria-hidden="true" />;
+  }
+
+  return <CloudUpload className="h-8 w-8" aria-hidden="true" />;
+}
+
+function obtenerColor(color: DashboardWispHubTarjetaResumen['color']) {
+  const colores = {
+    verde: '#43c05f',
+    naranja: '#f39a1f',
+    azul: '#00a3ff',
+    rojo: '#ff4a44',
+  } as const;
+
+  return colores[color];
+}
+
+function formatearMonedaEje(valor: number) {
+  const signo = valor < 0 ? '-' : '';
+  return `${signo}$ ${Math.abs(valor).toFixed(2)}`;
+}
+
+function construirSeriesCero() {
+  return [
+    { mes: 'Ene', ingresosInternet: 0, otrosIngresos: 0, gastos: 0 },
+    { mes: 'Feb', ingresosInternet: 0, otrosIngresos: 0, gastos: 0 },
+    { mes: 'Mar', ingresosInternet: 0, otrosIngresos: 0, gastos: 0 },
+    { mes: 'Abr', ingresosInternet: 0, otrosIngresos: 0, gastos: 0 },
+    { mes: 'May', ingresosInternet: 0, otrosIngresos: 0, gastos: 0 },
+    { mes: 'Jun', ingresosInternet: 0, otrosIngresos: 0, gastos: 0 },
+    { mes: 'Jul', ingresosInternet: 0, otrosIngresos: 0, gastos: 0 },
+    { mes: 'Ago', ingresosInternet: 0, otrosIngresos: 0, gastos: 0 },
+    { mes: 'Sep', ingresosInternet: 0, otrosIngresos: 0, gastos: 0 },
+    { mes: 'Oct', ingresosInternet: 0, otrosIngresos: 0, gastos: 0 },
+    { mes: 'Nov', ingresosInternet: 0, otrosIngresos: 0, gastos: 0 },
+    { mes: 'Dic', ingresosInternet: 0, otrosIngresos: 0, gastos: 0 },
+  ];
+}
 
 export default function DashboardWispHub() {
-  const { user } = useAuth();
-
-  // Filtrar datos según el usuario
-  const userClients = user?.role === 'super_admin' 
-    ? MOCK_CLIENTS 
-    : MOCK_CLIENTS.filter(c => c.companyId === user?.companyId);
-
-  const userInvoices = user?.role === 'super_admin'
-    ? MOCK_INVOICES
-    : MOCK_INVOICES.filter(i => i.companyId === user?.companyId);
-
-  const userTickets = user?.role === 'super_admin'
-    ? MOCK_TICKETS
-    : MOCK_TICKETS.filter(t => t.companyId === user?.companyId);
-
-  // Calcular métricas de pagos
-  const today = new Date();
-  const currentMonth = today.getMonth();
-  const currentYear = today.getFullYear();
-
-  const paymentsToday = userInvoices.filter(i => {
-    const paymentDate = new Date(i.dueDate);
-    return i.status === 'paid' && 
-           paymentDate.getDate() === today.getDate() &&
-           paymentDate.getMonth() === currentMonth &&
-           paymentDate.getFullYear() === currentYear;
-  }).reduce((sum, i) => sum + i.amount, 0);
-
-  const pendingPayments = userInvoices.filter(i => i.status === 'pending')
-    .reduce((sum, i) => sum + i.amount, 0);
-
-  const paymentsThisMonth = userInvoices.filter(i => {
-    const paymentDate = new Date(i.dueDate);
-    return i.status === 'paid' &&
-           paymentDate.getMonth() === currentMonth &&
-           paymentDate.getFullYear() === currentYear;
-  }).reduce((sum, i) => sum + i.amount, 0);
-
-  // Calcular métricas de clientes
-  const clientsToday = userClients.filter(c => {
-    const createdDate = new Date(c.address); // Mock: usar campo disponible
-    return createdDate.getDate() === today.getDate();
-  }).length;
-
-  const clientsThisMonth = userClients.filter(c => {
-    const createdDate = new Date(c.address); // Mock: usar campo disponible
-    return createdDate.getMonth() === currentMonth;
-  }).length;
-
-  const totalClients = userClients.length;
-
-  // Calcular métricas de tickets
-  const ticketsToday = userTickets.filter(t => {
-    const ticketDate = new Date(t.createdAt);
-    return ticketDate.getDate() === today.getDate() &&
-           ticketDate.getMonth() === currentMonth &&
-           ticketDate.getFullYear() === currentYear;
-  }).length;
-
-  const pendingTickets = userTickets.filter(t => 
-    t.status === 'open' || t.status === 'in_progress'
-  ).length;
-
-  const ticketsThisMonth = userTickets.filter(t => {
-    const ticketDate = new Date(t.createdAt);
-    return ticketDate.getMonth() === currentMonth &&
-           ticketDate.getFullYear() === currentYear;
-  }).length;
-
-  // Datos para gráfico de finanzas (últimos 12 meses) - Memoizados para evitar regeneración
-  const financialData = useMemo(() => {
-    const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-    return [
-      { id: 'wh-finance-0-Ene', mes: 'Ene', 'Ingresos Internet': 42000, 'Otros Ingresos': 15000, 'Gastos': 22000 },
-      { id: 'wh-finance-1-Feb', mes: 'Feb', 'Ingresos Internet': 48000, 'Otros Ingresos': 18000, 'Gastos': 25000 },
-      { id: 'wh-finance-2-Mar', mes: 'Mar', 'Ingresos Internet': 55000, 'Otros Ingresos': 20000, 'Gastos': 28000 },
-      { id: 'wh-finance-3-Abr', mes: 'Abr', 'Ingresos Internet': 52000, 'Otros Ingresos': 17000, 'Gastos': 26000 },
-      { id: 'wh-finance-4-May', mes: 'May', 'Ingresos Internet': 60000, 'Otros Ingresos': 22000, 'Gastos': 30000 },
-      { id: 'wh-finance-5-Jun', mes: 'Jun', 'Ingresos Internet': 65000, 'Otros Ingresos': 25000, 'Gastos': 32000 },
-      { id: 'wh-finance-6-Jul', mes: 'Jul', 'Ingresos Internet': 70000, 'Otros Ingresos': 28000, 'Gastos': 35000 },
-      { id: 'wh-finance-7-Ago', mes: 'Ago', 'Ingresos Internet': 68000, 'Otros Ingresos': 26000, 'Gastos': 33000 },
-      { id: 'wh-finance-8-Sep', mes: 'Sep', 'Ingresos Internet': 72000, 'Otros Ingresos': 29000, 'Gastos': 36000 },
-      { id: 'wh-finance-9-Oct', mes: 'Oct', 'Ingresos Internet': 75000, 'Otros Ingresos': 30000, 'Gastos': 38000 },
-      { id: 'wh-finance-10-Nov', mes: 'Nov', 'Ingresos Internet': 78000, 'Otros Ingresos': 32000, 'Gastos': 40000 },
-      { id: 'wh-finance-11-Dic', mes: 'Dic', 'Ingresos Internet': 82000, 'Otros Ingresos': 35000, 'Gastos': 42000 },
-    ];
-  }, []);
-
-  // Métricas de tráfico
-  const trafficDownload = '0 GiB';
-  const trafficUpload = '0 GiB';
+  // Backend: este objeto es el contrato visual del dashboard WispHub.
+  // La intencion es que el backend entregue esta misma forma para que
+  // cada bloque del dashboard quede mapeado sin logica dispersa.
+  const datosDashboardWispHub: DashboardWispHubDatos = {
+    tituloPagina: 'Dashboard',
+    bloquesResumen: [
+      {
+        clave: 'pagos',
+        titulo: 'Pagos Internet',
+        iconoTitulo: 'pagos',
+        tarjetas: [
+          {
+            id: 1,
+            icono: 'dinero',
+            valorPrincipal: '$0.00',
+            etiqueta: 'HOY - 0 PAGOS',
+            color: 'verde',
+            alineacion: 'izquierda',
+          },
+          {
+            id: 2,
+            icono: 'reloj',
+            valorPrincipal: '$0.00',
+            etiqueta: 'PENDIENTE - 0 PAGOS',
+            color: 'naranja',
+            alineacion: 'izquierda',
+          },
+          {
+            id: 3,
+            icono: 'calendario',
+            valorPrincipal: '$0.00',
+            etiqueta: 'MARZO - 0 PAGOS',
+            color: 'azul',
+            alineacion: 'izquierda',
+          },
+        ],
+      },
+      {
+        clave: 'clientes',
+        titulo: 'Clientes',
+        iconoTitulo: 'clientes',
+        tarjetas: [
+          {
+            id: 1,
+            icono: 'cliente_nuevo',
+            valorPrincipal: '0',
+            etiqueta: 'HOY',
+            color: 'verde',
+            alineacion: 'derecha',
+          },
+          {
+            id: 2,
+            icono: 'calendario',
+            valorPrincipal: '0',
+            etiqueta: 'MARZO',
+            color: 'azul',
+            alineacion: 'derecha',
+          },
+          {
+            id: 3,
+            icono: 'clientes',
+            valorPrincipal: '0',
+            etiqueta: 'TOTAL',
+            color: 'azul',
+            alineacion: 'derecha',
+          },
+        ],
+      },
+      {
+        clave: 'tickets',
+        titulo: 'Tickets',
+        iconoTitulo: 'tickets',
+        tarjetas: [
+          {
+            id: 1,
+            icono: 'ticket_nuevo',
+            valorPrincipal: '0',
+            etiqueta: 'HOY',
+            color: 'rojo',
+            alineacion: 'derecha',
+          },
+          {
+            id: 2,
+            icono: 'reloj',
+            valorPrincipal: '0',
+            etiqueta: 'PENDIENTES',
+            color: 'naranja',
+            alineacion: 'derecha',
+          },
+          {
+            id: 3,
+            icono: 'calendario',
+            valorPrincipal: '0',
+            etiqueta: 'MARZO',
+            color: 'verde',
+            alineacion: 'derecha',
+          },
+        ],
+      },
+    ],
+    trafico: {
+      fechaActualizacion: '26/03/2026 12:50',
+      tarjetas: [
+        {
+          id: 1,
+          icono: 'descarga',
+          valorPrincipal: '0 GiB',
+          etiqueta: 'TOTAL DESCARGA',
+          color: 'azul',
+        },
+        {
+          id: 2,
+          icono: 'subida',
+          valorPrincipal: '0 GiB',
+          etiqueta: 'TOTAL SUBIDA',
+          color: 'naranja',
+        },
+      ],
+    },
+    historialFinanzas: {
+      fechaActualizacion: '26/03/2026 12:50',
+      accionActualizacion: 'Actualizar Ahora',
+      titulo: 'Historial de Finanzas',
+      subtitulo: 'Finanzas 2026',
+      series: construirSeriesCero(),
+    },
+    piePagina: {
+      copyright: 'Copyright © 2026 WispHub',
+      fechaSistema: '26/03/2026 13:10 - EST -05:00',
+    },
+  };
 
   return (
-    <div className="px-4 lg:px-6 pb-4 lg:pb-6 bg-gray-50 dark:bg-gray-900">
-      {/* Header */}
-      <div className="pt-4 lg:pt-6 mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-          Panel de Control
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-1">
-          Vista general del sistema
-        </p>
+    <div style={estilos.pagina}>
+      <div style={estilos.encabezado}>
+        <div className="flex items-center gap-3">
+          <Gauge className="h-9 w-9 text-[#46bf67]" strokeWidth={2.2} />
+          <h1
+            className="text-[2.2rem] leading-none text-[#0f1f35]"
+            style={{ fontFamily: fuenteWispHubClasica, fontWeight: 600 }}
+          >
+            {datosDashboardWispHub.tituloPagina}
+          </h1>
+        </div>
       </div>
 
-      {/* Tarjetas de métricas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        {/* Pagos Internet */}
-        <Card className="p-4 border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center gap-2 mb-4">
-            <DollarSign className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-            <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Pagos Internet</h2>
-          </div>
-          <div className="grid grid-cols-3 gap-4">
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-2 mb-1">
-                <DollarSign className="w-4 h-4 text-green-600 dark:text-green-400" />
-              </div>
-              <div className="text-xl font-bold text-green-600 dark:text-green-400">
-                {formatCurrency(paymentsToday)}
-              </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">HOY - 0 PAGOS</div>
+      <div className="grid gap-7 lg:grid-cols-3" style={estilos.gruposResumen}>
+        {datosDashboardWispHub.bloquesResumen.map((bloque) => (
+          <section key={bloque.clave} style={estilos.grupoResumen}>
+            <div className="mb-3 flex items-center gap-2 text-[#17273d]">
+              <span className="text-[#17273d]">{obtenerIconoTitulo(bloque.iconoTitulo)}</span>
+              <h2
+                className="text-[1.15rem] leading-none"
+                style={{ fontFamily: fuenteWispHubClasica, fontWeight: 500 }}
+              >
+                {bloque.titulo}
+              </h2>
             </div>
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-2 mb-1">
-                <TrendingUp className="w-4 h-4 text-orange-600 dark:text-orange-400" />
-              </div>
-              <div className="text-xl font-bold text-orange-600 dark:text-orange-400">
-                {formatCurrency(pendingPayments)}
-              </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">PENDIENTE - 0 PAGOS</div>
-            </div>
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-2 mb-1">
-                <Calendar className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div className="text-xl font-bold text-blue-600 dark:text-blue-400">
-                {formatCurrency(paymentsThisMonth)}
-              </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">MARZO - 0 PAGOS</div>
-            </div>
-          </div>
-        </Card>
 
-        {/* Clientes */}
-        <Card className="p-4 border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center gap-2 mb-4">
-            <Users className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-            <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Clientes</h2>
-          </div>
-          <div className="grid grid-cols-3 gap-4">
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-2 mb-1">
-                <Users className="w-4 h-4 text-green-600 dark:text-green-400" />
-              </div>
-              <div className="text-xl font-bold text-green-600 dark:text-green-400">{clientsToday}</div>
-              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">HOY</div>
-            </div>
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-2 mb-1">
-                <Calendar className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div className="text-xl font-bold text-blue-600 dark:text-blue-400">{clientsThisMonth}</div>
-              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">MARZO</div>
-            </div>
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-2 mb-1">
-                <Users className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-              </div>
-              <div className="text-xl font-bold text-purple-600 dark:text-purple-400">{totalClients}</div>
-              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">TOTAL</div>
-            </div>
-          </div>
-        </Card>
+            {bloque.tarjetas.map((tarjeta) => {
+              const color = obtenerColor(tarjeta.color);
+              const contenidoDerecha =
+                tarjeta.alineacion === 'derecha';
 
-        {/* Tickets */}
-        <Card className="p-4 border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center gap-2 mb-4">
-            <Ticket className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-            <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Tickets</h2>
-          </div>
-          <div className="grid grid-cols-3 gap-4">
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-2 mb-1">
-                <Ticket className="w-4 h-4 text-red-600 dark:text-red-400" />
-              </div>
-              <div className="text-xl font-bold text-red-600 dark:text-red-400">{ticketsToday}</div>
-              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">HOY</div>
-            </div>
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-2 mb-1">
-                <TrendingUp className="w-4 h-4 text-orange-600 dark:text-orange-400" />
-              </div>
-              <div className="text-xl font-bold text-orange-600 dark:text-orange-400">{pendingTickets}</div>
-              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">PENDIENTES</div>
-            </div>
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-2 mb-1">
-                <Calendar className="w-4 h-4 text-green-600 dark:text-green-400" />
-              </div>
-              <div className="text-xl font-bold text-green-600 dark:text-green-400">{ticketsThisMonth}</div>
-              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">MARZO</div>
-            </div>
-          </div>
-        </Card>
-
-        {/* Tráfico */}
-        <Card className="p-4 border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center gap-2 mb-4">
-            <TrendingUp className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-            <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Tráfico</h2>
-          </div>
-          <div className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-            Última actualización: {new Date().toLocaleString('es-ES')}
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <Download className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div className="text-xl font-bold text-blue-600 dark:text-blue-400">{trafficDownload}</div>
-              <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">TOTAL DESCARGA</div>
-            </div>
-            <div className="text-center p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <Upload className="w-4 h-4 text-orange-600 dark:text-orange-400" />
-              </div>
-              <div className="text-xl font-bold text-orange-600 dark:text-orange-400">{trafficUpload}</div>
-              <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">TOTAL SUBIDA</div>
-            </div>
-          </div>
-        </Card>
+              return (
+                <article key={tarjeta.id} style={estilos.tarjeta}>
+                  <div
+                    className={cn(
+                      'flex items-center gap-3',
+                      contenidoDerecha ? 'justify-between' : 'flex-row-reverse justify-between',
+                    )}
+                  >
+                    <span style={{ color }}>
+                      {obtenerIconoResumen(tarjeta.icono)}
+                    </span>
+                    <div
+                      className={cn(
+                        'min-w-0',
+                        contenidoDerecha ? 'ml-auto text-right' : 'mr-auto text-left',
+                      )}
+                    >
+                      <div
+                        className="text-[1rem] leading-none"
+                        style={{
+                          color,
+                          fontFamily: fuenteWispHubClasica,
+                          fontWeight: 600,
+                          marginBottom: '6px',
+                        }}
+                      >
+                        {tarjeta.valorPrincipal}
+                      </div>
+                      <div
+                        className="text-[0.82rem] leading-none text-[#243244]"
+                        style={{ fontFamily: fuenteWispHubClasica }}
+                      >
+                        {tarjeta.etiqueta}
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </section>
+        ))}
       </div>
 
-      {/* Historial de Finanzas */}
-      <Card className="p-4 border border-gray-200 dark:border-gray-700">
-        <div className="mb-4">
-          <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-            Historial de Finanzas
+      <section style={estilos.seccion}>
+        <div className="mb-3 flex items-center gap-2 text-[#17273d]">
+          <RefreshCcw className="h-6 w-6" strokeWidth={2.1} />
+          <h2
+            className="text-[1.15rem] leading-none"
+            style={{ fontFamily: fuenteWispHubClasica, fontWeight: 500 }}
+          >
+            Trafico
           </h2>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            Últimos 12 meses
+        </div>
+
+        <div
+          className="mb-2 text-[11px] text-[#243244]"
+          style={{ fontFamily: fuenteWispHubClasica }}
+        >
+          Ultima actualizacion: {datosDashboardWispHub.trafico.fechaActualizacion}
+        </div>
+
+        <div className="grid gap-[30px] md:grid-cols-2" style={estilos.traficoGrid}>
+          {datosDashboardWispHub.trafico.tarjetas.map((tarjeta) => {
+            const color = tarjeta.color === 'azul' ? '#00a3ff' : '#f39a1f';
+
+            return (
+              <article key={tarjeta.id} style={estilos.tarjetaTrafico}>
+                <span style={{ color }}>
+                  {obtenerIconoTrafico(tarjeta.icono)}
+                </span>
+                <div className="text-right">
+                  <div
+                    className="text-[1rem] leading-none"
+                    style={{
+                      color,
+                      fontFamily: fuenteWispHubClasica,
+                      fontWeight: 600,
+                      marginBottom: '8px',
+                    }}
+                  >
+                    {tarjeta.valorPrincipal}
+                  </div>
+                  <div
+                    className="text-[0.82rem] leading-none text-[#243244]"
+                    style={{ fontFamily: fuenteWispHubClasica }}
+                  >
+                    {tarjeta.etiqueta}
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+
+      <section style={estilos.seccion}>
+        <div
+          className="mb-1 flex flex-wrap items-center gap-6 text-[11px] text-[#243244]"
+          style={{ fontFamily: fuenteWispHubClasica }}
+        >
+          <span>
+            Ultima actualizacion: {datosDashboardWispHub.historialFinanzas.fechaActualizacion}
+          </span>
+          <button className="inline-flex items-center gap-1 text-[#243244] transition hover:text-[#2f7f40]">
+            <RefreshCcw className="h-3.5 w-3.5" />
+            {datosDashboardWispHub.historialFinanzas.accionActualizacion}
+          </button>
+        </div>
+
+        <div className="mb-3" style={{ fontFamily: fuenteWispHubClasica }}>
+          <h2 className="text-[1.15rem] leading-none text-[#53657a]">
+            {datosDashboardWispHub.historialFinanzas.titulo}
+          </h2>
+          <p className="mt-1 text-[1.05rem] leading-none text-[#9aa7b6]">
+            {datosDashboardWispHub.historialFinanzas.subtitulo}
           </p>
         </div>
-        <ResponsiveContainer width="100%" height={350}>
-          <LineChart data={financialData}>
-            <CartesianGrid key="finance-grid" strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-gray-700" />
-            <XAxis 
-              key="finance-xaxis"
-              dataKey="mes" 
-              className="text-xs fill-gray-600 dark:fill-gray-400"
-            />
-            <YAxis 
-              key="finance-yaxis"
-              className="text-xs fill-gray-600 dark:fill-gray-400"
-              tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
-            />
-            <Tooltip 
-              key="finance-tooltip"
-              contentStyle={{ 
-                backgroundColor: 'var(--background)',
-                border: '1px solid var(--border)',
-                borderRadius: '0.5rem'
-              }}
-              formatter={(value: number) => formatCurrency(value)}
-            />
-            <Legend key="finance-legend" />
-            <Line 
-              key="ingresos-internet-line"
-              type="monotone" 
-              dataKey="Ingresos Internet" 
-              stroke="#10b981" 
-              strokeWidth={2}
-              dot={{ fill: '#10b981', r: 3 }}
-            />
-            <Line 
-              key="otros-ingresos-line"
-              type="monotone" 
-              dataKey="Otros Ingresos" 
-              stroke="#3b82f6" 
-              strokeWidth={2}
-              dot={{ fill: '#3b82f6', r: 3 }}
-            />
-            <Line 
-              key="gastos-line"
-              type="monotone" 
-              dataKey="Gastos" 
-              stroke="#f97316" 
-              strokeWidth={2}
-              dot={{ fill: '#f97316', r: 3 }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </Card>
+
+        <div className="grid gap-[30px] xl:grid-cols-[minmax(0,1fr)_280px]" style={estilos.graficaLayout}>
+          <div style={estilos.graficaContenedor}>
+            <ResponsiveContainer width="100%" height={420}>
+              <LineChart
+                data={datosDashboardWispHub.historialFinanzas.series}
+                margin={{ top: 16, right: 20, bottom: 36, left: 28 }}
+              >
+                <CartesianGrid stroke="#dde2e8" vertical={false} />
+                <XAxis
+                  dataKey="mes"
+                  tick={{ fill: '#55677c', fontSize: 12, fontFamily: fuenteWispHubClasica }}
+                  axisLine={false}
+                  tickLine={false}
+                  label={{
+                    value: 'Mes',
+                    position: 'insideBottom',
+                    offset: -12,
+                    fill: '#1c2a3d',
+                    fontSize: 12,
+                    fontFamily: fuenteWispHubClasica,
+                  }}
+                />
+                <YAxis
+                  domain={[-1, 1]}
+                  ticks={[-1, -0.5, 0, 0.5, 1]}
+                  tickFormatter={formatearMonedaEje}
+                  tick={{ fill: '#55677c', fontSize: 12, fontFamily: fuenteWispHubClasica }}
+                  axisLine={false}
+                  tickLine={false}
+                  label={{
+                    value: 'Total',
+                    angle: -90,
+                    position: 'insideLeft',
+                    fill: '#1c2a3d',
+                    fontSize: 12,
+                    fontFamily: fuenteWispHubClasica,
+                    dx: -12,
+                  }}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#ffffff',
+                    border: '1px solid #d8dee6',
+                    borderRadius: '0px',
+                    fontFamily: fuenteWispHubClasica,
+                    fontSize: '12px',
+                  }}
+                  formatter={(valor: number) => `$${valor.toFixed(2)}`}
+                />
+                <Line
+                  type="linear"
+                  dataKey="ingresosInternet"
+                  stroke="#22a37b"
+                  strokeWidth={2}
+                  dot={false}
+                  activeDot={false}
+                />
+                <Line
+                  type="linear"
+                  dataKey="otrosIngresos"
+                  stroke="#61c3e6"
+                  strokeWidth={2}
+                  dot={false}
+                  activeDot={false}
+                />
+                <Line
+                  type="linear"
+                  dataKey="gastos"
+                  stroke="#d96a00"
+                  strokeWidth={2}
+                  dot={false}
+                  activeDot={false}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div className="pt-12" style={{ fontFamily: fuenteWispHubClasica }}>
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 text-[#6a788a]">
+                <span className="h-3 w-3 rounded-[2px] bg-[#22a37b]" />
+                <span className="text-[0.95rem]">Ingresos Internet</span>
+              </div>
+              <div className="flex items-center gap-3 text-[#6a788a]">
+                <span className="h-3 w-3 rounded-[2px] bg-[#61c3e6]" />
+                <span className="text-[0.95rem]">Otros Ingresos</span>
+              </div>
+              <div className="flex items-center gap-3 text-[#6a788a]">
+                <span className="h-3 w-3 rounded-[2px] bg-[#d96a00]" />
+                <span className="text-[0.95rem]">Gastos</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer style={estilos.piePagina}>
+        <div>{datosDashboardWispHub.piePagina.copyright}</div>
+        <div>{datosDashboardWispHub.piePagina.fechaSistema}</div>
+      </footer>
     </div>
   );
 }

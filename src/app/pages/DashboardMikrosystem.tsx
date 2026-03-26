@@ -1,583 +1,698 @@
+import type { ReactNode } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
-import { 
-  Users,
+import { Card } from '../components/ui/card';
+import { cn } from '../lib/utils';
+import type {
+  DashboardMikrosystemDatos,
+  DashboardMikrosystemEmisorItem,
+  DashboardMikrosystemEstadoServidorItem,
+  DashboardMikrosystemResumenSistemaItem,
+  DashboardMikrosystemTarjetaSuperior,
+} from '../types';
+import {
+  Activity,
+  ArrowRight,
+  BarChart3,
+  CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
+  CircleAlert,
+  Clock3,
+  Cpu,
   DollarSign,
   FileText,
+  HardDrive,
+  List,
+  Search,
+  Server,
   Ticket,
   TrendingUp,
-  Circle,
-  Server,
-  Cpu,
-  HardDrive,
-  Clock,
-  Activity,
+  Users,
   Wifi,
   WifiOff,
-  AlertTriangle,
-  CheckCircle,
-  Package
 } from 'lucide-react';
 import {
-  MOCK_CLIENTS,
-  MOCK_INVOICES,
-  MOCK_TICKETS,
-  MOCK_PAYMENTS
-} from '../data/mockData';
-import { formatCurrency, formatDateTime } from '../lib/utils';
-import { 
-  AreaChart, 
-  Area,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
+  CartesianGrid,
+  Line,
+  LineChart,
   ResponsiveContainer,
-  Legend
+  Tooltip,
+  XAxis,
+  YAxis,
 } from 'recharts';
+
+interface PanelMikrosystemProps {
+  titulo: string;
+  children: ReactNode;
+  className?: string;
+  cuerpoClassName?: string;
+  accionesEncabezado?: ReactNode;
+}
+
+function PanelMikrosystem({
+  titulo,
+  children,
+  className,
+  cuerpoClassName,
+  accionesEncabezado,
+}: PanelMikrosystemProps) {
+  return (
+    <Card
+      className={cn(
+        'overflow-hidden border border-[#ccd6e2] bg-white shadow-[0_8px_20px_rgba(15,23,42,0.06)] dark:border-[#2d3743] dark:bg-[#1a2028]',
+        className,
+      )}
+    >
+      <div className="flex items-center justify-between bg-[#1f252b] px-4 py-3 text-white">
+        <h2 className="text-sm font-semibold">{titulo}</h2>
+        {accionesEncabezado}
+      </div>
+      <div className={cn('bg-white dark:bg-[#1a2028]', cuerpoClassName)}>{children}</div>
+    </Card>
+  );
+}
+
+function obtenerEtiquetaRol(rol?: string) {
+  const rolesPorClave: Record<string, string> = {
+    super_admin: 'Administrador principal',
+    isp_admin: 'Administrador ISP',
+    cobranza: 'Cobranza',
+    soporte: 'Soporte',
+    tecnico: 'Tecnico',
+    cliente: 'Cliente',
+  };
+
+  return rolesPorClave[rol || ''] || 'Administrador principal';
+}
+
+function obtenerIconoTarjetaSuperior(clave: DashboardMikrosystemTarjetaSuperior['clave']) {
+  switch (clave) {
+    case 'clientes_online':
+      return <Users className="h-28 w-28" aria-hidden="true" />;
+    case 'transacciones_hoy':
+      return <DollarSign className="h-28 w-28" aria-hidden="true" />;
+    case 'facturas_no_pagadas':
+      return <FileText className="h-28 w-28" aria-hidden="true" />;
+    default:
+      return <Ticket className="h-28 w-28" aria-hidden="true" />;
+  }
+}
+
+function obtenerClasesTarjetaSuperior(variante: DashboardMikrosystemTarjetaSuperior['variante']) {
+  const clasesPorVariante = {
+    turquesa: {
+      fondo: 'from-[#12b7bf] to-[#0ea5b8]',
+      borde: 'border-[#0b8a93]',
+      brillo: 'bg-white/10',
+    },
+    azul: {
+      fondo: 'from-[#4697f5] to-[#2f7fd7]',
+      borde: 'border-[#2b6bb1]',
+      brillo: 'bg-white/10',
+    },
+    morado: {
+      fondo: 'from-[#9959f6] to-[#7c47db]',
+      borde: 'border-[#6535b8]',
+      brillo: 'bg-white/10',
+    },
+    grafito: {
+      fondo: 'from-[#343a41] to-[#2a3037]',
+      borde: 'border-[#1d232a]',
+      brillo: 'bg-white/5',
+    },
+  } as const;
+
+  return clasesPorVariante[variante];
+}
+
+function obtenerClasesResumenSistema(variante: DashboardMikrosystemResumenSistemaItem['variante']) {
+  const clasesPorVariante = {
+    azul: 'bg-[#13b9c8]',
+    rojo: 'bg-[#ff5b64]',
+    verde: 'bg-[#55c657]',
+    rosa: 'bg-[#ff5fa2]',
+    cian: 'bg-[#49c2f1]',
+    lima: 'bg-[#8bd14b]',
+    morado: 'bg-[#8f63f6]',
+  } as const;
+
+  return clasesPorVariante[variante];
+}
+
+function obtenerIconoResumenSistema(id: number) {
+  switch (id) {
+    case 1:
+      return <Wifi className="h-3.5 w-3.5" aria-hidden="true" />;
+    case 2:
+      return <WifiOff className="h-3.5 w-3.5" aria-hidden="true" />;
+    case 3:
+      return <Users className="h-3.5 w-3.5" aria-hidden="true" />;
+    case 4:
+      return <CircleAlert className="h-3.5 w-3.5" aria-hidden="true" />;
+    case 5:
+      return <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />;
+    case 6:
+      return <Activity className="h-3.5 w-3.5" aria-hidden="true" />;
+    default:
+      return <TrendingUp className="h-3.5 w-3.5" aria-hidden="true" />;
+  }
+}
+
+function obtenerIconoServidor(clave: DashboardMikrosystemEstadoServidorItem['clave']) {
+  switch (clave) {
+    case 'cpu_cores':
+      return <Cpu className="h-4 w-4" aria-hidden="true" />;
+    case 'carga_promedio':
+      return <BarChart3 className="h-4 w-4" aria-hidden="true" />;
+    case 'uso_cpu':
+      return <Activity className="h-4 w-4" aria-hidden="true" />;
+    case 'memoria':
+      return <Server className="h-4 w-4" aria-hidden="true" />;
+    case 'disco':
+      return <HardDrive className="h-4 w-4" aria-hidden="true" />;
+    default:
+      return <Clock3 className="h-4 w-4" aria-hidden="true" />;
+  }
+}
+
+function obtenerClasesServidor(variante: DashboardMikrosystemEstadoServidorItem['variante']) {
+  const clasesPorVariante = {
+    morado: 'from-[#8c63f7] to-[#7b52ec]',
+    azul: 'from-[#58a9ff] to-[#3d8ce8]',
+    cian: 'from-[#63d8f5] to-[#4dc4e4]',
+    rojo: 'from-[#ff7866] to-[#ff6056]',
+    rosa: 'from-[#ff68ad] to-[#ff4e95]',
+    gris: 'from-[#9aa4b2] to-[#7d8897]',
+  } as const;
+
+  return clasesPorVariante[variante];
+}
+
+function obtenerClasesEstadoEmisor(estado: DashboardMikrosystemEmisorItem['estado']) {
+  if (estado === 'desconectado') {
+    return 'bg-[#ff6f6f] text-white';
+  }
+
+  return 'bg-[#13c9bd] text-white';
+}
+
+function renderizarBarraUso(porcentajeUso: number, colorUsado: string, colorLibre: string) {
+  const porcentajeSeguro = Math.max(0, Math.min(100, porcentajeUso));
+
+  return (
+    <div className="flex h-5 w-full overflow-hidden rounded-[3px] border border-[#a9b6c4] bg-[#eef2f7] text-[10px] font-semibold">
+      <div
+        className={cn('flex items-center justify-center text-white', colorUsado)}
+        style={{ width: `${porcentajeSeguro}%` }}
+      >
+        {porcentajeSeguro > 18 ? 'Usado' : ''}
+      </div>
+      <div
+        className={cn('flex items-center justify-center text-white', colorLibre)}
+        style={{ width: `${100 - porcentajeSeguro}%` }}
+      >
+        {100 - porcentajeSeguro > 18 ? 'Libre' : ''}
+      </div>
+    </div>
+  );
+}
 
 export default function DashboardMikrosystem() {
   const { user } = useAuth();
 
-  // Datos de tráfico de clientes (últimos 7 días)
-  const trafficData = [
-    { fecha: '13/03/2026', trafico: 0.3 },
-    { fecha: '14/03/2026', trafico: 0.5 },
-    { fecha: '15/03/2026', trafico: 0.4 },
-    { fecha: '16/03/2026', trafico: 0.7 },
-    { fecha: '17/03/2026', trafico: 0.6 },
-    { fecha: '18/03/2026', trafico: 0.5 },
-    { fecha: '19/03/2026', trafico: 0.2 }
-  ];
+  const nombreUsuario = user?.name || 'Administrador principal';
+  const rolUsuario = obtenerEtiquetaRol(user?.role);
 
-  // Datos de uso de descarga (Gráfico de dona)
-  const downloadData = [
-    { name: 'Descarga', value: 0, color: '#3b82f6' },
-    { name: 'Subida', value: 0, color: '#1e293b' }
-  ];
-
-  // Resumen del sistema
-  const systemSummary = [
-    { id: 1, label: 'Routers Activos', value: 3, color: 'bg-blue-500', icon: <Wifi className="w-3 h-3" /> },
-    { id: 2, label: 'Routers desconectados', value: 0, color: 'bg-red-500', icon: <WifiOff className="w-3 h-3" /> },
-    { id: 3, label: 'Clientes Activos', value: 67, color: 'bg-green-500', icon: <Users className="w-3 h-3" /> },
-    { id: 4, label: 'Clientes suspendidos', value: 12, color: 'bg-pink-500', icon: <AlertTriangle className="w-3 h-3" /> },
-    { id: 5, label: 'Servicios Activos', value: 8, color: 'bg-cyan-500', icon: <CheckCircle className="w-3 h-3" /> },
-    { id: 6, label: 'Moratorios Activos', value: 2, color: 'bg-lime-500', icon: <DollarSign className="w-3 h-3" /> },
-    { id: 7, label: 'Moratorios Caídos', value: 1, color: 'bg-purple-500', icon: <TrendingUp className="w-3 h-3" /> }
-  ];
-
-  // Últimos pagos registrados
-  const lastPayments = [
-    { id: 1, cliente: 'Cliente prueba', cobrado: 0.20, operador: 'api', tiempo: 'Hace 2 Horas' },
-    { id: 2, cliente: 'z5c5', cobrado: 700.00, operador: 'admin', tiempo: 'Hace 21 Horas' },
-    { id: 3, cliente: 'z5c6', cobrado: 300.00, operador: 'admin', tiempo: 'Mesa 21 Horas' },
-    { id: 4, cliente: 'z5c7', cobrado: 300.00, operador: 'admin', tiempo: 'Mesa 21 Horas' },
-    { id: 5, cliente: 'Cliente prueba', cobrado: 0.20, operador: 'api', tiempo: 'Hace 2 Días' },
-    { id: 6, cliente: 'Cliente prueba', cobrado: 0.20, operador: 'api', tiempo: 'Hace 2 Días' },
-    { id: 7, cliente: 'Cliente prueba', cobrado: 0.20, operador: 'api', tiempo: 'Hace 2 Días' },
-    { id: 8, cliente: 'Cliente prueba', cobrado: 0.20, operador: 'api', tiempo: 'Hace 2 Días' },
-    { id: 9, cliente: 'Cliente prueba', cobrado: 0.20, operador: 'api', tiempo: 'Hace 2 Días' },
-    { id: 10, cliente: 'Cliente prueba', cobrado: 0.20, operador: 'api', tiempo: 'Hace 2 Días' }
-  ];
-
-  // Últimos conectados
-  const lastConnected = [
-    { id: 1, cliente: 'Cliente prueba', cobrado: 0.20, operador: 'api', tiempo: 'Hace 2 Horas' },
-    { id: 2, cliente: 'z5c5', cobrado: 700.00, operador: 'admin', tiempo: 'Hace 21 Horas' },
-    { id: 3, cliente: 'z5c6', cobrado: 300.00, operador: 'admin', tiempo: 'Mesa 21 Horas' },
-    { id: 4, cliente: 'z5c7', cobrado: 300.00, operador: 'admin', tiempo: 'Mesa 21 Horas' },
-    { id: 5, cliente: 'Cliente prueba', cobrado: 0.20, operador: 'api', tiempo: 'Hace 2 Días' }
-  ];
-
-  // Datos del servidor (barras de progreso)
-  const serverStats = [
-    { id: 1, label: 'CPU Core', value: 'Intel(R) Xeon(R) CPU E3-1230 v3 @ 3.30GHz (4 cores)', percent: 0, icon: <Cpu className="w-5 h-5" /> },
-    { id: 2, label: 'Carga promedio', value: '0.13/0.08/0.57 | 0.15/0.09/0.57 | 0.09/2.07/1.56/3', percent: 15, icon: <Activity className="w-5 h-5" /> },
-    { id: 3, label: 'Uso de CPU', value: '', percent: 5, icon: <Cpu className="w-5 h-5" /> },
-    { id: 4, label: 'Mem. 1 GB (Libre 41.4%)', value: '', percent: 58.6, icon: <Server className="w-5 h-5" /> },
-    { id: 5, label: 'Disco 31 GB (Libre 64.41%)', value: '', percent: 35.59, icon: <HardDrive className="w-5 h-5" /> },
-    { id: 6, label: 'Último copie de seguridad', value: 'Hace 8 días (5 Mб)', percent: 0, icon: <Clock className="w-5 h-5" /> }
-  ];
-
-  // Resumen de facturación
-  const billingData = {
-    monthly: {
-      label: 'Mensual',
-      pagos: 1,
-      pagosMonto: 27904.11,
-      facturasPagadas: 1,
-      facturasNoPagadas: 0,
-      monto: 800.00
+  // Backend: este bloque agrupa todo el contrato que el API debe entregar
+  // para pintar el dashboard Mikrosystem. Cada clave corresponde a una
+  // seccion visual del layout y se documenta tambien en el README.
+  const datosDashboardMikrosystem: DashboardMikrosystemDatos = {
+    saludo: {
+      titulo: 'Bienvenido',
+      nombreUsuario,
+      rolUsuario,
     },
-    lastMonth: {
-      label: 'El mes pasado',
-      pagos: 0,
-      pagosMonto: 1622.00,
-      facturasPagadas: 3,
-      facturasNoPagadas: 1,
-      monto: 250.00
-    }
+    tarjetasSuperiores: [
+      {
+        clave: 'clientes_online',
+        titulo: 'CLIENTES ONLINE',
+        valorPrincipal: '0',
+        etiquetaDetalle: 'Total Registrados',
+        valorDetalle: '67',
+        accion: 'Ver clientes',
+        variante: 'turquesa',
+      },
+      {
+        clave: 'transacciones_hoy',
+        titulo: 'TRANSACCIONES HOY',
+        valorPrincipal: '$ 1,107.80',
+        etiquetaDetalle: 'Cobrado este mes',
+        valorDetalle: '$ 32,880.31',
+        accion: 'Ver transacciones',
+        variante: 'azul',
+      },
+      {
+        clave: 'facturas_no_pagadas',
+        titulo: 'FACTURAS NO PAGADAS',
+        valorPrincipal: '5',
+        etiquetaDetalle: 'Total vencidas',
+        valorDetalle: '5',
+        accion: 'Ver Facturas',
+        variante: 'morado',
+      },
+      {
+        clave: 'tickets_soporte',
+        titulo: 'TICKET SOPORTE',
+        valorPrincipal: '65',
+        etiquetaDetalle: 'Total Abiertos',
+        valorDetalle: '65',
+        accion: 'Ver Tickets',
+        variante: 'grafito',
+      },
+    ],
+    graficaTrafico: {
+      totalGb: '0 GB',
+      porcentajeDescarga: 0,
+      descargaGb: '0 GB',
+      subidaGb: '0 GB',
+      puntos: [
+        { fecha: '20/03/2026', traficoGb: 0 },
+        { fecha: '21/03/2026', traficoGb: 0 },
+        { fecha: '22/03/2026', traficoGb: 0 },
+        { fecha: '23/03/2026', traficoGb: 0 },
+        { fecha: '24/03/2026', traficoGb: 0 },
+        { fecha: '25/03/2026', traficoGb: 0 },
+        { fecha: '26/03/2026', traficoGb: 0 },
+      ],
+    },
+    resumenSistema: [
+      { id: 1, etiqueta: 'Routers Activos', valor: 2, variante: 'azul' },
+      { id: 2, etiqueta: 'Routers desconectados', valor: 0, variante: 'rojo' },
+      { id: 3, etiqueta: 'Clientes Activos', valor: 104, variante: 'verde' },
+      { id: 4, etiqueta: 'Clientes suspendidos', valor: 35, variante: 'rosa' },
+      { id: 5, etiqueta: 'Servicios Activos', valor: 33, variante: 'cian' },
+      { id: 6, etiqueta: 'Monitoreo Activos', valor: 2, variante: 'lima' },
+      { id: 7, etiqueta: 'Monitoreo Caidos', valor: 1, variante: 'morado' },
+    ],
+    ultimosPagos: [
+      { id: 1, cliente: 'Cliente prueba', monto: '$ 0.20', operador: 'api', tiempo: 'Hace 34 minutos' },
+      { id: 2, cliente: 'Cliente prueba', monto: '$ 0.20', operador: 'api', tiempo: 'Hace 35 minutos' },
+      { id: 3, cliente: 'Cliente prueba', monto: '$ 0.20', operador: 'api', tiempo: 'Hace 35 minutos' },
+      { id: 4, cliente: 'Cliente prueba', monto: '$ 0.20', operador: 'api', tiempo: 'Hace 37 minutos' },
+      { id: 5, cliente: 'Cliente prueba', monto: '$ 0.20', operador: 'api', tiempo: 'Hace 37 minutos' },
+      { id: 6, cliente: 'Cliente prueba', monto: '$ 0.20', operador: 'api', tiempo: 'Hace 38 minutos' },
+      { id: 7, cliente: 'Cliente prueba', monto: '$ 0.20', operador: 'api', tiempo: 'Hace 38 minutos' },
+      { id: 8, cliente: 'Cliente prueba', monto: '$ 0.20', operador: 'api', tiempo: 'Hace 38 minutos' },
+      { id: 9, cliente: 'Cliente prueba', monto: '$ 0.20', operador: 'api', tiempo: 'Hace 39 minutos' },
+      { id: 10, cliente: 'Cliente prueba', monto: '$ 0.20', operador: 'api', tiempo: 'Hace 39 minutos' },
+    ],
+    ultimosConectados: [],
+    datosServidor: [
+      { id: 1, clave: 'cpu_cores', etiqueta: 'CPU Cores', valorPrincipal: '1', variante: 'morado' },
+      { id: 2, clave: 'carga_promedio', etiqueta: 'Carga promedio (1,5,15 min)', valorPrincipal: '0,0,0', variante: 'azul' },
+      { id: 3, clave: 'uso_cpu', etiqueta: 'Uso de CPU', valorPrincipal: '0%', porcentajeUso: 0, variante: 'cian' },
+      { id: 4, clave: 'memoria', etiqueta: 'Mem : 1 GB (Libre 41.42%)', valorPrincipal: '', porcentajeUso: 58.58, variante: 'rojo' },
+      { id: 5, clave: 'disco', etiqueta: 'Disco: 31 GB (Libre 63.62%)', valorPrincipal: '', porcentajeUso: 36.38, variante: 'rosa' },
+      { id: 6, clave: 'ultima_copia', etiqueta: 'Ultima copia de seguridad', valorPrincipal: 'Hace 13 dias (5 MB)', variante: 'rosa' },
+    ],
+    resumenFacturacion: {
+      etiquetaPeriodoActual: 'Mes actual',
+      etiquetaPeriodoAnterior: 'El mes pasado',
+      periodoActual: [
+        { concepto: 'Pagos', cantidad: 280, monto: '$ 32,880.31' },
+        { concepto: 'Facturas pagadas', cantidad: 2, monto: '$ 800.00' },
+        { concepto: 'Facturas sin Pagar', cantidad: 0, monto: '$ 0.00' },
+      ],
+      periodoAnterior: [
+        { concepto: 'Pagos', cantidad: 6, monto: '$ 1,822.00' },
+        { concepto: 'Facturas pagadas', cantidad: 3, monto: '$ 2.00' },
+        { concepto: 'Facturas sin Pagar', cantidad: 1, monto: '$ 0.20' },
+      ],
+    },
+    emisores: {
+      total: 3,
+      paginaActual: 1,
+      tamanoPagina: 15,
+      filas: [
+        { id: 1, nombre: 'AP OMNI CORNEJO', equipo: 'ROCKET AC LITE', ip: '10.0.0.10', estado: 'desconectado' },
+        { id: 2, nombre: 'Tes', equipo: '', ip: '1.1.1.1', estado: 'en_linea' },
+        { id: 3, nombre: 'AAA', equipo: '', ip: '8.8.4.4', estado: 'en_linea' },
+      ],
+    },
   };
 
-  // Equipos (pequeña lista)
-  const equipments = [
-    { id: 1, nombre: 'AP OUIN CONEJO', equipo: 'ROCKET AC-LITE', ip: '10.0.0.10', estado: 'FUNCIONANDO' },
-    { id: 2, nombre: 'Test', equipo: '', ip: '1.1.1.1', estado: 'PRUEBA' },
-    { id: 3, nombre: 'AAA', equipo: '', ip: '8.8.4.4', estado: 'EN LINEA' }
-  ];
-
   return (
-    <div className="px-4 lg:px-6 pb-4 lg:pb-6 bg-gray-100 dark:bg-gray-900">
-      {/* Header */}
-      <div className="pt-4 lg:pt-6 mb-4">
-        <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-          Bienvenido <span className="text-sm font-normal text-gray-500 dark:text-gray-400">Administrador principal</span>
+    <div className="min-h-full bg-[#dce4ee] px-4 pb-6 pt-4 lg:px-6 lg:pb-8 lg:pt-5">
+      <div className="mb-4">
+        <h1 className="flex flex-wrap items-center gap-2 text-[2rem] font-medium leading-none text-[#253245]">
+          <span>{datosDashboardMikrosystem.saludo.titulo}</span>
+          <span className="text-base font-normal text-[#708399]">
+            {datosDashboardMikrosystem.saludo.rolUsuario}
+          </span>
         </h1>
       </div>
 
-      {/* Tarjetas superiores */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-        {/* CLIENTES ONLINE */}
-        <Card className="relative overflow-hidden border-0 shadow-md">
-          <div className="absolute inset-0 bg-gradient-to-br from-cyan-400 to-cyan-500" />
-          <div className="absolute top-0 right-0 opacity-10">
-            <Users className="w-24 h-24" />
-          </div>
-          <div className="relative p-5 text-white">
-            <div className="text-xs font-semibold mb-1 uppercase tracking-wide">
-              CLIENTES ONLINE
-            </div>
-            <div className="text-4xl font-bold mb-3">0</div>
-            <div className="flex items-center justify-between text-xs border-t border-white/30 pt-2">
-              <span>Total Registrados: 67</span>
-              <TrendingUp className="w-4 h-4" />
-            </div>
-          </div>
-        </Card>
+      <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {datosDashboardMikrosystem.tarjetasSuperiores.map((tarjeta) => {
+          const clasesTarjeta = obtenerClasesTarjetaSuperior(tarjeta.variante);
 
-        {/* TRANSACCIONES HOY */}
-        <Card className="relative overflow-hidden border-0 shadow-md">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-blue-600" />
-          <div className="absolute top-0 right-0 opacity-10">
-            <DollarSign className="w-24 h-24" />
-          </div>
-          <div className="relative p-5 text-white">
-            <div className="text-xs font-semibold mb-1 uppercase tracking-wide">
-              TRANSACCIONES HOY
-            </div>
-            <div className="text-4xl font-bold mb-3">$ 0.20</div>
-            <div className="flex items-center justify-between text-xs border-t border-white/30 pt-2">
-              <span>Cobrado este mes: $ 27,944.11</span>
-              <TrendingUp className="w-4 h-4" />
-            </div>
-          </div>
-        </Card>
-
-        {/* FACTURAS NO PAGADAS */}
-        <Card className="relative overflow-hidden border-0 shadow-md">
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-purple-600" />
-          <div className="absolute top-0 right-0 opacity-10">
-            <FileText className="w-24 h-24" />
-          </div>
-          <div className="relative p-5 text-white">
-            <div className="text-xs font-semibold mb-1 uppercase tracking-wide">
-              FACTURAS NO PAGADAS
-            </div>
-            <div className="text-4xl font-bold mb-3">6</div>
-            <div className="flex items-center justify-between text-xs border-t border-white/30 pt-2">
-              <span>Total vencidas: 5</span>
-              <TrendingUp className="w-4 h-4" />
-            </div>
-          </div>
-        </Card>
-
-        {/* TICKET SOPORTE */}
-        <Card className="relative overflow-hidden border-0 shadow-md">
-          <div className="absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-800" />
-          <div className="absolute top-0 right-0 opacity-10">
-            <Ticket className="w-24 h-24" />
-          </div>
-          <div className="relative p-5 text-white">
-            <div className="text-xs font-semibold mb-1 uppercase tracking-wide">
-              TICKET SOPORTE
-            </div>
-            <div className="text-4xl font-bold mb-3">65</div>
-            <div className="flex items-center justify-between text-xs border-t border-white/30 pt-2">
-              <span>Total histórico: 65</span>
-              <TrendingUp className="w-4 h-4" />
-            </div>
-          </div>
-        </Card>
+          return (
+            <Card
+              key={tarjeta.clave}
+              className={cn(
+                'relative overflow-hidden border shadow-[0_8px_18px_rgba(15,23,42,0.12)]',
+                clasesTarjeta.borde,
+              )}
+            >
+              <div className={cn('absolute inset-0 bg-gradient-to-r', clasesTarjeta.fondo)} />
+              <div className="absolute -right-3 top-3 opacity-15 text-white">
+                {obtenerIconoTarjetaSuperior(tarjeta.clave)}
+              </div>
+              <div className="absolute right-12 top-7 flex gap-2 opacity-30">
+                <span className={cn('h-5 w-5 rounded-full', clasesTarjeta.brillo)} />
+                <span className={cn('h-8 w-8 rounded-full', clasesTarjeta.brillo)} />
+                <span className={cn('mt-2 h-4 w-4 rounded-full', clasesTarjeta.brillo)} />
+              </div>
+              <div className="relative flex min-h-[118px] flex-col justify-between px-4 py-3 text-white">
+                <div>
+                  <p className="text-[13px] uppercase tracking-[0.02em] text-white/90">{tarjeta.titulo}</p>
+                  <p className="mt-1 text-[2.35rem] font-bold leading-none">{tarjeta.valorPrincipal}</p>
+                </div>
+                <div className="mt-4 flex items-center justify-between border-t border-black/30 pt-2 text-[13px]">
+                  <p className="text-white/95">
+                    {tarjeta.etiquetaDetalle}{' '}
+                    <span className="font-semibold">{tarjeta.valorDetalle}</span>
+                  </p>
+                  <button className="inline-flex items-center gap-1 text-[13px] font-semibold text-white transition hover:text-white/90">
+                    {tarjeta.accion}
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+            </Card>
+          );
+        })}
       </div>
 
-      {/* Gráficos: Tráfico Clientes + Gráfico Circular + Resumen del Sistema */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-        {/* Tráfico Clientes */}
-        <Card className="lg:col-span-2 border-0 shadow-md">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-bold text-gray-900 dark:text-white">
-              Tráfico Clientes
-              <span className="ml-2 text-xs font-normal text-gray-500 dark:text-gray-400">Últimos 7 días</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <ResponsiveContainer width="100%" height={200}>
-              <AreaChart data={trafficData}>
-                <defs>
-                  <linearGradient id="colorTrafico" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid 
-                  key="traffic-grid" 
-                  strokeDasharray="3 3" 
-                  stroke="#e5e7eb" 
-                  className="dark:stroke-gray-700" 
+      <div className="mb-4 grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.62fr)_minmax(300px,0.68fr)]">
+        <PanelMikrosystem titulo="Tráfico Clientes" cuerpoClassName="bg-[#2b3239] px-4 pb-4 pt-2">
+          <div className="mb-3 text-[13px] text-[#d1dae4]">Últimos 7 días</div>
+          <div className="h-[240px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={datosDashboardMikrosystem.graficaTrafico.puntos} margin={{ top: 8, right: 16, bottom: 16, left: 8 }}>
+                <CartesianGrid stroke="#55616d" vertical={false} />
+                <XAxis
+                  dataKey="fecha"
+                  tick={{ fill: '#9eaab8', fontSize: 11 }}
+                  axisLine={false}
+                  tickLine={false}
+                  angle={-28}
+                  textAnchor="end"
+                  height={48}
                 />
-                <XAxis 
-                  key="traffic-xaxis"
-                  dataKey="fecha" 
-                  tick={{ fontSize: 10 }}
-                  stroke="#9ca3af"
-                />
-                <YAxis 
-                  key="traffic-yaxis"
-                  tick={{ fontSize: 10 }}
-                  stroke="#9ca3af"
+                <YAxis
                   domain={[0, 1]}
                   ticks={[0, 0.25, 0.5, 0.75, 1]}
-                  tickFormatter={(value) => `${value} GB`}
+                  tickFormatter={(valor) => `${valor} GB`}
+                  tick={{ fill: '#9eaab8', fontSize: 11 }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={48}
                 />
-                <Tooltip 
-                  key="traffic-tooltip"
-                  contentStyle={{ 
-                    backgroundColor: 'white',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '6px',
-                    fontSize: '11px'
+                <Tooltip
+                  cursor={{ stroke: '#58a9ff', strokeWidth: 1 }}
+                  contentStyle={{
+                    backgroundColor: '#1f252b',
+                    border: '1px solid #55616d',
+                    borderRadius: '4px',
+                    color: '#ffffff',
+                    fontSize: '12px',
                   }}
-                  formatter={(value: number) => `${value} GB`}
+                  formatter={(valor: number) => [`${valor} GB`, 'Tráfico']}
+                  labelStyle={{ color: '#ffffff' }}
                 />
-                <Area 
-                  key="trafico-area"
-                  type="monotone" 
-                  dataKey="trafico" 
-                  stroke="#3b82f6" 
+                <Line
+                  type="monotone"
+                  dataKey="traficoGb"
+                  stroke="#4da6ff"
                   strokeWidth={2}
-                  fill="url(#colorTrafico)"
+                  dot={{ fill: '#4da6ff', stroke: '#d7e3ee', strokeWidth: 1.5, r: 3.2 }}
+                  activeDot={{ r: 4 }}
                 />
-              </AreaChart>
+              </LineChart>
             </ResponsiveContainer>
-          </CardContent>
-        </Card>
+          </div>
+        </PanelMikrosystem>
 
-        {/* Gráfico Circular + Resumen del Sistema */}
-        <Card className="border-0 shadow-md bg-gray-800 text-white">
-          <CardContent className="p-4">
-            {/* Gráfico de dona */}
-            <div className="flex flex-col items-center mb-4">
-              <div className="relative">
-                <PieChart width={140} height={140}>
-                  <Pie
-                    key="download-pie"
-                    data={downloadData}
-                    cx={60}
-                    cy={60}
-                    innerRadius={40}
-                    outerRadius={60}
-                    paddingAngle={0}
-                    dataKey="value"
-                  >
-                    {downloadData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                </PieChart>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <div className="text-2xl font-bold">0%</div>
-                  <div className="text-xs text-gray-400">DE DESCARGA</div>
-                </div>
-              </div>
-              <div className="text-lg font-bold mt-2">0 GB</div>
-              <div className="text-xs text-gray-400">Total tráfico</div>
-              <div className="flex items-center gap-3 mt-2 text-xs">
-                <div className="flex items-center gap-1">
-                  <Circle className="w-2 h-2 fill-blue-500 text-blue-500" />
-                  <span>0 GB Descarga</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Circle className="w-2 h-2 fill-gray-700 text-gray-700" />
-                  <span>0 GB Subida</span>
-                </div>
-              </div>
-            </div>
+        <PanelMikrosystem titulo="Resumen del sistema" cuerpoClassName="bg-[#1f252b] p-0">
+          <div className="grid grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+            <div className="border-b border-r border-[#313942] px-4 py-4 text-white">
+              <div className="text-[2.1rem] font-semibold leading-none">{datosDashboardMikrosystem.graficaTrafico.totalGb}</div>
+              <div className="mt-1 text-sm text-[#a8b4c1]">Total tráfico</div>
 
-            {/* Resumen del sistema */}
-            <div className="border-t border-gray-700 pt-3">
-              <h3 className="text-xs font-bold mb-2 flex items-center justify-between">
-                Resumen del sistema
-                <button className="text-gray-400 hover:text-white">✕</button>
-              </h3>
-              <div className="space-y-2">
-                {systemSummary.map((item) => (
-                  <div key={item.id} className="flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-2">
-                      <Badge className={`${item.color} w-5 h-5 rounded flex items-center justify-center p-0 text-white border-0`}>
-                        {item.icon}
-                      </Badge>
-                      <span className="text-gray-300">{item.label}</span>
+              <div className="mt-4 flex justify-center">
+                <div className="relative flex h-40 w-40 items-center justify-center rounded-full border-[22px] border-[#3f9cff] bg-[#1f252b] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.04)]">
+                  <div className="text-center">
+                    <div className="text-[3rem] font-bold leading-none">{datosDashboardMikrosystem.graficaTrafico.porcentajeDescarga}%</div>
+                    <div className="text-[0.95rem] font-semibold uppercase tracking-[0.04em] text-white">
+                      Descarga
                     </div>
-                    <Badge className={`${item.color} text-white border-0 h-5 px-2 text-xs rounded`}>
-                      {item.value}
-                    </Badge>
                   </div>
-                ))}
+                </div>
+              </div>
+
+              <div className="mt-4 space-y-2 text-xs text-[#d7e3ee]">
+                <div className="flex items-center gap-2">
+                  <span className="h-2.5 w-2.5 rounded-full bg-[#3f9cff]" />
+                  <span className="font-semibold">{datosDashboardMikrosystem.graficaTrafico.descargaGb}</span>
+                  <span>Descarga</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="h-2.5 w-2.5 rounded-full bg-[#12b7bf]" />
+                  <span className="font-semibold">{datosDashboardMikrosystem.graficaTrafico.subidaGb}</span>
+                  <span>Subida</span>
+                </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
-      </div>
 
-      {/* Tablas: Últimos Pagos + Últimos Conectados */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-        {/* Últimos pagos registrados */}
-        <Card className="border-0 shadow-md">
-          <CardHeader className="pb-3 bg-gray-800 text-white rounded-t-lg">
-            <CardTitle className="text-sm font-bold">Últimos pagos registrados</CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <div className="overflow-auto max-h-64">
-              <table className="w-full text-xs">
-                <thead className="bg-gray-100 dark:bg-gray-800 sticky top-0">
-                  <tr className="border-b border-gray-200 dark:border-gray-700">
-                    <th className="text-left px-3 py-2 font-semibold text-gray-700 dark:text-gray-300">Cliente</th>
-                    <th className="text-right px-3 py-2 font-semibold text-gray-700 dark:text-gray-300">Cobrado</th>
-                    <th className="text-left px-3 py-2 font-semibold text-gray-700 dark:text-gray-300">Operador</th>
-                    <th className="text-left px-3 py-2 font-semibold text-gray-700 dark:text-gray-300">Tiempo</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {lastPayments.map((payment) => (
-                    <tr key={payment.id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                      <td className="px-3 py-2 text-gray-900 dark:text-white">{payment.cliente}</td>
-                      <td className="px-3 py-2 text-right text-gray-900 dark:text-white font-medium">$ {payment.cobrado.toFixed(2)}</td>
-                      <td className="px-3 py-2 text-gray-600 dark:text-gray-400">{payment.operador}</td>
-                      <td className="px-3 py-2 text-gray-600 dark:text-gray-400">{payment.tiempo}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <div className="px-3 py-2 border-t border-gray-200 dark:border-gray-700 text-center">
-              <button className="text-xs text-blue-600 dark:text-blue-400 hover:underline">
-                Ver todos →
-              </button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Últimos conectados */}
-        <Card className="border-0 shadow-md">
-          <CardHeader className="pb-3 bg-gray-800 text-white rounded-t-lg">
-            <CardTitle className="text-sm font-bold">Últimos conectados</CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <div className="overflow-auto max-h-64">
-              <table className="w-full text-xs">
-                <thead className="bg-gray-100 dark:bg-gray-800 sticky top-0">
-                  <tr className="border-b border-gray-200 dark:border-gray-700">
-                    <th className="text-left px-3 py-2 font-semibold text-gray-700 dark:text-gray-300">Cliente</th>
-                    <th className="text-right px-3 py-2 font-semibold text-gray-700 dark:text-gray-300">Cobrado</th>
-                    <th className="text-left px-3 py-2 font-semibold text-gray-700 dark:text-gray-300">Operador</th>
-                    <th className="text-left px-3 py-2 font-semibold text-gray-700 dark:text-gray-300">Tiempo</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {lastConnected.map((connected) => (
-                    <tr key={connected.id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                      <td className="px-3 py-2 text-gray-900 dark:text-white">{connected.cliente}</td>
-                      <td className="px-3 py-2 text-right text-gray-900 dark:text-white font-medium">$ {connected.cobrado.toFixed(2)}</td>
-                      <td className="px-3 py-2 text-gray-600 dark:text-gray-400">{connected.operador}</td>
-                      <td className="px-3 py-2 text-gray-600 dark:text-gray-400">{connected.tiempo}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <div className="px-3 py-2 border-t border-gray-200 dark:border-gray-700 text-center">
-              <button className="text-xs text-blue-600 dark:text-blue-400 hover:underline">
-                Ver todos →
-              </button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Datos del Servidor */}
-      <Card className="mb-4 border-0 shadow-md">
-        <CardHeader className="pb-3 bg-gray-800 text-white rounded-t-lg">
-          <CardTitle className="text-sm font-bold">DATOS DEL SERVIDOR</CardTitle>
-        </CardHeader>
-        <CardContent className="p-4">
-          <div className="space-y-3">
-            {serverStats.map((stat) => (
-              <div key={stat.id} className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white flex-shrink-0">
-                  {stat.icon}
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{stat.label}</span>
-                    {stat.percent > 0 && (
-                      <span className="text-xs text-gray-500 dark:text-gray-400">{stat.percent}%</span>
+            <div className="divide-y divide-[#313942]">
+              {datosDashboardMikrosystem.resumenSistema.map((item, indice) => (
+                <div key={item.id} className="flex items-center justify-between gap-3 px-4 py-[13px] text-white">
+                  <div className="flex min-w-0 items-center gap-2.5">
+                    <span className="text-sm font-semibold text-[#dbe5ef]">{indice + 1}.</span>
+                    <span className="truncate text-sm text-white">{item.etiqueta}</span>
+                  </div>
+                  <span
+                    className={cn(
+                      'inline-flex min-w-[24px] items-center justify-center rounded-full px-2 py-0.5 text-xs font-bold text-white',
+                      obtenerClasesResumenSistema(item.variante),
                     )}
-                  </div>
-                  {stat.value && (
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{stat.value}</p>
-                  )}
-                  {stat.percent > 0 && (
-                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
-                      <div 
-                        className="h-2 rounded-full transition-all duration-300"
-                        style={{ 
-                          width: `${stat.percent}%`,
-                          background: stat.percent > 70 ? 'linear-gradient(90deg, #ef4444 0%, #dc2626 100%)' : 
-                                     stat.percent > 40 ? 'linear-gradient(90deg, #f59e0b 0%, #d97706 100%)' : 
-                                     'linear-gradient(90deg, #3b82f6 0%, #2563eb 100%)'
-                        }}
-                      />
-                    </div>
-                  )}
+                  >
+                    {item.valor}
+                  </span>
                 </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Resumen Facturación */}
-      <Card className="mb-4 border-0 shadow-md">
-        <CardHeader className="pb-3 bg-gray-800 text-white rounded-t-lg">
-          <CardTitle className="text-sm font-bold">Resumen Facturación</CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs">
-              <thead className="bg-blue-600 text-white">
-                <tr>
-                  <th className="text-left px-3 py-2 font-semibold"></th>
-                  <th className="text-center px-3 py-2 font-semibold bg-blue-700">Mensual</th>
-                  <th className="text-center px-3 py-2 font-semibold bg-cyan-600">El mes pasado</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-                  <td className="px-3 py-2 font-semibold text-gray-700 dark:text-gray-300">Pagos</td>
-                  <td className="px-3 py-2 text-center text-red-600 dark:text-red-400 font-bold">
-                    {billingData.monthly.pagos} ($ {billingData.monthly.pagosMonto.toLocaleString()})
-                  </td>
-                  <td className="px-3 py-2 text-center text-gray-900 dark:text-white bg-cyan-50 dark:bg-cyan-900/20">
-                    {billingData.lastMonth.pagos} ($ {billingData.lastMonth.pagosMonto.toLocaleString()})
-                  </td>
-                </tr>
-                <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
-                  <td className="px-3 py-2 font-semibold text-gray-700 dark:text-gray-300">Facturas pagadas</td>
-                  <td className="px-3 py-2 text-center text-gray-900 dark:text-white">
-                    ? ({billingData.monthly.facturasPagadas})
-                  </td>
-                  <td className="px-3 py-2 text-center text-gray-900 dark:text-white bg-cyan-50 dark:bg-cyan-900/20">
-                    ? ({billingData.lastMonth.facturasPagadas})
-                  </td>
-                </tr>
-                <tr className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-                  <td className="px-3 py-2 font-semibold text-gray-700 dark:text-gray-300">Facturas sin Pagar</td>
-                  <td className="px-3 py-2 text-center text-gray-900 dark:text-white">
-                    | ($ {billingData.monthly.monto.toFixed(2)})
-                  </td>
-                  <td className="px-3 py-2 text-center text-gray-900 dark:text-white bg-cyan-50 dark:bg-cyan-900/20">
-                    | ($ {billingData.lastMonth.monto.toFixed(2)})
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Equipos */}
-      <Card className="border-0 shadow-md">
-        <CardHeader className="pb-3 bg-gray-800 text-white rounded-t-lg">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-sm font-bold">Equipos</CardTitle>
-            <div className="flex items-center gap-2">
-              <select className="text-xs bg-gray-700 border border-gray-600 rounded px-2 py-1 text-white">
-                <option>15</option>
-                <option>25</option>
-                <option>50</option>
-              </select>
-              <button className="text-xs bg-gray-700 hover:bg-gray-600 px-2 py-1 rounded">⚙️</button>
+              ))}
             </div>
           </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs">
-              <thead className="bg-gray-100 dark:bg-gray-800">
-                <tr className="border-b border-gray-200 dark:border-gray-700">
-                  <th className="text-left px-3 py-2 font-semibold text-gray-700 dark:text-gray-300">NOMBRE</th>
-                  <th className="text-left px-3 py-2 font-semibold text-gray-700 dark:text-gray-300">EQUIPO</th>
-                  <th className="text-left px-3 py-2 font-semibold text-gray-700 dark:text-gray-300">IP</th>
-                  <th className="text-center px-3 py-2 font-semibold text-gray-700 dark:text-gray-300">ESTADO</th>
+        </PanelMikrosystem>
+      </div>
+
+      <div className="mb-4 grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.62fr)_minmax(0,1fr)]">
+        <PanelMikrosystem titulo="Últimos pagos registrados">
+          <table className="w-full text-xs">
+            <thead className="bg-[#f7f9fc] text-[#2a3542]">
+              <tr>
+                <th className="border-b border-[#d9e1ea] px-3 py-2 text-left font-semibold">Cliente</th>
+                <th className="border-b border-[#d9e1ea] px-3 py-2 text-left font-semibold">Cobrado</th>
+                <th className="border-b border-[#d9e1ea] px-3 py-2 text-left font-semibold">Operador</th>
+                <th className="border-b border-[#d9e1ea] px-3 py-2 text-left font-semibold">Tiempo</th>
+              </tr>
+            </thead>
+            <tbody>
+              {datosDashboardMikrosystem.ultimosPagos.map((pago, indice) => (
+                <tr key={pago.id} className={indice % 2 === 0 ? 'bg-white' : 'bg-[#f8fafc]'}>
+                  <td className="border-b border-[#e5ebf2] px-3 py-2 text-[#334155]">{pago.cliente}</td>
+                  <td className="border-b border-[#e5ebf2] px-3 py-2 text-[#334155]">{pago.monto}</td>
+                  <td className="border-b border-[#e5ebf2] px-3 py-2 text-[#526376]">{pago.operador}</td>
+                  <td className="border-b border-[#e5ebf2] px-3 py-2 text-[#526376]">{pago.tiempo}</td>
                 </tr>
-              </thead>
-              <tbody>
-                {equipments.map((equipment, index) => (
-                  <tr 
-                    key={equipment.id} 
-                    className={`border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 ${
-                      index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50/50 dark:bg-gray-900/30'
-                    }`}
+              ))}
+            </tbody>
+          </table>
+          <div className="flex justify-center border-t border-[#d9e1ea] px-3 py-3">
+            <button className="inline-flex items-center gap-1 text-sm font-medium text-[#2c6eb8] transition hover:text-[#1e5b98]">
+              Ver todos
+              <ArrowRight className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        </PanelMikrosystem>
+
+        <PanelMikrosystem titulo="Últimos conectados">
+          <div className="min-h-[176px] bg-white dark:bg-[#1a2028]" />
+          <div className="flex justify-center border-t border-[#d9e1ea] px-3 py-3">
+            <button className="inline-flex items-center gap-1 text-sm font-medium text-[#2c6eb8] transition hover:text-[#1e5b98]">
+              Ver todos
+              <ArrowRight className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        </PanelMikrosystem>
+      </div>
+
+      <div className="mb-4 grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        <PanelMikrosystem titulo="DATOS DEL SERVIDOR">
+          <div className="bg-[#2b3239] px-4 py-4 text-white">
+            <div className="space-y-4">
+              {datosDashboardMikrosystem.datosServidor.map((item) => (
+                <div key={item.id} className="grid grid-cols-[28px_minmax(0,1fr)] items-center gap-3">
+                  <div
+                    className={cn(
+                      'flex h-8 w-8 items-center justify-center rounded-[8px] bg-gradient-to-br text-white',
+                      obtenerClasesServidor(item.variante),
+                    )}
                   >
-                    <td className="px-3 py-2 text-gray-900 dark:text-white">{equipment.nombre}</td>
-                    <td className="px-3 py-2 text-gray-600 dark:text-gray-400">{equipment.equipo}</td>
-                    <td className="px-3 py-2 text-gray-600 dark:text-gray-400">{equipment.ip}</td>
-                    <td className="px-3 py-2 text-center">
-                      <Badge 
-                        variant={
-                          equipment.estado === 'FUNCIONANDO' ? 'success' : 
-                          equipment.estado === 'PRUEBA' ? 'info' : 
-                          'success'
-                        }
-                        className="text-xs"
-                      >
-                        {equipment.estado}
-                      </Badge>
+                    {obtenerIconoServidor(item.clave)}
+                  </div>
+                  <div className="border-b border-[#3b454f] pb-3 last:border-b-0 last:pb-0">
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-sm text-white">{item.etiqueta}</span>
+                      {item.clave === 'cpu_cores' || item.clave === 'carga_promedio' || item.clave === 'ultima_copia' ? (
+                        <span className="text-sm text-[#d8e2ec]">{item.valorPrincipal}</span>
+                      ) : null}
+                    </div>
+
+                    {item.clave === 'uso_cpu' && typeof item.porcentajeUso === 'number' ? (
+                      <div className="mt-2">
+                        <div className="mb-1 text-right text-xs font-semibold text-[#d8e2ec]">{item.valorPrincipal}</div>
+                        {renderizarBarraUso(item.porcentajeUso, 'bg-[#f6a731]', 'bg-[#7cbcff]')}
+                      </div>
+                    ) : null}
+
+                    {item.clave === 'memoria' && typeof item.porcentajeUso === 'number' ? (
+                      <div className="mt-2">{renderizarBarraUso(item.porcentajeUso, 'bg-[#f6a731]', 'bg-[#5aa7ff]')}</div>
+                    ) : null}
+
+                    {item.clave === 'disco' && typeof item.porcentajeUso === 'number' ? (
+                      <div className="mt-2">{renderizarBarraUso(item.porcentajeUso, 'bg-[#f6a731]', 'bg-[#5aa7ff]')}</div>
+                    ) : null}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </PanelMikrosystem>
+
+        <PanelMikrosystem titulo="Resumen Facturación">
+          <div className="p-3">
+            <table className="w-full text-sm">
+              <tbody>
+                <tr>
+                  <th className="rounded-t-[3px] bg-[#4295f5] px-3 py-2 text-center text-sm font-semibold text-white" colSpan={2}>
+                    {datosDashboardMikrosystem.resumenFacturacion.etiquetaPeriodoActual}
+                  </th>
+                </tr>
+                {datosDashboardMikrosystem.resumenFacturacion.periodoActual.map((fila) => (
+                  <tr key={`actual-${fila.concepto}`} className="border-b border-[#e5ebf2]">
+                    <td className="px-3 py-2 text-[#334155]">{fila.concepto}</td>
+                    <td className="px-3 py-2 text-right font-medium text-[#334155]">
+                      {fila.cantidad} ({fila.monto})
+                    </td>
+                  </tr>
+                ))}
+                <tr>
+                  <th className="bg-[#4eb5d6] px-3 py-2 text-center text-sm font-semibold text-white" colSpan={2}>
+                    {datosDashboardMikrosystem.resumenFacturacion.etiquetaPeriodoAnterior}
+                  </th>
+                </tr>
+                {datosDashboardMikrosystem.resumenFacturacion.periodoAnterior.map((fila, indice) => (
+                  <tr
+                    key={`anterior-${fila.concepto}`}
+                    className={cn('border-b border-[#e5ebf2]', indice === datosDashboardMikrosystem.resumenFacturacion.periodoAnterior.length - 1 && 'border-b-0')}
+                  >
+                    <td className="px-3 py-2 text-[#334155]">{fila.concepto}</td>
+                    <td className="px-3 py-2 text-right font-medium text-[#334155]">
+                      {fila.cantidad} ({fila.monto})
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <div className="px-3 py-2 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex items-center justify-between">
-            <div className="text-xs text-gray-600 dark:text-gray-400">
-              Mostrando del 1 al 3 de un total de 3 registros
-            </div>
-            <div className="flex items-center gap-1">
-              <button className="w-8 h-8 flex items-center justify-center border border-gray-300 dark:border-gray-600 rounded text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 bg-blue-600 text-white">
-                1
+        </PanelMikrosystem>
+      </div>
+
+      <PanelMikrosystem
+        titulo="Emisores"
+        accionesEncabezado={
+          <div className="flex items-center gap-2">
+            <div className="flex items-center overflow-hidden rounded border border-[#46515d] bg-[#f5f8fb] text-[#2b3642]">
+              <button className="px-3 py-1.5 text-sm">{datosDashboardMikrosystem.emisores.tamanoPagina}</button>
+              <button className="border-l border-[#cfd7e2] px-3 py-1.5 text-sm">
+                <List className="h-4 w-4" />
               </button>
             </div>
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#7c8b9d]" />
+              <input
+                type="search"
+                placeholder="Buscar..."
+                className="h-9 w-[220px] rounded border border-[#cfd7e2] bg-white pl-9 pr-3 text-sm text-[#334155] outline-none placeholder:text-[#a0adba] focus:border-[#4295f5]"
+              />
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        }
+      >
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-[#f8fafc]">
+              <tr>
+                <th className="border-b border-[#d9e1ea] px-4 py-3 text-left font-semibold text-[#334155]">NOMBRE</th>
+                <th className="border-b border-[#d9e1ea] px-4 py-3 text-left font-semibold text-[#334155]">EQUIPO</th>
+                <th className="border-b border-[#d9e1ea] px-4 py-3 text-left font-semibold text-[#334155]">IP</th>
+                <th className="border-b border-[#d9e1ea] px-4 py-3 text-left font-semibold text-[#334155]">ESTADO</th>
+                <th className="border-b border-[#d9e1ea] px-4 py-3 text-right font-semibold text-[#334155]"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {datosDashboardMikrosystem.emisores.filas.map((emisor, indice) => (
+                <tr key={emisor.id} className={indice % 2 === 0 ? 'bg-white' : 'bg-[#fbfcfe]'}>
+                  <td className="border-b border-[#e5ebf2] px-4 py-3 text-[#334155]">{emisor.nombre}</td>
+                  <td className="border-b border-[#e5ebf2] px-4 py-3 text-[#526376]">{emisor.equipo || '-'}</td>
+                  <td className="border-b border-[#e5ebf2] px-4 py-3 text-[#526376]">{emisor.ip}</td>
+                  <td className="border-b border-[#e5ebf2] px-4 py-3">
+                    <span className={cn('inline-flex rounded-[3px] px-2 py-1 text-[11px] font-bold uppercase tracking-[0.04em]', obtenerClasesEstadoEmisor(emisor.estado))}>
+                      {emisor.estado === 'desconectado' ? 'DESCONECTADO' : 'EN LINEA'}
+                    </span>
+                  </td>
+                  <td className="border-b border-[#e5ebf2] px-4 py-3">
+                    <div className="flex items-center justify-end gap-3 text-[#2f3b48]">
+                      <Wifi className="h-4 w-4" />
+                      <BarChart3 className="h-4 w-4" />
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="flex flex-col gap-3 border-t border-[#d9e1ea] px-4 py-4 text-sm text-[#526376] md:flex-row md:items-center md:justify-between">
+          <p>
+            Mostrando de 1 a {datosDashboardMikrosystem.emisores.total} de un total de {datosDashboardMikrosystem.emisores.total}
+          </p>
+
+          <div className="flex items-center gap-2">
+            <button className="inline-flex h-9 w-9 items-center justify-center rounded border border-[#cfd7e2] bg-white text-[#7b8898] transition hover:border-[#9fb0c1] hover:text-[#526376]">
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <button className="inline-flex h-9 min-w-9 items-center justify-center rounded border border-[#2f7fd7] bg-[#4295f5] px-3 font-semibold text-white">
+              {datosDashboardMikrosystem.emisores.paginaActual}
+            </button>
+            <button className="inline-flex h-9 w-9 items-center justify-center rounded border border-[#cfd7e2] bg-white text-[#7b8898] transition hover:border-[#9fb0c1] hover:text-[#526376]">
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      </PanelMikrosystem>
     </div>
   );
 }

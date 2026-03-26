@@ -1,36 +1,125 @@
+import type { CSSProperties } from 'react';
 import { useState } from 'react';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { 
+  Copy,
+  DollarSign,
   Send, 
   CreditCard, 
   Download, 
   Filter, 
   Eye, 
   Mail,
+  Play,
   Settings,
   Grid3x3,
   List,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Info,
   Clock,
   AlertTriangle,
   HandshakeIcon,
-  FileText
+  FileText,
+  Power,
+  Table2,
+  Wrench
 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { MOCK_INVOICES, MOCK_CLIENTS } from '../../data/mockData';
 import { useAuth } from '../../context/AuthContext';
 import { useViewTheme } from '../../context/ViewThemeContext';
 import { formatCurrency, formatDate } from '../../lib/utils';
-import { CompactTable, CompactTableColumn, CompactTableToolbar, CompactTableFooter } from '../../components/CompactTable';
+import type {
+  WispHubListaPagosPendientesBoton,
+  WispHubListaPagosPendientesDatos,
+} from '../../types';
+
+const fuenteWispHubClasica =
+  '"Trebuchet MS", "Segoe UI", Tahoma, Geneva, sans-serif';
+
+const estilosWispHub = {
+  pagina: {
+    minHeight: '100%',
+    backgroundColor: '#ffffff',
+    borderTop: '4px solid #45bf63',
+    color: '#17273d',
+    fontFamily: fuenteWispHubClasica,
+    paddingBottom: '28px',
+  } satisfies CSSProperties,
+  encabezado: {
+    borderBottom: '1px solid #d7dde5',
+    padding: '22px 12px 24px',
+    marginBottom: '28px',
+  } satisfies CSSProperties,
+  panel: {
+    margin: '0 12px 20px',
+  } satisfies CSSProperties,
+  input: {
+    height: '34px',
+    border: '1px solid #cfd6df',
+    backgroundColor: '#ffffff',
+    padding: '0 12px',
+    color: '#20324a',
+    fontFamily: fuenteWispHubClasica,
+    fontSize: '12px',
+  } satisfies CSSProperties,
+  botonAzul: {
+    height: '34px',
+    border: '1px solid #1399da',
+    backgroundColor: '#1fa9e6',
+    color: '#ffffff',
+    padding: '0 16px',
+    fontFamily: fuenteWispHubClasica,
+    fontSize: '12px',
+  } satisfies CSSProperties,
+} as const;
+
+function obtenerIconoBotonWispHub(
+  icono: WispHubListaPagosPendientesBoton['icono'],
+) {
+  switch (icono) {
+    case 'copiar':
+      return <Copy className="h-3.5 w-3.5" />;
+    case 'documento':
+      return <FileText className="h-3.5 w-3.5" />;
+    case 'tabla':
+      return <Table2 className="h-3.5 w-3.5" />;
+    case 'filtro':
+      return <Filter className="h-3.5 w-3.5" />;
+    case 'dinero':
+      return <DollarSign className="h-3.5 w-3.5" />;
+    case 'correo':
+      return <Mail className="h-3.5 w-3.5" />;
+    case 'encendido':
+      return <Power className="h-3.5 w-3.5" />;
+    default:
+      return <Wrench className="h-3.5 w-3.5" />;
+  }
+}
+
+function obtenerClasesBotonWispHub(
+  color: WispHubListaPagosPendientesBoton['color'],
+) {
+  const mapa = {
+    verde: 'border-[#42b960] bg-[#45bf63] text-white',
+    azul: 'border-[#189edb] bg-[#1fa9e6] text-white',
+    cian: 'border-[#18a4d6] bg-[#1bb1df] text-white',
+    naranja: 'border-[#f0a22f] bg-[#f2a62d] text-white',
+  } satisfies Record<WispHubListaPagosPendientesBoton['color'], string>;
+
+  return mapa[color];
+}
 
 export default function PendingInvoices() {
   const { user } = useAuth();
   const { viewTheme } = useViewTheme();
   const [searchTerm, setSearchTerm] = useState('');
-  const [pageSize, setPageSize] = useState(25);
+  const [pageSize, setPageSize] = useState(
+    viewTheme === 'wisphub' ? 10 : 25,
+  );
   const [sortField, setSortField] = useState<string>('dueDate');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [currentPage, setCurrentPage] = useState(1);
@@ -38,6 +127,8 @@ export default function PendingInvoices() {
   const [startDate, setStartDate] = useState('01/03/2026');
   const [endDate, setEndDate] = useState('31/03/2026');
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+  const [registerAction, setRegisterAction] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('');
 
   const allInvoices = user?.role === 'super_admin'
     ? MOCK_INVOICES
@@ -163,6 +254,59 @@ export default function PendingInvoices() {
   const taxSoonToDue = totalSoonToDue * 0.16;
   const taxHighlyOverdue = totalHighlyOverdue * 0.16;
   const taxTotal = grandTotal * 0.16;
+
+  const datosWispHub: WispHubListaPagosPendientesDatos = {
+    tituloPagina: 'Lista de Pagos Pendientes',
+    pestanas: [
+      {
+        id: 'pagos-pendientes',
+        etiqueta: 'Pagos Pendientes',
+        activa: true,
+      },
+      {
+        id: 'pagos-pendientes-clientes',
+        etiqueta: 'Pagos Pendientes por Clientes',
+        activa: false,
+        resalto: 'Nuevo',
+      },
+    ],
+    formularioPago: {
+      accionPlaceholder: '-----------',
+      formaPagoPlaceholder: '---------',
+      botonTexto: 'Ejecutar',
+    },
+    tabla: {
+      selectorRegistrosLabel: 'Mostrar',
+      placeholderBusquedaGeneral: 'Buscar',
+      botonesExportacion: [
+        { id: 'copiar', etiqueta: '', icono: 'copiar', color: 'verde', variante: 'icono' },
+        { id: 'documento', etiqueta: '', icono: 'documento', color: 'verde', variante: 'icono' },
+        { id: 'tabla', etiqueta: 'Tabla', icono: 'tabla', color: 'verde', variante: 'selector' },
+      ],
+      botonesAccion: [
+        { id: 'filtros', etiqueta: 'Filtros', icono: 'filtro', color: 'verde', variante: 'boton' },
+        { id: 'documento-accion', etiqueta: '', icono: 'documento', color: 'verde', variante: 'icono' },
+        { id: 'dinero', etiqueta: '', icono: 'dinero', color: 'verde', variante: 'icono' },
+        { id: 'correo', etiqueta: '', icono: 'correo', color: 'azul', variante: 'icono' },
+        { id: 'encendido', etiqueta: '', icono: 'encendido', color: 'verde', variante: 'icono' },
+        { id: 'alerta', etiqueta: '', icono: 'encendido', color: 'naranja', variante: 'icono' },
+        { id: 'herramientas', etiqueta: '', icono: 'herramientas', color: 'azul', variante: 'menu' },
+      ],
+      columnas: [
+        { clave: 'numeroFactura', titulo: '#Factura', placeholderFiltro: 'Buscar #Factura' },
+        { clave: 'cliente', titulo: 'Cliente', placeholderFiltro: 'Buscar Cliente' },
+        { clave: 'idServicio', titulo: 'ID Servicio', placeholderFiltro: 'Buscar ID Servicio' },
+        { clave: 'estadoServicio', titulo: 'Estado Servicio', placeholderFiltro: 'Buscar Estado Servicio' },
+        { clave: 'ipServicio', titulo: 'IP Servicio', placeholderFiltro: 'Buscar IP Servicio' },
+        { clave: 'estadoFactura', titulo: 'Estado Factura', placeholderFiltro: 'Buscar Estado Factura' },
+        { clave: 'zona', titulo: 'Zona', placeholderFiltro: 'Buscar Zona' },
+        { clave: 'total', titulo: 'Total', placeholderFiltro: 'Buscar Total' },
+        { clave: 'accion', titulo: 'Acción', placeholderFiltro: 'Buscar Acción' },
+      ],
+      filas: [],
+      totalSeleccionados: 0,
+    },
+  };
 
   // Si es tema Mikrosystem, mostrar diseño con dashboard y header azul
   if (viewTheme === 'mikrosystem') {
@@ -600,7 +744,7 @@ export default function PendingInvoices() {
   }
 
   // Si es tema WispHub, mostrar diseño con CompactTable
-  const columns: CompactTableColumn<any>[] = [
+  /* const columns: CompactTableColumn<any>[] = [
     {
       key: 'folio',
       header: 'Folio',
@@ -692,91 +836,237 @@ export default function PendingInvoices() {
     },
   ];
 
-  const totalPages = Math.ceil(filteredInvoices.length / pageSize);
+  ]; */
 
   return (
-    <div className="h-full bg-gray-50 dark:bg-gray-900">
-      <CompactTableToolbar
-        title="Facturas Pendientes"
-        stats={[
-          { label: 'Total', value: pendingInvoices.length },
-          { label: 'Monto Pendiente', value: formatCurrency(totalPending), color: 'text-yellow-600 dark:text-yellow-400' },
-          { label: 'Vencidas', value: overdueInvoices.length, color: 'text-red-600 dark:text-red-400' },
-          { label: 'Monto Vencido', value: formatCurrency(totalOverdue), color: 'text-red-600 dark:text-red-400' },
-        ]}
-        actions={
-          <>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="h-8 text-xs px-3"
-            >
-              <Filter className="w-3.5 h-3.5 mr-1.5" />
-              Filtros
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="h-8 text-xs px-3"
-            >
-              <Download className="w-3.5 h-3.5 mr-1.5" />
-              Exportar
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="h-8 text-xs px-3"
-            >
-              <Send className="w-3.5 h-3.5 mr-1.5" />
-              Enviar Recordatorios
-            </Button>
-            <Button 
-              size="sm" 
-              className="h-8 text-xs px-3 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700"
-            >
-              <CreditCard className="w-3.5 h-3.5 mr-1.5" />
-              Registrar Pago
-            </Button>
-          </>
-        }
-        searchValue={searchTerm}
-        onSearchChange={setSearchTerm}
-        searchPlaceholder="Buscar facturas..."
-        pageSize={pageSize}
-        onPageSizeChange={setPageSize}
-        filters={
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="h-7 px-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded text-xs focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-          >
-            <option value="all">Todos</option>
-            <option value="pending">Pendientes</option>
-            <option value="overdue">Vencidas</option>
-          </select>
-        }
-      />
+    <div style={estilosWispHub.pagina}>
+      <header style={estilosWispHub.encabezado}>
+        <div className="flex items-center gap-3">
+          <FileText className="h-8 w-8 text-[#45bf63]" strokeWidth={2} />
+          <h1 className="text-[2.05rem] font-semibold leading-none text-[#0f1f35]">
+            {datosWispHub.tituloPagina}
+          </h1>
+        </div>
+      </header>
 
-      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 m-0">
-        <CompactTable
-          columns={columns}
-          data={filteredInvoices}
-          keyExtractor={(invoice) => invoice.id}
-          onSort={handleSort}
-          sortField={sortField}
-          sortDirection={sortDirection}
-          pageSize={pageSize}
-          emptyMessage="No hay facturas pendientes"
-        />
+      <section style={estilosWispHub.panel}>
+        <div className="mb-4 flex border-b border-[#dde2e8]">
+          {datosWispHub.pestanas.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              className={`inline-flex items-center gap-2 border border-b-0 px-4 py-3 text-[13px] ${
+                tab.activa
+                  ? 'border-[#cfd6df] border-t-[4px] border-t-[#45bf63] bg-white text-[#24364b]'
+                  : 'border-[#cfd6df] bg-[#fbfcfd] text-[#24364b]'
+              }`}
+            >
+              <span>{tab.etiqueta}</span>
+              {tab.resalto && (
+                <span className="rounded bg-[#45bf63] px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                  {tab.resalto}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
 
-        <CompactTableFooter
-          currentPage={currentPage}
-          totalPages={totalPages}
-          pageSize={pageSize}
-          totalRecords={filteredInvoices.length}
-          onPageChange={setCurrentPage}
-        />
-      </div>
+        <div className="flex flex-wrap items-end gap-7">
+          <div className="min-w-[420px] flex-1">
+            <label className="mb-2 block text-[12px] font-semibold">
+              Acción al Registrar pagos:
+            </label>
+            <select
+              value={registerAction}
+              onChange={(event) =>
+                setRegisterAction(event.target.value)
+              }
+              style={estilosWispHub.input}
+              className="w-full"
+            >
+              <option value="">
+                {datosWispHub.formularioPago.accionPlaceholder}
+              </option>
+            </select>
+          </div>
+
+          <div className="min-w-[420px] flex-1">
+            <label className="mb-2 block text-[12px] font-semibold">
+              Forma de pago:
+            </label>
+            <select
+              value={paymentMethod}
+              onChange={(event) =>
+                setPaymentMethod(event.target.value)
+              }
+              style={estilosWispHub.input}
+              className="w-full"
+            >
+              <option value="">
+                {datosWispHub.formularioPago.formaPagoPlaceholder}
+              </option>
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              style={estilosWispHub.botonAzul}
+              className="inline-flex items-center gap-1.5"
+            >
+              <Play className="h-4 w-4" />
+              {datosWispHub.formularioPago.botonTexto}
+            </button>
+            <span className="text-[12px]">
+              {datosWispHub.tabla.totalSeleccionados} seleccionados/as
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-[12px]">
+        <div className="mb-2 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <button
+              type="button"
+              className="inline-flex h-[33px] items-center gap-2 border border-[#42b960] bg-[#45bf63] px-3 text-[12px] font-medium text-white"
+            >
+              {datosWispHub.tabla.selectorRegistrosLabel} {pageSize}{' '}
+              registros
+              <ChevronDown className="h-3.5 w-3.5" />
+            </button>
+
+            {datosWispHub.tabla.botonesExportacion.map((button) => (
+              <button
+                key={button.id}
+                type="button"
+                className={`inline-flex h-[33px] items-center justify-center gap-1.5 border px-3 text-[12px] ${obtenerClasesBotonWispHub(
+                  button.color,
+                )}`}
+              >
+                {obtenerIconoBotonWispHub(button.icono)}
+                {button.etiqueta && <span>{button.etiqueta}</span>}
+                {button.variante === 'selector' && (
+                  <ChevronDown className="h-3.5 w-3.5" />
+                )}
+              </button>
+            ))}
+
+            <span className="ml-1 text-[12px] text-[#20324a]">
+              Botones de Acción:
+            </span>
+
+            {datosWispHub.tabla.botonesAccion.map((button) => (
+              <button
+                key={button.id}
+                type="button"
+                className={`inline-flex ${
+                  button.variante === 'boton'
+                    ? 'h-[33px] items-center gap-1.5 px-3'
+                    : 'h-[33px] w-[36px] items-center justify-center'
+                } border text-[12px] ${obtenerClasesBotonWispHub(
+                  button.color,
+                )}`}
+              >
+                {obtenerIconoBotonWispHub(button.icono)}
+                {button.etiqueta && <span>{button.etiqueta}</span>}
+              </button>
+            ))}
+          </div>
+
+          <label className="flex items-center gap-2 text-[13px] font-semibold text-[#17273d]">
+            Buscar:
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+              className="h-[30px] w-[160px] border border-[#cfd6df] bg-white px-3 text-[12px] text-[#20324a] outline-none"
+            />
+          </label>
+        </div>
+
+        <div className="border border-[#d7dde5] bg-white">
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-[12px]">
+              <thead>
+                <tr className="bg-white">
+                  <th className="w-[42px] border border-[#d7dde5] px-2 py-2 text-center">
+                    <input type="checkbox" disabled className="h-4 w-4" />
+                  </th>
+                  {datosWispHub.tabla.columnas.map((column) => (
+                    <th
+                      key={column.clave}
+                      className="border border-[#d7dde5] px-3 py-2 text-left font-bold text-[#1b2b41]"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span>{column.titulo}</span>
+                        <ChevronLeft className="h-3.5 w-3.5 rotate-180 text-[#c2cad4]" />
+                      </div>
+                    </th>
+                  ))}
+                </tr>
+                <tr className="bg-[#fbfcfd]">
+                  <th className="border border-[#d7dde5] px-2 py-2 text-center">
+                    <button
+                      type="button"
+                      className="inline-flex h-[28px] w-[28px] items-center justify-center border border-[#cfd6df] bg-white text-[12px] text-[#6c7a8d]"
+                    >
+                      B
+                    </button>
+                  </th>
+                  {datosWispHub.tabla.columnas.map((column) => (
+                    <th
+                      key={`${column.clave}-filter`}
+                      className="border border-[#d7dde5] px-2 py-2"
+                    >
+                      <input
+                        type="text"
+                        placeholder={column.placeholderFiltro}
+                        className="h-[30px] w-full border border-[#cfd6df] bg-white px-3 text-[12px] text-[#20324a] outline-none"
+                      />
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td
+                    colSpan={
+                      datosWispHub.tabla.columnas.length + 1
+                    }
+                    className="border border-[#d7dde5] px-4 py-8 text-center text-[14px] text-[#37485f]"
+                  >
+                    Ningún dato disponible en esta tabla
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-4 text-[13px] text-[#20324a]">
+          <div>
+            Mostrando registros del 0 al 0 de un total de 0
+            registros
+          </div>
+          <div className="flex items-center">
+            <button
+              type="button"
+              disabled
+              className="h-[34px] border border-[#d7dde5] bg-white px-4 text-[12px] text-[#6d7a8e] opacity-60"
+            >
+              Anterior
+            </button>
+            <button
+              type="button"
+              disabled
+              className="h-[34px] border border-l-0 border-[#d7dde5] bg-white px-4 text-[12px] text-[#6d7a8e] opacity-60"
+            >
+              Siguiente
+            </button>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
