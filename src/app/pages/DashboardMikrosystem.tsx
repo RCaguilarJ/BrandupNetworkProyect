@@ -13,10 +13,8 @@ import {
   Activity,
   ArrowRight,
   BarChart3,
-  CheckCircle2,
   ChevronLeft,
   ChevronRight,
-  CircleAlert,
   Clock3,
   Cpu,
   DollarSign,
@@ -26,10 +24,8 @@ import {
   Search,
   Server,
   Ticket,
-  TrendingUp,
   Users,
   Wifi,
-  WifiOff,
 } from 'lucide-react';
 import {
   CartesianGrid,
@@ -137,25 +133,6 @@ function obtenerClasesResumenSistema(variante: DashboardMikrosystemResumenSistem
   } as const;
 
   return clasesPorVariante[variante];
-}
-
-function obtenerIconoResumenSistema(id: number) {
-  switch (id) {
-    case 1:
-      return <Wifi className="h-3.5 w-3.5" aria-hidden="true" />;
-    case 2:
-      return <WifiOff className="h-3.5 w-3.5" aria-hidden="true" />;
-    case 3:
-      return <Users className="h-3.5 w-3.5" aria-hidden="true" />;
-    case 4:
-      return <CircleAlert className="h-3.5 w-3.5" aria-hidden="true" />;
-    case 5:
-      return <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />;
-    case 6:
-      return <Activity className="h-3.5 w-3.5" aria-hidden="true" />;
-    default:
-      return <TrendingUp className="h-3.5 w-3.5" aria-hidden="true" />;
-  }
 }
 
 function obtenerIconoServidor(clave: DashboardMikrosystemEstadoServidorItem['clave']) {
@@ -394,74 +371,75 @@ export default function DashboardMikrosystem() {
         })}
       </div>
 
-      <div className="mb-4 grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.62fr)_minmax(300px,0.68fr)]">
-        <PanelMikrosystem titulo="Tráfico Clientes" cuerpoClassName="bg-[#2b3239] px-4 pb-4 pt-2">
-          <div className="mb-3 text-[13px] text-[#d1dae4]">Últimos 7 días</div>
-          <div className="h-[240px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={datosDashboardMikrosystem.graficaTrafico.puntos} margin={{ top: 8, right: 16, bottom: 16, left: 8 }}>
-                <CartesianGrid stroke="#55616d" vertical={false} />
-                <XAxis
-                  dataKey="fecha"
-                  tick={{ fill: '#9eaab8', fontSize: 11 }}
-                  axisLine={false}
-                  tickLine={false}
-                  angle={-28}
-                  textAnchor="end"
-                  height={48}
-                />
-                <YAxis
-                  domain={[0, 1]}
-                  ticks={[0, 0.25, 0.5, 0.75, 1]}
-                  tickFormatter={(valor) => `${valor} GB`}
-                  tick={{ fill: '#9eaab8', fontSize: 11 }}
-                  axisLine={false}
-                  tickLine={false}
-                  width={48}
-                />
-                <Tooltip
-                  cursor={{ stroke: '#58a9ff', strokeWidth: 1 }}
-                  contentStyle={{
-                    backgroundColor: '#1f252b',
-                    border: '1px solid #55616d',
-                    borderRadius: '4px',
-                    color: '#ffffff',
-                    fontSize: '12px',
-                  }}
-                  formatter={(valor: number) => [`${valor} GB`, 'Tráfico']}
-                  labelStyle={{ color: '#ffffff' }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="traficoGb"
-                  stroke="#4da6ff"
-                  strokeWidth={2}
-                  dot={{ fill: '#4da6ff', stroke: '#d7e3ee', strokeWidth: 1.5, r: 3.2 }}
-                  activeDot={{ r: 4 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </PanelMikrosystem>
+      <div className="mb-4 grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.72fr)_minmax(320px,0.84fr)]">
+        <PanelMikrosystem titulo="Tráfico Clientes" cuerpoClassName="bg-[#2b3239] p-0">
+          <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_226px]">
+            <div className="px-5 pb-4 pt-2">
+              <div className="mb-3 text-[13px] text-[#d1dae4]">Últimos 7 días</div>
+              <div className="h-[256px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart
+                    data={datosDashboardMikrosystem.graficaTrafico.puntos}
+                    margin={{ top: 8, right: 18, bottom: 12, left: 4 }}
+                  >
+                    <CartesianGrid stroke="#55616d" vertical={false} />
+                    <XAxis
+                      dataKey="fecha"
+                      tick={{ fill: '#9eaab8', fontSize: 11 }}
+                      axisLine={false}
+                      tickLine={false}
+                      angle={-28}
+                      textAnchor="end"
+                      height={48}
+                    />
+                    <YAxis
+                      domain={[0, 1]}
+                      ticks={[0, 0.25, 0.5, 0.75, 1]}
+                      tickFormatter={(valor) => `${valor} GB`}
+                      tick={{ fill: '#9eaab8', fontSize: 11 }}
+                      axisLine={false}
+                      tickLine={false}
+                      width={48}
+                    />
+                    <Tooltip
+                      cursor={{ stroke: '#58a9ff', strokeWidth: 1 }}
+                      contentStyle={{
+                        backgroundColor: '#1f252b',
+                        border: '1px solid #55616d',
+                        borderRadius: '4px',
+                        color: '#ffffff',
+                        fontSize: '12px',
+                      }}
+                      formatter={(valor: number) => [`${valor} GB`, 'Tráfico']}
+                      labelStyle={{ color: '#ffffff' }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="traficoGb"
+                      stroke="#4da6ff"
+                      strokeWidth={2}
+                      dot={{ fill: '#4da6ff', stroke: '#d7e3ee', strokeWidth: 1.5, r: 3.2 }}
+                      activeDot={{ r: 4 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
 
-        <PanelMikrosystem titulo="Resumen del sistema" cuerpoClassName="bg-[#1f252b] p-0">
-          <div className="grid grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-            <div className="border-b border-r border-[#313942] px-4 py-4 text-white">
+            <div className="border-t border-[#313942] bg-[#1f252b] px-4 py-4 text-white xl:border-l xl:border-t-0">
               <div className="text-[2.1rem] font-semibold leading-none">{datosDashboardMikrosystem.graficaTrafico.totalGb}</div>
               <div className="mt-1 text-sm text-[#a8b4c1]">Total tráfico</div>
 
-              <div className="mt-4 flex justify-center">
-                <div className="relative flex h-40 w-40 items-center justify-center rounded-full border-[22px] border-[#3f9cff] bg-[#1f252b] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.04)]">
+              <div className="mt-6 flex justify-center">
+                <div className="relative flex h-[184px] w-[184px] items-center justify-center rounded-full border-[24px] border-[#3f9cff] bg-[#1f252b] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.04)]">
                   <div className="text-center">
                     <div className="text-[3rem] font-bold leading-none">{datosDashboardMikrosystem.graficaTrafico.porcentajeDescarga}%</div>
-                    <div className="text-[0.95rem] font-semibold uppercase tracking-[0.04em] text-white">
-                      Descarga
-                    </div>
+                    <div className="text-[0.95rem] font-medium uppercase tracking-normal text-white">DESCARGA</div>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-4 space-y-2 text-xs text-[#d7e3ee]">
+              <div className="mt-5 space-y-3 text-xs text-[#d7e3ee]">
                 <div className="flex items-center gap-2">
                   <span className="h-2.5 w-2.5 rounded-full bg-[#3f9cff]" />
                   <span className="font-semibold">{datosDashboardMikrosystem.graficaTrafico.descargaGb}</span>
@@ -474,25 +452,31 @@ export default function DashboardMikrosystem() {
                 </div>
               </div>
             </div>
+          </div>
+        </PanelMikrosystem>
 
-            <div className="divide-y divide-[#313942]">
-              {datosDashboardMikrosystem.resumenSistema.map((item, indice) => (
-                <div key={item.id} className="flex items-center justify-between gap-3 px-4 py-[13px] text-white">
-                  <div className="flex min-w-0 items-center gap-2.5">
-                    <span className="text-sm font-semibold text-[#dbe5ef]">{indice + 1}.</span>
-                    <span className="truncate text-sm text-white">{item.etiqueta}</span>
-                  </div>
-                  <span
-                    className={cn(
-                      'inline-flex min-w-[24px] items-center justify-center rounded-full px-2 py-0.5 text-xs font-bold text-white',
-                      obtenerClasesResumenSistema(item.variante),
-                    )}
-                  >
-                    {item.valor}
-                  </span>
+        <PanelMikrosystem
+          titulo="Resumen del sistema"
+          cuerpoClassName="bg-[#1f252b] p-0"
+          className="border-[#2a3138] bg-[#1f252b] shadow-[0_8px_20px_rgba(15,23,42,0.12)]"
+        >
+          <div className="divide-y divide-[#313942]">
+            {datosDashboardMikrosystem.resumenSistema.map((item, indice) => (
+              <div key={item.id} className="flex items-center justify-between gap-3 px-4 py-[13px] text-white">
+                <div className="flex min-w-0 items-center gap-2">
+                  <span className="text-[0.95rem] font-semibold text-white">{indice + 1}.</span>
+                  <span className="truncate text-[0.95rem] text-white">{item.etiqueta}</span>
                 </div>
-              ))}
-            </div>
+                <span
+                  className={cn(
+                    'inline-flex min-w-[26px] items-center justify-center rounded-full px-2.5 py-0.5 text-xs font-bold leading-none text-white',
+                    obtenerClasesResumenSistema(item.variante),
+                  )}
+                >
+                  {item.valor}
+                </span>
+              </div>
+            ))}
           </div>
         </PanelMikrosystem>
       </div>

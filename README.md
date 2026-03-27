@@ -552,7 +552,7 @@ interface WispHubListaFacturasDatos {
 ### Notas de mantenimiento
 
 - Si cambia una clave del contrato `WispHubListaFacturasDatos`, actualizar `src/app/types/index.ts`, `src/app/pages/billing/Invoices.tsx` y este README en el mismo cambio.
-- No usar datos mock en esta pantalla. Las capturas solo marcan layout y estilo.
+
 - Los textos y controles del layout clásico deben permanecer encapsulados en la variante WispHub.
 
 ## Lista de Facturas Mikrosystem
