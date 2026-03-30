@@ -610,7 +610,7 @@ export default function DashboardMikrosystem() {
           <div className="flex items-center gap-2">
             <div className="flex items-center overflow-hidden rounded border border-[#46515d] bg-[#f5f8fb] text-[#2b3642]">
               <button className="px-3 py-1.5 text-sm">{datosDashboardMikrosystem.emisores.tamanoPagina}</button>
-              <button className="border-l border-[#cfd7e2] px-3 py-1.5 text-sm">
+              <button className="border-l border-[#cfd7e2] px-3 py-1.5 text-sm" title="Toggle list view">
                 <List className="h-4 w-4" />
               </button>
             </div>
@@ -665,13 +665,13 @@ export default function DashboardMikrosystem() {
           </p>
 
           <div className="flex items-center gap-2">
-            <button className="inline-flex h-9 w-9 items-center justify-center rounded border border-[#cfd7e2] bg-white text-[#7b8898] transition hover:border-[#9fb0c1] hover:text-[#526376]">
+            <button className="inline-flex h-9 w-9 items-center justify-center rounded border border-[#cfd7e2] bg-white text-[#7b8898] transition hover:border-[#9fb0c1] hover:text-[#526376]" title="Página anterior">
               <ChevronLeft className="h-4 w-4" />
             </button>
             <button className="inline-flex h-9 min-w-9 items-center justify-center rounded border border-[#2f7fd7] bg-[#4295f5] px-3 font-semibold text-white">
               {datosDashboardMikrosystem.emisores.paginaActual}
             </button>
-            <button className="inline-flex h-9 w-9 items-center justify-center rounded border border-[#cfd7e2] bg-white text-[#7b8898] transition hover:border-[#9fb0c1] hover:text-[#526376]">
+            <button className="inline-flex h-9 w-9 items-center justify-center rounded border border-[#cfd7e2] bg-white text-[#7b8898] transition hover:border-[#9fb0c1] hover:text-[#526376]" title="Página siguiente">
               <ChevronRight className="h-4 w-4" />
             </button>
           </div>

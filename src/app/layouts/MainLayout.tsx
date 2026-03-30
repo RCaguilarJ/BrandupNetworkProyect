@@ -37,6 +37,7 @@ import {
   List,
   ChevronDown,
   ChevronRight,
+  Database,
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "../components/ui/button";
@@ -249,6 +250,12 @@ const navigationItems: NavItem[] = [
     roles: ["super_admin", "isp_admin"],
   },
   {
+    name: "Copias de Seguridad",
+    path: "/backups",
+    icon: <Database className="w-5 h-5" />,
+    roles: ["super_admin", "isp_admin"],
+  },
+  {
     name: "Configuración",
     path: "/settings",
     icon: <Settings className="w-5 h-5" />,
@@ -317,7 +324,7 @@ export default function MainLayout() {
               <ChevronRight className="w-4 h-4" />
             )}
           </button>
-          {isExpanded && (
+          {isExpanded && item.subItems && (
             <div className="ml-4 mb-1">
               {item.subItems.map((subItem) => (
                 <Link
@@ -414,7 +421,11 @@ export default function MainLayout() {
           <aside className="sidebar fixed inset-y-0 left-0 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-50 lg:hidden pt-16">
             <div className="flex flex-col h-full">
               <div className="flex items-center justify-end px-6 py-4 absolute top-0 right-0">
-                <button onClick={() => setSidebarOpen(false)}>
+                <button 
+                  onClick={() => setSidebarOpen(false)} 
+                  title="Cerrar menú"
+                  aria-label="Cerrar menú de navegación"
+                >
                   <X className="w-6 h-6 text-gray-600 dark:text-gray-400" />
                 </button>
               </div>
@@ -462,6 +473,8 @@ export default function MainLayout() {
             <button
               onClick={() => setSidebarOpen(true)}
               className="lg:hidden p-2"
+              title="Abrir menú"
+              aria-label="Abrir menú de navegación"
             >
               <Menu className="w-6 h-6" />
             </button>
@@ -478,6 +491,8 @@ export default function MainLayout() {
               variant="ghost"
               size="sm"
               className="relative"
+              title="Notificaciones"
+              aria-label="Notificaciones"
             >
               <Bell className="w-5 h-5" />
               <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
@@ -487,6 +502,8 @@ export default function MainLayout() {
               size="sm"
               className="relative"
               onClick={toggleTheme}
+              title={theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+              aria-label={theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
             >
               {theme === "dark" ? (
                 <Sun className="w-5 h-5" />

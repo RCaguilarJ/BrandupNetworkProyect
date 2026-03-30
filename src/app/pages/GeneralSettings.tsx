@@ -1,349 +1,683 @@
-import { Link } from 'react-router';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { type ChangeEvent, type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Switch } from '../components/ui/switch';
+import { useAuth } from '../context/AuthContext';
 import {
-  type GeneralSettingsData,
-  type GeneralSettingsField,
+  type GeneralSettingsBasicConfigSection,
+  type GeneralSettingsCompanySection,
+  type GeneralSettingsLoginImageAsset,
+  type GeneralSettingsLoginImageSection,
   type GeneralSettingsLogoAsset,
+  type GeneralSettingsNotificationsSection,
+  type GeneralSettingsStorageData,
 } from '../types';
-import logoPreview from '../../assets/1fe9c15b53c884f010789ae03712f9a257bcab54.png';
+import { toast } from 'sonner';
 import { CircleHelp, FileImage, Save, Upload } from 'lucide-react';
 
-/**
- * Devuelve la forma estable del módulo General.
- * La pantalla ya queda lista para consumir backend sin reestructurar JSX.
- */
-function getGeneralSettingsMockData(): GeneralSettingsData {
+const GENERAL_SETTINGS_STORAGE_PREFIX = 'brandup_general_settings';
+const LOGO_MAX_SIZE_BYTES = 20 * 1024 * 1024;
+const LOGIN_IMAGE_UPLOAD_HELP =
+  'Para subir nuevas imagenes debe subirlos al servidor ruta :/var/www/html/admin/images/login-bg';
+const TIMEZONE_OPTIONS = [
+  'America/Mexico_City',
+  'America/Bogota',
+  'America/Lima',
+  'America/Santiago',
+  'America/Guayaquil',
+  'America/Caracas',
+  'America/Argentina/Buenos_Aires',
+];
+
+type LogoSlotKey = 'mainLogo' | 'invoiceLogo';
+
+function buildStorageKey(companyId?: string) {
+  return `${GENERAL_SETTINGS_STORAGE_PREFIX}:${companyId ?? 'global'}`;
+}
+
+function getDefaultTimezone() {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Mexico_City';
+  } catch {
+    return 'America/Mexico_City';
+  }
+}
+
+function createEmptyGeneralSettingsState(): GeneralSettingsStorageData {
   return {
-    pageTitle: 'Ajustes generales',
-    pageDescription: 'Módulo base de configuración general alineado con la referencia visual.',
-    breadcrumb: ['Inicio', 'Ajustes', 'General'],
-    companyPanel: {
-      title: 'Datos de la empresa',
-      fields: [
-        { key: 'company_name', label: 'Empresa', value: 'TV SAT KABEL S.R.L.', type: 'text' },
-        { key: 'company_address', label: 'Dirección', value: 'NUEVO CHIMBOTE', type: 'text' },
-        { key: 'company_phone', label: 'Teléfonos', value: '952202858', type: 'text' },
-        { key: 'company_identifier', label: 'Identificación', value: '253748753', type: 'text' },
-      ],
-      helperText: 'RUC,CUT,NIT,SAT,RUT,RTN',
-      primaryActionLabel: 'Guardar cambios',
-      primaryActionKey: 'save_company_settings',
+    company: {
+      companyName: '',
+      address: '',
+      phoneNumbers: '',
+      identification: '',
     },
-    basicConfigPanel: {
-      title: 'Configuración básica',
-      fields: [
-        {
-          key: 'timezone',
-          label: 'Zona Horaria',
-          value: 'America/Mexico_City',
-          type: 'select',
-          options: [
-            { value: 'America/Mexico_City', label: 'America/Mexico_City' },
-            { value: 'America/Bogota', label: 'America/Bogota' },
-            { value: 'America/Lima', label: 'America/Lima' },
-            { value: 'America/Santiago', label: 'America/Santiago' },
-          ],
-        },
-        { key: 'backup_email', label: 'Email backup', value: 'santelfibraoptica@gmail.com', type: 'text' },
-        { key: 'support_email', label: 'Email Soporte', value: 'santelfibraoptica@gmail.com', type: 'text' },
-        {
-          key: 'billing_email',
-          label: 'Email Facturación',
-          value: 'santelfibraoptica@gmail.com',
-          type: 'text',
-          description: '* Email remitente',
-        },
-      ],
-      validationToggle: {
-        key: 'validate_identity',
-        label: 'Validar Cédula/DNI/Rut/Cuit',
-        enabled: true,
-        description: 'Activa una validación global de documentos fiscales/identidad.',
-      },
-      validationHelpText: 'Valida automáticamente identificaciones fiscales según el país configurado.',
-      primaryActionLabel: 'Guardar cambios',
-      primaryActionKey: 'save_basic_settings',
+    basicConfig: {
+      timezone: getDefaultTimezone(),
+      backupEmail: '',
+      supportEmail: '',
+      billingEmail: '',
+      validateIdentity: false,
     },
-    notificationsPanel: {
-      title: 'Notificaciones del sistema',
-      fields: [
-        {
-          key: 'router_down_email',
-          label: 'Correo Emisor/Router Caído',
-          value: '',
-          type: 'text',
-          description: 'Puede indicar varios correos',
-        },
-        {
-          key: 'router_down_mobile',
-          label: 'N° móvil Emisor/Router Caído',
-          value: '',
-          type: 'text',
-          description: 'Puede indicar varios números',
-        },
-        {
-          key: 'payment_report_email',
-          label: 'Correo reporte pago',
-          value: '',
-          type: 'text',
-          description: 'Puede indicar varios correos',
-        },
-      ],
-      primaryActionLabel: 'Guardar cambios',
-      primaryActionKey: 'save_notification_settings',
+    notifications: {
+      routerDownEmail: '',
+      routerDownMobile: '',
+      paymentReportEmail: '',
     },
-    logosPanel: {
-      title: 'Logo (.png)',
-      assets: [
-        {
-          key: 'main_logo',
-          label: 'Logo principal',
-          imageUrl: logoPreview,
-          uploadActionLabel: 'Subir Logo principal',
-          maxSizeText: '*Máximo : 20M',
-        },
-        {
-          key: 'invoice_logo',
-          label: 'Logo Facturas & Recibo',
-          imageUrl: logoPreview,
-          uploadActionLabel: 'Subir Logo Facturas & Recibo',
-          maxSizeText: '*Máximo : 20M',
-          recommendationText: '* Se recomienda que el logo no debe pesar mas de 50kb y un ancho no mayor de 400px',
-        },
-      ],
+    logos: {
+      mainLogo: null,
+      invoiceLogo: null,
     },
-    loginImagePanel: {
-      title: 'Imagen Login administrador',
-      selectorLabel: 'seleccionar imagen',
-      selectedImage: 'login-bg-17.jpg',
-      availableImages: [
-        { value: 'login-bg-17.jpg', label: 'login-bg-17.jpg' },
-        { value: 'login-bg-18.jpg', label: 'login-bg-18.jpg' },
-        { value: 'login-bg-19.jpg', label: 'login-bg-19.jpg' },
-      ],
-      uploadPathHelpText: 'Para subir nuevas imágenes debe subirlos al servidor ruta :/var/www/html/admin/images/login-bg',
-      primaryActionLabel: 'Guardar cambios',
-      primaryActionKey: 'save_login_image_settings',
+    loginImage: {
+      selectedImageId: '',
+      images: [],
     },
   };
 }
 
 /**
- * Renderiza un campo readonly con la misma semántica visual que luego usará backend.
+ * Normaliza la persistencia temporal para que la UI no dependa de mocks ni
+ * de estructuras parciales guardadas en versiones anteriores del modulo.
  */
-function renderField(field: GeneralSettingsField) {
-  const baseClassName =
-    'h-9 w-full rounded-sm border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none disabled:opacity-100';
+function loadStoredGeneralSettings(storageKey: string): GeneralSettingsStorageData {
+  const fallback = createEmptyGeneralSettingsState();
 
-  if (field.type === 'select') {
-    return (
-      <select value={field.value} disabled className={baseClassName}>
-        {field.options?.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-    );
+  try {
+    const rawValue = localStorage.getItem(storageKey);
+    if (!rawValue) {
+      return fallback;
+    }
+
+    const parsed = JSON.parse(rawValue) as Partial<GeneralSettingsStorageData>;
+
+    return {
+      company: {
+        ...fallback.company,
+        ...parsed.company,
+      },
+      basicConfig: {
+        ...fallback.basicConfig,
+        ...parsed.basicConfig,
+      },
+      notifications: {
+        ...fallback.notifications,
+        ...parsed.notifications,
+      },
+      logos: {
+        mainLogo: parsed.logos?.mainLogo ?? fallback.logos.mainLogo,
+        invoiceLogo: parsed.logos?.invoiceLogo ?? fallback.logos.invoiceLogo,
+      },
+      loginImage: {
+        selectedImageId: parsed.loginImage?.selectedImageId ?? fallback.loginImage.selectedImageId,
+        images: Array.isArray(parsed.loginImage?.images) ? parsed.loginImage.images : fallback.loginImage.images,
+      },
+    };
+  } catch {
+    return fallback;
   }
-
-  return <input value={field.value} disabled type={field.type} className={baseClassName} />;
 }
 
 /**
- * Mantiene un contenedor consistente para todos los bloques del módulo General.
+ * Convierte un archivo local a data URL para que la vista pueda previsualizarlo
+ * y persistirlo localmente mientras backend no este integrado.
  */
+function readFileAsDataUrl(file: File) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        resolve(reader.result);
+        return;
+      }
+
+      reject(new Error('No fue posible leer el archivo seleccionado.'));
+    };
+
+    reader.onerror = () => reject(new Error('No fue posible leer el archivo seleccionado.'));
+    reader.readAsDataURL(file);
+  });
+}
+
+function createLogoAsset(file: File, previewUrl: string): GeneralSettingsLogoAsset {
+  return {
+    fileName: file.name,
+    previewUrl,
+    mimeType: file.type,
+    size: file.size,
+  };
+}
+
+function createLoginImageAsset(file: File, previewUrl: string): GeneralSettingsLoginImageAsset {
+  return {
+    id: `${Date.now()}-${file.name}`,
+    label: file.name,
+    fileName: file.name,
+    previewUrl,
+    mimeType: file.type,
+    size: file.size,
+  };
+}
+
 function GeneralPanel({
   title,
+  className = '',
   children,
 }: {
   title: string;
-  children: React.ReactNode;
+  className?: string;
+  children: ReactNode;
 }) {
   return (
-    <Card className="overflow-hidden rounded-sm border-0 shadow-none ring-1 ring-black/5">
-      <CardHeader className="bg-slate-800 px-4 py-3">
-        <CardTitle className="text-sm font-semibold text-white">{title}</CardTitle>
-      </CardHeader>
-      <CardContent className="bg-white p-0">{children}</CardContent>
-    </Card>
+    <section className={`overflow-hidden rounded-[4px] bg-white shadow-sm ring-1 ring-black/5 ${className}`}>
+      <header className="bg-[#202833] px-4 py-3 text-[14px] font-semibold text-white">{title}</header>
+      <div className="bg-white">{children}</div>
+    </section>
   );
 }
 
-/**
- * Reutiliza la acción principal con el estilo visual de la referencia.
- */
-function SaveAction({ label }: { label: string }) {
+function SectionSaveButton({ onClick }: { onClick: () => void }) {
   return (
     <Button
+      type="button"
       variant="outline"
       size="sm"
-      className="h-10 rounded-full border-blue-500 px-5 text-sm font-semibold text-blue-600 hover:bg-blue-50"
+      onClick={onClick}
+      className="h-9 rounded-full border-[#0d8bff] px-5 text-[14px] font-semibold text-[#0d8bff] hover:bg-[#eef7ff]"
     >
       <Save className="mr-2 h-4 w-4" />
-      {label}
+      Guardar cambios
     </Button>
   );
 }
 
-function LogoAssetCard({ asset }: { asset: GeneralSettingsLogoAsset }) {
+function FormRow({
+  label,
+  labelWidth,
+  children,
+}: {
+  label: string;
+  labelWidth: string;
+  children: ReactNode;
+}) {
   return (
-    <div className="flex flex-col items-center justify-center py-7 text-center">
-      <img src={asset.imageUrl} alt={asset.label} className="mb-4 max-h-20 object-contain" />
-      <Button variant="outline" size="sm" className="h-9 gap-2">
-        <Upload className="h-4 w-4" />
-        {asset.uploadActionLabel}
-      </Button>
-      <p className="mt-3 text-xs text-red-500">{asset.maxSizeText}</p>
-      {asset.recommendationText && <p className="mt-4 text-xs text-orange-500">{asset.recommendationText}</p>}
+    <div className={`grid items-start gap-4 ${labelWidth}`}>
+      <label className="pt-2 text-right text-[14px] text-slate-900">{label}</label>
+      <div>{children}</div>
     </div>
   );
 }
 
+function EmptyPreview({ iconSize = 'h-10 w-10' }: { iconSize?: string }) {
+  return <FileImage className={`${iconSize} text-slate-400`} />;
+}
+
+function formatBytesLimitText(size: number) {
+  return `*Maximo : ${Math.round(size / (1024 * 1024))}M`;
+}
+
 export default function GeneralSettings() {
-  const data = getGeneralSettingsMockData();
-  const identificationField = data.companyPanel.fields.find((field) => field.key === 'company_identifier');
+  const { user } = useAuth();
+  const storageKey = useMemo(() => buildStorageKey(user?.companyId), [user?.companyId]);
+  const [settings, setSettings] = useState<GeneralSettingsStorageData>(() => loadStoredGeneralSettings(storageKey));
+
+  const mainLogoInputRef = useRef<HTMLInputElement | null>(null);
+  const invoiceLogoInputRef = useRef<HTMLInputElement | null>(null);
+  const loginImageInputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    setSettings(loadStoredGeneralSettings(storageKey));
+  }, [storageKey]);
+
+  const selectedLoginImage = settings.loginImage.images.find(
+    (image) => image.id === settings.loginImage.selectedImageId,
+  );
+
+  /**
+   * Centraliza la escritura local actual. Backend debe reemplazar este punto por
+   * un adapter/API client sin tocar la composicion visual del formulario.
+   */
+  function persistSettings(nextSettings: GeneralSettingsStorageData, successMessage: string) {
+    setSettings(nextSettings);
+    localStorage.setItem(storageKey, JSON.stringify(nextSettings));
+    toast.success(successMessage);
+  }
+
+  function handleCompanyFieldChange(field: keyof GeneralSettingsCompanySection, value: string) {
+    setSettings((current) => ({
+      ...current,
+      company: {
+        ...current.company,
+        [field]: value,
+      },
+    }));
+  }
+
+  function handleBasicConfigFieldChange(
+    field: keyof Omit<GeneralSettingsBasicConfigSection, 'validateIdentity'>,
+    value: string,
+  ) {
+    setSettings((current) => ({
+      ...current,
+      basicConfig: {
+        ...current.basicConfig,
+        [field]: value,
+      },
+    }));
+  }
+
+  function handleNotificationsFieldChange(
+    field: keyof GeneralSettingsNotificationsSection,
+    value: string,
+  ) {
+    setSettings((current) => ({
+      ...current,
+      notifications: {
+        ...current.notifications,
+        [field]: value,
+      },
+    }));
+  }
+
+  function handleToggleChange(checked: boolean) {
+    setSettings((current) => ({
+      ...current,
+      basicConfig: {
+        ...current.basicConfig,
+        validateIdentity: checked,
+      },
+    }));
+  }
+
+  function handleLoginImageSelection(value: string) {
+    setSettings((current) => ({
+      ...current,
+      loginImage: {
+        ...current.loginImage,
+        selectedImageId: value,
+      },
+    }));
+  }
+
+  function handleSaveCompanySection() {
+    persistSettings(settings, 'Datos de la empresa guardados.');
+  }
+
+  function handleSaveBasicConfigSection() {
+    persistSettings(settings, 'Configuracion basica guardada.');
+  }
+
+  function handleSaveNotificationsSection() {
+    persistSettings(settings, 'Notificaciones del sistema guardadas.');
+  }
+
+  function handleSaveLoginImageSection() {
+    persistSettings(settings, 'Imagen de login guardada.');
+  }
+
+  async function handleLogoUpload(slot: LogoSlotKey, event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+
+    if (!file) {
+      return;
+    }
+
+    const isPng = file.type === 'image/png' || file.name.toLowerCase().endsWith('.png');
+    if (!isPng) {
+      toast.error('Solo se permiten archivos PNG para los logos.');
+      return;
+    }
+
+    if (file.size > LOGO_MAX_SIZE_BYTES) {
+      toast.error('El archivo supera el tamano maximo de 20 MB.');
+      return;
+    }
+
+    try {
+      const previewUrl = await readFileAsDataUrl(file);
+      const nextSettings: GeneralSettingsStorageData = {
+        ...settings,
+        logos: {
+          ...settings.logos,
+          [slot]: createLogoAsset(file, previewUrl),
+        },
+      };
+
+      persistSettings(
+        nextSettings,
+        slot === 'mainLogo' ? 'Logo principal actualizado.' : 'Logo de facturas actualizado.',
+      );
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'No fue posible cargar el logo.');
+    }
+  }
+
+  async function handleLoginImageUpload(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+
+    if (!file) {
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Selecciona una imagen valida para el login.');
+      return;
+    }
+
+    try {
+      const previewUrl = await readFileAsDataUrl(file);
+      const nextImage = createLoginImageAsset(file, previewUrl);
+      const nextImages = [nextImage, ...settings.loginImage.images.filter((image) => image.fileName !== file.name)];
+      const nextLoginImage: GeneralSettingsLoginImageSection = {
+        selectedImageId: nextImage.id,
+        images: nextImages,
+      };
+
+      const nextSettings: GeneralSettingsStorageData = {
+        ...settings,
+        loginImage: nextLoginImage,
+      };
+
+      persistSettings(nextSettings, 'Nueva imagen de login cargada.');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'No fue posible cargar la imagen de login.');
+    }
+  }
 
   return (
-    <div className="min-h-full bg-[#d3dce7] px-4 pb-6 pt-4 lg:px-6">
-      <div className="mb-5 flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
-        <h1 className="text-[2.15rem] font-normal text-slate-900">{data.pageTitle}</h1>
+    <div className="min-h-full bg-[#d3dce7] px-4 pb-8 pt-4 lg:px-6">
+      <div className="mb-4 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+        <h1 className="text-[27px] font-normal leading-none text-slate-900">Ajustes generales</h1>
 
-        <div className="flex items-center gap-2 text-sm text-slate-500">
-          {data.breadcrumb.map((item, index) => (
-            <span key={item} className="flex items-center gap-2">
-              <span className={index === data.breadcrumb.length - 1 ? 'text-blue-600' : ''}>{item}</span>
-              {index < data.breadcrumb.length - 1 && <span>/</span>}
-            </span>
-          ))}
+        <div className="flex items-center gap-2 pt-1 text-[14px] text-slate-500">
+          <span>Inicio</span>
+          <span>/</span>
+          <span>Ajustes</span>
+          <span>/</span>
+          <span className="text-[#0d8bff]">General</span>
         </div>
       </div>
 
-      <div className="grid gap-5 xl:grid-cols-2">
-        <GeneralPanel title={data.companyPanel.title}>
-          <div className="px-5 py-4">
-            <div className="space-y-3">
-              {data.companyPanel.fields.map((field) => (
-                <div key={field.key} className="grid items-start gap-3 md:grid-cols-[160px_minmax(0,1fr)]">
-                  <label className="pt-2 text-right text-[14px] text-slate-800">{field.label}</label>
-                  <div>
-                    {renderField(field)}
-                    {field.key === 'company_identifier' && data.companyPanel.helperText ? (
-                      <p className="mt-1 text-xs text-slate-700">{data.companyPanel.helperText}</p>
-                    ) : null}
-                  </div>
+      <div className="grid gap-4 xl:grid-cols-2">
+        <GeneralPanel title="Datos de la empresa">
+          <div className="px-4 py-4">
+            <div className="space-y-[10px]">
+              <FormRow label="Empresa" labelWidth="md:grid-cols-[260px_minmax(0,1fr)]">
+                <Input
+                  value={settings.company.companyName}
+                  onChange={(event) => handleCompanyFieldChange('companyName', event.target.value)}
+                  className="h-9 rounded-[4px] border-[#cbd5e1] bg-white px-3 text-[14px] text-slate-900"
+                />
+              </FormRow>
+
+              <FormRow label="Direccion" labelWidth="md:grid-cols-[260px_minmax(0,1fr)]">
+                <Input
+                  value={settings.company.address}
+                  onChange={(event) => handleCompanyFieldChange('address', event.target.value)}
+                  className="h-9 rounded-[4px] border-[#cbd5e1] bg-white px-3 text-[14px] text-slate-900"
+                />
+              </FormRow>
+
+              <FormRow label="Telefonos" labelWidth="md:grid-cols-[260px_minmax(0,1fr)]">
+                <Input
+                  value={settings.company.phoneNumbers}
+                  onChange={(event) => handleCompanyFieldChange('phoneNumbers', event.target.value)}
+                  className="h-9 rounded-[4px] border-[#cbd5e1] bg-white px-3 text-[14px] text-slate-900"
+                />
+              </FormRow>
+
+              <FormRow label="Identificacion" labelWidth="md:grid-cols-[260px_minmax(0,1fr)]">
+                <div>
+                  <Input
+                    value={settings.company.identification}
+                    onChange={(event) => handleCompanyFieldChange('identification', event.target.value)}
+                    className="h-9 rounded-[4px] border-[#cbd5e1] bg-white px-3 text-[14px] text-slate-900"
+                  />
+                  <p className="mt-1 text-[12px] text-slate-700">RUC,CUT,NIT,SAT,RUT,RTN</p>
                 </div>
-              ))}
+              </FormRow>
             </div>
           </div>
-          <div className="flex justify-end border-t border-slate-200 px-5 py-3">
-            <SaveAction label={data.companyPanel.primaryActionLabel} />
+
+          <div className="flex justify-end border-t border-slate-200 px-6 py-3">
+            <SectionSaveButton onClick={handleSaveCompanySection} />
           </div>
         </GeneralPanel>
 
-        <GeneralPanel title={data.basicConfigPanel.title}>
-          <div className="px-5 py-4">
-            <div className="space-y-3">
-              {data.basicConfigPanel.fields.map((field) => (
-                <div key={field.key} className="grid items-start gap-3 md:grid-cols-[260px_minmax(0,1fr)]">
-                  <label className="pt-2 text-right text-[14px] text-slate-800">{field.label}</label>
-                  <div>
-                    {renderField(field)}
-                    {field.description && <p className="mt-1 text-xs text-slate-700">{field.description}</p>}
-                  </div>
-                </div>
-              ))}
+        <GeneralPanel title="Configuracion basica">
+          <div className="px-4 py-4">
+            <div className="space-y-[10px]">
+              <FormRow label="Zona Horaria" labelWidth="md:grid-cols-[270px_minmax(0,1fr)]">
+                <select
+                  value={settings.basicConfig.timezone}
+                  onChange={(event) => handleBasicConfigFieldChange('timezone', event.target.value)}
+                  className="h-9 w-full rounded-[4px] border border-[#cbd5e1] bg-white px-3 text-[14px] text-slate-900 outline-none"
+                >
+                  {TIMEZONE_OPTIONS.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </FormRow>
 
-              <div className="grid items-center gap-3 pt-4 md:grid-cols-[260px_minmax(0,1fr)]">
-                <div className="flex items-center justify-end gap-1 text-[14px] text-slate-800">
-                  <span>{data.basicConfigPanel.validationToggle.label}</span>
+              <FormRow label="Email backup" labelWidth="md:grid-cols-[270px_minmax(0,1fr)]">
+                <Input
+                  type="email"
+                  value={settings.basicConfig.backupEmail}
+                  onChange={(event) => handleBasicConfigFieldChange('backupEmail', event.target.value)}
+                  className="h-9 rounded-[4px] border-[#cbd5e1] bg-white px-3 text-[14px] text-slate-900"
+                />
+              </FormRow>
+
+              <FormRow label="Email Soporte" labelWidth="md:grid-cols-[270px_minmax(0,1fr)]">
+                <Input
+                  type="email"
+                  value={settings.basicConfig.supportEmail}
+                  onChange={(event) => handleBasicConfigFieldChange('supportEmail', event.target.value)}
+                  className="h-9 rounded-[4px] border-[#cbd5e1] bg-white px-3 text-[14px] text-slate-900"
+                />
+              </FormRow>
+
+              <FormRow label="Email Facturacion" labelWidth="md:grid-cols-[270px_minmax(0,1fr)]">
+                <div>
+                  <Input
+                    type="email"
+                    value={settings.basicConfig.billingEmail}
+                    onChange={(event) => handleBasicConfigFieldChange('billingEmail', event.target.value)}
+                    className="h-9 rounded-[4px] border-[#cbd5e1] bg-white px-3 text-[14px] text-slate-900"
+                  />
+                  <p className="mt-1 text-[12px] text-slate-700">* Email remitente</p>
+                </div>
+              </FormRow>
+
+              <FormRow label="Validar Cedula/DNI/Rut/Cuit" labelWidth="md:grid-cols-[270px_minmax(0,1fr)]">
+                <div className="flex items-center gap-3 pt-2">
                   <CircleHelp className="h-4 w-4 text-slate-500" />
+                  <Switch
+                    checked={settings.basicConfig.validateIdentity}
+                    onCheckedChange={handleToggleChange}
+                    className="data-[state=checked]:bg-cyan-500"
+                  />
                 </div>
-                <div className="flex items-center gap-3">
-                  <span
-                    className={`relative inline-flex h-7 w-11 items-center rounded-full ${
-                      data.basicConfigPanel.validationToggle.enabled ? 'bg-cyan-500' : 'bg-slate-300'
-                    }`}
-                  >
-                    <span
-                      className={`inline-block h-6 w-6 transform rounded-full bg-white shadow transition ${
-                        data.basicConfigPanel.validationToggle.enabled ? 'translate-x-5' : 'translate-x-1'
-                      }`}
-                    />
-                  </span>
+              </FormRow>
+            </div>
+          </div>
+
+          <div className="flex justify-end border-t border-slate-200 px-6 py-3">
+            <SectionSaveButton onClick={handleSaveBasicConfigSection} />
+          </div>
+        </GeneralPanel>
+
+        <GeneralPanel title="Notificaciones del sistema" className="xl:min-h-[340px]">
+          <div className="px-4 py-4">
+            <div className="space-y-[10px]">
+              <FormRow label="Correo Emisor/Router Caido" labelWidth="md:grid-cols-[260px_minmax(0,1fr)]">
+                <div>
+                  <Input
+                    type="email"
+                    value={settings.notifications.routerDownEmail}
+                    onChange={(event) => handleNotificationsFieldChange('routerDownEmail', event.target.value)}
+                    className="h-9 rounded-[4px] border-[#cbd5e1] bg-white px-3 text-[14px] text-slate-900"
+                  />
+                  <p className="mt-1 text-[12px] text-slate-700">Puede indicar varios correos</p>
                 </div>
+              </FormRow>
+
+              <FormRow label="N° movil Emisor/Router Caido" labelWidth="md:grid-cols-[260px_minmax(0,1fr)]">
+                <div>
+                  <Input
+                    value={settings.notifications.routerDownMobile}
+                    onChange={(event) => handleNotificationsFieldChange('routerDownMobile', event.target.value)}
+                    className="h-9 rounded-[4px] border-[#cbd5e1] bg-white px-3 text-[14px] text-slate-900"
+                  />
+                  <p className="mt-1 text-[12px] text-slate-700">Puede indicar varios numeros</p>
+                </div>
+              </FormRow>
+
+              <FormRow label="Correo reporte pago" labelWidth="md:grid-cols-[260px_minmax(0,1fr)]">
+                <div>
+                  <Input
+                    type="email"
+                    value={settings.notifications.paymentReportEmail}
+                    onChange={(event) => handleNotificationsFieldChange('paymentReportEmail', event.target.value)}
+                    className="h-9 rounded-[4px] border-[#cbd5e1] bg-white px-3 text-[14px] text-slate-900"
+                  />
+                  <p className="mt-1 text-[12px] text-slate-700">Puede indicar varios correos</p>
+                </div>
+              </FormRow>
+            </div>
+          </div>
+
+          <div className="flex justify-end border-t border-slate-200 px-6 py-3">
+            <SectionSaveButton onClick={handleSaveNotificationsSection} />
+          </div>
+        </GeneralPanel>
+
+        <GeneralPanel title="Logo (.png)" className="xl:min-h-[340px]">
+          <div className="divide-y divide-slate-200 px-4">
+            <div className="flex flex-col items-center justify-center py-7 text-center">
+              <div className="flex min-h-[86px] items-center justify-center">
+                {settings.logos.mainLogo ? (
+                  <img
+                    src={settings.logos.mainLogo.previewUrl}
+                    alt={settings.logos.mainLogo.fileName}
+                    className="max-h-[74px] max-w-[220px] object-contain"
+                  />
+                ) : (
+                  <EmptyPreview />
+                )}
               </div>
+
+              <input
+                ref={mainLogoInputRef}
+                type="file"
+                accept=".png,image/png"
+                className="hidden"
+                onChange={(event) => void handleLogoUpload('mainLogo', event)}
+              />
+
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => mainLogoInputRef.current?.click()}
+                className="mt-4 h-9 gap-2 border-[#cbd5e1] px-4 text-[14px]"
+              >
+                <Upload className="h-4 w-4" />
+                Subir Logo principal
+              </Button>
+              <p className="mt-3 text-[12px] text-red-500">{formatBytesLimitText(LOGO_MAX_SIZE_BYTES)}</p>
+            </div>
+
+            <div className="flex flex-col items-center justify-center py-7 text-center">
+              <div className="flex min-h-[86px] items-center justify-center">
+                {settings.logos.invoiceLogo ? (
+                  <img
+                    src={settings.logos.invoiceLogo.previewUrl}
+                    alt={settings.logos.invoiceLogo.fileName}
+                    className="max-h-[74px] max-w-[220px] object-contain"
+                  />
+                ) : (
+                  <EmptyPreview />
+                )}
+              </div>
+
+              <input
+                ref={invoiceLogoInputRef}
+                type="file"
+                accept=".png,image/png"
+                className="hidden"
+                onChange={(event) => void handleLogoUpload('invoiceLogo', event)}
+              />
+
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => invoiceLogoInputRef.current?.click()}
+                className="mt-4 h-9 gap-2 border-[#cbd5e1] px-4 text-[14px]"
+              >
+                <Upload className="h-4 w-4" />
+                Subir Logo Facturas & Recibo
+              </Button>
+              <p className="mt-3 text-[12px] text-red-500">{formatBytesLimitText(LOGO_MAX_SIZE_BYTES)}</p>
+              <p className="mt-4 text-[12px] text-orange-500">
+                * Se recomienda que el logo no debe pesar mas de 50kb y un ancho no mayor de 400px
+              </p>
             </div>
           </div>
-          <div className="flex justify-end border-t border-slate-200 px-5 py-3">
-            <SaveAction label={data.basicConfigPanel.primaryActionLabel} />
-          </div>
         </GeneralPanel>
 
-        <GeneralPanel title={data.notificationsPanel.title}>
-          <div className="px-5 py-4">
-            <div className="space-y-3">
-              {data.notificationsPanel.fields.map((field) => (
-                <div key={field.key} className="grid items-start gap-3 md:grid-cols-[260px_minmax(0,1fr)]">
-                  <label className="pt-2 text-right text-[14px] text-slate-800">{field.label}</label>
-                  <div>
-                    {renderField(field)}
-                    {field.description && <p className="mt-1 text-xs text-slate-700">{field.description}</p>}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="flex justify-end border-t border-slate-200 px-5 py-3">
-            <SaveAction label={data.notificationsPanel.primaryActionLabel} />
-          </div>
-        </GeneralPanel>
-
-        <GeneralPanel title={data.logosPanel.title}>
-          <div className="divide-y divide-slate-100 px-5">
-            {data.logosPanel.assets.map((asset) => (
-              <LogoAssetCard key={asset.key} asset={asset} />
-            ))}
-          </div>
-        </GeneralPanel>
-
-        <GeneralPanel title={data.loginImagePanel.title}>
-          <div className="px-5 py-4">
-            <div className="grid items-center gap-3 md:grid-cols-[160px_minmax(0,1fr)]">
-              <label className="text-right text-[14px] text-slate-800">{data.loginImagePanel.selectorLabel}</label>
-              <select value={data.loginImagePanel.selectedImage} disabled className="h-9 w-full rounded-sm border border-slate-300 bg-white px-3 text-sm text-slate-900 disabled:opacity-100">
-                {data.loginImagePanel.availableImages.map((option) => (
-                  <option key={option.value} value={option.value}>
+        <GeneralPanel title="Imagen Login administrador" className="xl:col-span-1">
+          <div className="px-4 py-4">
+            <FormRow label="seleccionar imagen" labelWidth="md:grid-cols-[260px_minmax(0,1fr)]">
+              <select
+                value={settings.loginImage.selectedImageId}
+                onChange={(event) => handleLoginImageSelection(event.target.value)}
+                className="h-9 w-full rounded-[4px] border border-[#cbd5e1] bg-white px-3 text-[14px] text-slate-900 outline-none"
+              >
+                <option value="">Seleccionar imagen</option>
+                {settings.loginImage.images.map((option) => (
+                  <option key={option.id} value={option.id}>
                     {option.label}
                   </option>
                 ))}
               </select>
-            </div>
+            </FormRow>
 
-            <p className="mt-4 text-xs text-cyan-600">{data.loginImagePanel.uploadPathHelpText}</p>
+            <p className="mt-4 text-[12px] text-cyan-600">{LOGIN_IMAGE_UPLOAD_HELP}</p>
 
-            <div className="mt-3 flex min-h-[390px] items-center justify-center rounded-sm bg-[#e5e5e5]">
-              {data.loginImagePanel.previewImageUrl ? (
-                <img src={data.loginImagePanel.previewImageUrl} alt="Preview login" className="max-h-[360px] object-contain" />
+            <input
+              ref={loginImageInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(event) => void handleLoginImageUpload(event)}
+            />
+
+            <button
+              type="button"
+              onClick={() => loginImageInputRef.current?.click()}
+              className="mt-3 flex min-h-[380px] w-full items-center justify-center rounded-[4px] bg-[#e5e5e5] transition hover:bg-[#dedede]"
+            >
+              {selectedLoginImage ? (
+                <img
+                  src={selectedLoginImage.previewUrl}
+                  alt={selectedLoginImage.fileName}
+                  className="max-h-[360px] w-full rounded-[4px] object-contain"
+                />
               ) : (
-                <FileImage className="h-12 w-12 text-slate-400" />
+                <EmptyPreview iconSize="h-12 w-12" />
               )}
-            </div>
+            </button>
           </div>
-          <div className="flex justify-end border-t border-slate-200 px-5 py-3">
-            <SaveAction label={data.loginImagePanel.primaryActionLabel} />
+
+          <div className="flex justify-end border-t border-slate-200 px-6 py-3">
+            <SectionSaveButton onClick={handleSaveLoginImageSection} />
           </div>
         </GeneralPanel>
-      </div>
-
-      <div className="mt-4">
-        <Link
-          to="/settings"
-          className="inline-flex h-10 items-center justify-center rounded-md border border-slate-300 bg-white px-4 text-sm font-medium text-slate-800 transition hover:bg-slate-50"
-        >
-          Volver a Ajustes
-        </Link>
       </div>
     </div>
   );

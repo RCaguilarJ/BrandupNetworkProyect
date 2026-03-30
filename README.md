@@ -40,7 +40,7 @@ La aplicacion no consume backend real todavia de forma transversal. Hoy conviven
 - El tema visual de cada vista se controla con `ViewThemeContext` y se persiste en `localStorage`.
 - El modo oscuro/claro se controla con `ThemeContext` y se aplica sobre la clase `dark` del documento.
 - La mayor parte de las pantallas de negocio dependen hoy de `mockData.ts`, por lo que backend todavia no es la fuente unica de verdad.
-- La pagina `src/app/pages/Settings.tsx` actualmente es una vista visual unica de accesos rapidos llamada `Ajustes`; no navega ni consume endpoints reales todavia.
+- La pagina `src/app/pages/Settings.tsx` es un catalogo visual de accesos rapidos llamado `Ajustes`; hoy expone el nuevo tablero de configuracion del sistema y solo `General` navega a una pantalla funcional.
 
 ## Arquitectura general
 
@@ -232,7 +232,7 @@ Buenas practicas obligatorias:
 
 ### Estado y persistencia
 
-- `localStorage` solo debe usarse para sesion mock o preferencias de UI.
+- `localStorage` solo debe usarse para sesion mock, preferencias de UI o persistencia temporal documentada de formularios aun no conectados a backend.
 - Cuando se integre backend real, la autenticacion debe migrarse a un flujo formal y el `ProtectedRoute` debe dejar de depender solo de `localStorage`.
 
 ### UI y mantenimiento
@@ -259,10 +259,15 @@ Descripcion funcional:
 
 - La pantalla `Configuracion` muestra una sola vista llamada `Ajustes`.
 - La vista replica un tablero de accesos rapidos en formato de botones circulares.
-- Los modulos marcados con cruces en la referencia fueron omitidos deliberadamente.
-- Actualmente los botones `General` y `Servidor` ya navegan a vistas reales.
+- El fondo del modulo debe cubrir toda el area util bajo el header con el color `#D3DCE7`.
+- La composicion visual vigente replica una matriz fija de dos filas: 8 botones en la fila superior y 5 botones centrados en la fila inferior.
+- El tablero actual contiene estos accesos: `General`, `Base de datos`, `Usuarios`, `Roles`, `Divisas`, `Formas de pago`, `Comprobantes`, `Unidades de medida`, `Incidencias`, `Cron Jobs`, `Zonas`, `Campo Personalizados` y `Plantillas de WSP`.
+- Actualmente los botones `General`, `Base de datos`, `Usuarios`, `Roles` y `Divisas` ya navegan a vistas reales.
 - `General` usa la ruta `/settings/general`.
-- `Servidor` usa la ruta `/settings/server`.
+- `Base de datos` reutiliza la ruta `/backups` y la pantalla `Copias de Seguridad`, para no duplicar un modulo que ya existe.
+- `Usuarios` usa la ruta `/settings/users`.
+- `Roles` usa la ruta `/settings/roles`.
+- `Divisas` usa la ruta `/settings/currencies`.
 - El resto de los botones sigue siendo visual y no debe conectarse hasta tener contrato backend y modulo propio documentado.
 
 ### Protocolo especifico para backend
@@ -275,6 +280,7 @@ Antes de conectar esta pantalla con backend se debe definir, por cada boton:
 - endpoint de lectura
 - endpoint de escritura
 - payload minimo esperado
+- si conserva la posicion exacta dentro de la matriz 8+5 o si la captura de referencia cambia y obliga a reordenar la composicion completa
 
 ### Recomendacion de implementacion
 
@@ -285,6 +291,175 @@ No conectar los botones directamente a endpoints desde `Settings.tsx`. La practi
 3. crear pagina o subruta real
 4. conectar datos reales en esa pagina
 5. convertir el boton de `Ajustes` en un acceso navegable
+
+## Pantalla Base de datos
+
+Archivos clave del estado actual:
+
+- `src/app/pages/Backups.tsx`
+- `src/app/pages/Settings.tsx`
+- `src/app/routes.tsx`
+
+Descripcion funcional:
+
+- El boton `Base de datos` dentro de `Ajustes` no crea una vista nueva; reutiliza el modulo existente `Copias de Seguridad`.
+- La ruta activa es `/backups`.
+- La pantalla replica la captura de referencia: breadcrumb `Dashboard / Ajustes / Backup`, toolbar compacta, tabla única y estado vacío real sin filas sembradas.
+- El modulo no usa datos mock; mientras backend no exista, la tabla permanece vacía.
+
+### Contrato esperado para backend
+
+```ts
+interface BackupRecord {
+  id: string;
+  fileName: string;
+  createdAt: string;
+  fileSize: number;
+}
+```
+
+### Preparacion backend recomendada
+
+- `GET /api/v1/backups`: listar copias de seguridad.
+- `POST /api/v1/backups`: iniciar nueva copia.
+- Opcional a futuro:
+- `GET /api/v1/backups/:id/download`
+- `DELETE /api/v1/backups/:id`
+
+### Notas de mantenimiento
+
+- No crear una segunda pantalla de `Base de datos` mientras `Backups.tsx` siga siendo el modulo canonico.
+- Si cambia la semantica visual del boton en `Ajustes`, actualizar la relacion con `/backups` en este README.
+- Si backend cambia el contrato, actualizar `Backups.tsx` y esta seccion en el mismo cambio.
+
+## Pantalla Usuarios
+
+Archivos clave del estado actual:
+
+- `src/app/pages/UsersManagement.tsx`
+- `src/app/pages/Settings.tsx`
+- `src/app/routes.tsx`
+- `src/app/types/index.ts`
+
+Descripcion funcional:
+
+- El boton `Usuarios` dentro de `Ajustes` navega al modulo `Gestión de Usuarios`.
+- La ruta activa es `/settings/users`.
+- La pantalla replica la captura de referencia: breadcrumb `Dashboard / Ajustes / Usuarios`, toolbar compacta, tabla única y paginación simple.
+- Mientras backend no exista, la pantalla usa la sesión autenticada como fuente mínima para no sembrar una lista mock de usuarios.
+
+### Contrato esperado para backend
+
+```ts
+interface UserManagementRecord {
+  id: string;
+  fullName: string;
+  documentType: string;
+  documentNumber: string;
+  profile: string;
+  cellphone: string;
+  status: 'active' | 'inactive';
+}
+```
+
+### Preparacion backend recomendada
+
+- `GET /api/v1/users`: listar usuarios del sistema.
+- `POST /api/v1/users`: crear usuario.
+- `PUT /api/v1/users/:id`: editar usuario.
+- Endpoint opcional si existiera integración de contacto:
+- `POST /api/v1/users/:id/contact`
+
+### Notas de mantenimiento
+
+- No reutilizar `Clients.tsx` como sustituto de este módulo; `Usuarios` tiene semántica propia y contrato independiente.
+- Cuando backend exista, reemplazar la fuente temporal basada en `AuthContext` por el listado real y conservar la tabla/documentación.
+- Si cambia `UserManagementRecord`, actualizar `src/app/types/index.ts`, `src/app/pages/UsersManagement.tsx` y este README en el mismo cambio.
+
+## Pantalla Roles
+
+Archivos clave del estado actual:
+
+- `src/app/pages/RolesManagement.tsx`
+- `src/app/pages/Settings.tsx`
+- `src/app/routes.tsx`
+- `src/app/types/index.ts`
+
+Descripcion funcional:
+
+- El boton `Roles` dentro de `Ajustes` navega al modulo `Gestión de Perfiles`.
+- La ruta activa es `/settings/roles`.
+- La pantalla replica la captura de referencia: breadcrumb `Dashboard / Ajustes / Perfiles`, toolbar compacta, tabla única y paginación simple.
+- Mientras backend no exista, la tabla usa un catálogo de perfiles del sistema derivado de los roles definidos en el código y cuenta usuarios asociados contra la sesión activa.
+
+### Contrato esperado para backend
+
+```ts
+interface RoleManagementRecord {
+  id: string;
+  profile: string;
+  description: string;
+  associatedUsers: number;
+  createdAt: string;
+  status: 'active' | 'inactive';
+}
+```
+
+### Preparacion backend recomendada
+
+- `GET /api/v1/roles`: listar perfiles o roles del sistema.
+- `POST /api/v1/roles`: crear perfil.
+- `PUT /api/v1/roles/:id`: editar perfil.
+- Endpoint opcional si existiera una matriz de permisos dedicada:
+- `GET /api/v1/roles/:id/permissions`
+
+### Notas de mantenimiento
+
+- No reutilizar `UserManagement` ni `Clients.tsx` como sustituto de este módulo; `Roles` tiene semántica y contrato propios.
+- Cuando backend exista, reemplazar el catálogo derivado del código por la lista real de perfiles y conservar la composición visual.
+- Si cambia `RoleManagementRecord`, actualizar `src/app/types/index.ts`, `src/app/pages/RolesManagement.tsx` y este README en el mismo cambio.
+
+## Pantalla Divisas
+
+Archivos clave del estado actual:
+
+- `src/app/pages/CurrenciesManagement.tsx`
+- `src/app/pages/Settings.tsx`
+- `src/app/routes.tsx`
+- `src/app/types/index.ts`
+
+Descripcion funcional:
+
+- El boton `Divisas` dentro de `Ajustes` navega al modulo `GestiÃ³n de Divisas`.
+- La ruta activa es `/settings/currencies`.
+- La pantalla replica la captura de referencia: breadcrumb `Dashboard / Ajustes / Divisas`, toolbar compacta, tabla Ãºnica y paginaciÃ³n simple.
+- Mientras backend no exista, la tabla usa un catÃ¡logo base de divisas del sistema, no una lista mock de registros operativos.
+
+### Contrato esperado para backend
+
+```ts
+interface CurrencyManagementRecord {
+  id: string;
+  isoCode: string;
+  currencyName: string;
+  languageCode: string;
+  symbol: string;
+  createdAt: string;
+  status: 'active' | 'inactive';
+}
+```
+
+### Preparacion backend recomendada
+
+- `GET /api/v1/currencies`: listar divisas.
+- `POST /api/v1/currencies`: crear divisa.
+- `PUT /api/v1/currencies/:id`: editar divisa.
+
+### Notas de mantenimiento
+
+- No mezclar `Divisas` con configuraciones de moneda de empresa dentro de `GeneralSettings`.
+- Cuando backend exista, reemplazar el catÃ¡logo base por el listado real y conservar la composiciÃ³n visual.
+- Si cambia `CurrencyManagementRecord`, actualizar `src/app/types/index.ts`, `src/app/pages/CurrenciesManagement.tsx` y este README en el mismo cambio.
 
 ## Pantalla General
 
@@ -300,100 +475,88 @@ Descripcion funcional:
 - La pantalla representa el modulo `General` accesible desde `Ajustes`.
 - La ruta actual es `/settings/general`.
 - Replica la vista `Ajustes generales` de la referencia.
-- Agrupa cinco bloques: `Datos de la empresa`, `Configuración básica`, `Notificaciones del sistema`, `Logo (.png)` e `Imagen Login administrador`.
-- La pantalla ya esta preparada para backend mediante un contrato tipado llamado `GeneralSettingsData`.
-- Los controles se muestran en modo lectura mientras no exista integracion real de escritura.
+- Agrupa cinco bloques: `Datos de la empresa`, `Configuracion basica`, `Notificaciones del sistema`, `Logo (.png)` e `Imagen Login administrador`.
+- La pantalla ya no usa un objeto mock sembrado en el componente.
+- Los campos son editables.
+- Los botones `Guardar cambios` persisten temporalmente el formulario en `localStorage`.
+- Los botones de logo abren selector de archivo, validan PNG y guardan preview local.
+- El bloque `Imagen Login administrador` permite seleccionar una imagen ya cargada y subir nuevas imagenes haciendo click sobre el area de preview.
 
 ### Contrato esperado para backend
 
 ```ts
-interface GeneralSettingsOption {
-  value: string;
+interface GeneralSettingsLogoAsset {
+  fileName: string;
+  previewUrl: string;
+  mimeType: string;
+  size: number;
+}
+
+interface GeneralSettingsLoginImageAsset extends GeneralSettingsLogoAsset {
+  id: string;
   label: string;
 }
 
-interface GeneralSettingsField {
-  key: string;
-  label: string;
-  value: string;
-  type: 'select' | 'text' | 'time';
-  options?: GeneralSettingsOption[];
-  description?: string;
-}
-
-interface GeneralSettingsToggle {
-  key: string;
-  label: string;
-  enabled: boolean;
-  description: string;
-}
-
-interface GeneralSettingsData {
-  pageTitle: string;
-  pageDescription: string;
-  breadcrumb: string[];
-  companyPanel: {
-    title: string;
-    fields: GeneralSettingsField[];
-    helperText?: string;
-    primaryActionLabel: string;
-    primaryActionKey: string;
+interface GeneralSettingsStorageData {
+  company: {
+    companyName: string;
+    address: string;
+    phoneNumbers: string;
+    identification: string;
   };
-  basicConfigPanel: {
-    title: string;
-    fields: GeneralSettingsField[];
-    validationToggle: GeneralSettingsToggle;
-    validationHelpText?: string;
-    primaryActionLabel: string;
-    primaryActionKey: string;
+  basicConfig: {
+    timezone: string;
+    backupEmail: string;
+    supportEmail: string;
+    billingEmail: string;
+    validateIdentity: boolean;
   };
-  notificationsPanel: {
-    title: string;
-    fields: GeneralSettingsField[];
-    primaryActionLabel: string;
-    primaryActionKey: string;
+  notifications: {
+    routerDownEmail: string;
+    routerDownMobile: string;
+    paymentReportEmail: string;
   };
-  logosPanel: {
-    title: string;
-    assets: GeneralSettingsLogoAsset[];
+  logos: {
+    mainLogo: GeneralSettingsLogoAsset | null;
+    invoiceLogo: GeneralSettingsLogoAsset | null;
   };
-  loginImagePanel: {
-    title: string;
-    selectorLabel: string;
-    selectedImage: string;
-    availableImages: GeneralSettingsOption[];
-    uploadPathHelpText: string;
-    previewImageUrl?: string;
-    primaryActionLabel: string;
-    primaryActionKey: string;
+  loginImage: {
+    selectedImageId: string;
+    images: GeneralSettingsLoginImageAsset[];
   };
 }
 ```
 
 ### Mapeo visual por bloque
 
-- `breadcrumb`: ruta visual superior. El orden importa.
-- `companyPanel.fields`: datos corporativos visibles.
-- `companyPanel.helperText`: texto explicativo bajo `Identificación`.
-- `basicConfigPanel.fields`: zona horaria y correos base del sistema.
-- `basicConfigPanel.validationToggle`: toggle global de validación de documento.
-- `notificationsPanel.fields`: correos y teléfonos usados para alertas del sistema.
-- `logosPanel.assets`: logos visuales y metadatos de subida por cada caso de uso.
-- `loginImagePanel.availableImages`: imágenes disponibles para login administrador.
-- `loginImagePanel.uploadPathHelpText`: texto operativo visible de ruta en servidor.
-- `GeneralSettingsField.type`: evita inferencias visuales escondidas en el frontend y obliga a backend a declarar la naturaleza del control.
+- `company.companyName`, `company.address`, `company.phoneNumbers` y `company.identification`: llenan el panel superior izquierdo.
+- `basicConfig.timezone`, `basicConfig.backupEmail`, `basicConfig.supportEmail` y `basicConfig.billingEmail`: llenan el panel superior derecho.
+- `basicConfig.validateIdentity`: controla el switch `Validar Cedula/DNI/Rut/Cuit`.
+- `notifications.routerDownEmail`, `notifications.routerDownMobile` y `notifications.paymentReportEmail`: llenan el panel inferior izquierdo.
+- `logos.mainLogo` y `logos.invoiceLogo`: controlan preview, nombre de archivo, tipo MIME y tamanio del archivo cargado.
+- `loginImage.images`: catalogo de fondos disponibles para el login.
+- `loginImage.selectedImageId`: fondo actualmente seleccionado en el combo superior del panel de login.
 
 ### Preparacion backend recomendada
 
 - Exponer un endpoint de lectura para la pantalla completa, por ejemplo `GET /settings/general`.
-- Exponer un endpoint de escritura para persistencia, por ejemplo `PUT /settings/general`.
-- Si el backend divide configuracion por scopes, devolverlos ya agrupados segun `companyPanel`, `basicConfigPanel`, `notificationsPanel`, `logosPanel` y `loginImagePanel` para no recomponer la semantica en JSX.
+- Exponer endpoints por bloque o una escritura agregada versionada:
+- `PUT /settings/general/company`
+- `PUT /settings/general/basic-config`
+- `PUT /settings/general/notifications`
+- `POST /settings/general/logos/main`
+- `POST /settings/general/logos/invoice`
+- `POST /settings/general/login-images`
+- `PUT /settings/general/login-images/selection`
+- Mientras esos endpoints no existan, la fuente de verdad temporal del modulo es `localStorage` bajo una clave namespaced por empresa.
+- Backend debe devolver los datos agrupados por bloque para evitar que el componente recomponga la semantica de la pantalla.
 
 ### Notas de mantenimiento
 
-- Si cambia `GeneralSettingsData`, actualizar `src/app/types/index.ts`, `src/app/pages/GeneralSettings.tsx` y este README en el mismo cambio.
+- Si cambia `GeneralSettingsStorageData`, actualizar `src/app/types/index.ts`, `src/app/pages/GeneralSettings.tsx` y este README en el mismo cambio.
+- No reintroducir `getGeneralSettingsMockData` ni objetos literales con valores de ejemplo.
+- Cuando backend exista, reemplazar `persistSettings()` por un adapter/API client y conservar intacta la estructura visual.
 - No volver a embutir campos generales dentro de `Settings.tsx`; `Ajustes` debe seguir siendo catalogo de accesos y no pantalla de edicion.
-
 ## Pantalla Servidor
 
 Archivos clave del estado actual:
@@ -2099,3 +2262,4 @@ interface MikrosystemTicketsHoyDatos {
 - Si cambia una clave del contrato `MikrosystemTicketsHoyDatos`, actualizar `src/app/types/index.ts`, `src/app/pages/tickets/TodayTickets.tsx` y este README en el mismo cambio.
 - No se deben reintroducir arreglos mock en `TodayTickets`.
 - La línea gráfica y el set de acciones deben mantenerse consistentes con `Tickets`, `Tickets en Proceso` y `Tickets Finalizados`.
+

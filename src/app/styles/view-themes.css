@@ -1823,6 +1823,7 @@ html.view-mikrosystem.dark header .border-t,
     linear-gradient(rgba(16, 185, 129, 0.08) 1px, transparent 1px),
     linear-gradient(90deg, rgba(16, 185, 129, 0.08) 1px, transparent 1px);
   background-size: 28px 28px;
+  -webkit-mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.9), transparent);
   mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.9), transparent);
 }
 

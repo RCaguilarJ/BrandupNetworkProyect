@@ -184,7 +184,8 @@ export default function ServerManagement() {
                 <input
                   readOnly
                   value={data.remoteAccessPanel.access.sshTokenValue}
-                  placeholder=" "
+                  placeholder="Your SSH token"
+                  title="SSH access token"
                   className="h-11 w-full rounded-sm border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none"
                 />
                 <p className="mt-2 text-[13px] text-slate-700">

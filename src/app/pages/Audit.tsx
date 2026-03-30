@@ -1,12 +1,34 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import { Search, Download, Filter, List, ChevronLeft, ChevronRight, Settings, Plus, Eye, Activity } from 'lucide-react';
-import { MOCK_AUDIT_LOGS } from '../data/mockData';
 import { useAuth } from '../context/AuthContext';
 import { useViewTheme } from '../context/ViewThemeContext';
 import { formatDateTime } from '../lib/utils';
+import { toast } from 'sonner';
+
+/**
+ * @interface AuditLog
+ * @property {string} id - Identificador único del log
+ * @property {string} userId - ID del usuario que realizó la acción
+ * @property {string} userName - Nombre del usuario
+ * @property {string} companyId - ID de la empresa
+ * @property {string} action - Acción realizada
+ * @property {string} module - Módulo afectado
+ * @property {string} details - Detalles adicionales
+ * @property {string} timestamp - Fecha y hora ISO 8601
+ */
+interface AuditLog {
+  id: string;
+  userId: string;
+  userName: string;
+  companyId: string;
+  action: string;
+  module: string;
+  details: string;
+  timestamp: string;
+}
 
 export default function Audit() {
   const { user } = useAuth();
@@ -15,13 +37,46 @@ export default function Audit() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [moduleFilter, setModuleFilter] = useState('all');
+  const [logs, setLogs] = useState<AuditLog[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  /**
+   * Fetch audit logs from the backend
+   * TODO: Replace with actual API call
+   * GET /api/v1/audit-logs
+   */
+  useEffect(() => {
+    const fetchLogs = async () => {
+      try {
+        setLoading(true);
+        // TODO: Replace with actual API endpoint
+        // const response = await fetch('/api/v1/audit-logs', {
+        //   headers: {
+        //     'Authorization': `Bearer ${localStorage.getItem('brandup_token')}`,
+        //   }
+        // });
+        // const data = await response.json();
+        // setLogs(data.logs);
+
+        // Placeholder: empty state until backend is ready
+        setLogs([]);
+      } catch (error) {
+        console.error('Error fetching audit logs:', error);
+        toast.error('Error al cargar los registros de auditoría');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLogs();
+  }, []);
 
   // Filtrar logs según el usuario
-  const logs = user?.role === 'super_admin'
-    ? MOCK_AUDIT_LOGS
-    : MOCK_AUDIT_LOGS.filter(log => log.companyId === user?.companyId);
+  const filteredByUser = user?.role === 'super_admin'
+    ? logs
+    : logs.filter(log => log.companyId === user?.companyId);
 
-  const filteredLogs = logs.filter(log => {
+  const filteredLogs = filteredByUser.filter(log => {
     const matchesSearch = log.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          log.details.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          log.userName.toLowerCase().includes(searchTerm.toLowerCase());
@@ -39,7 +94,7 @@ export default function Audit() {
     return <Badge variant={colors[module] || 'info'}>{module}</Badge>;
   };
 
-  const todayLogs = logs.filter(log => {
+  const todayLogs = filteredByUser.filter(log => {
     const today = new Date().toISOString().split('T')[0];
     return log.timestamp.split('T')[0] === today;
   });
@@ -52,10 +107,18 @@ export default function Audit() {
         <div className="bg-gray-800 dark:bg-gray-900 px-6 py-3 flex items-center justify-between">
           <h1 className="text-base font-bold text-white">Auditoría del Sistema</h1>
           <div className="flex items-center gap-2">
-            <button className="w-7 h-7 flex items-center justify-center bg-white/20 hover:bg-white/30 rounded-full">
+            <button 
+              className="w-7 h-7 flex items-center justify-center bg-white/20 hover:bg-white/30 rounded-full"
+              title="Filtrar registros"
+              aria-label="Filtrar registros de auditoría"
+            >
               <Filter className="w-4 h-4 text-white" />
             </button>
-            <button className="w-7 h-7 flex items-center justify-center bg-white/20 hover:bg-white/30 rounded-full">
+            <button 
+              className="w-7 h-7 flex items-center justify-center bg-white/20 hover:bg-white/30 rounded-full"
+              title="Descargar registros"
+              aria-label="Descargar registros de auditoría"
+            >
               <Download className="w-4 h-4 text-white" />
             </button>
           </div>
@@ -119,6 +182,8 @@ export default function Audit() {
                   value={pageSize}
                   onChange={(e) => setPageSize(Number(e.target.value))}
                   className="h-7 px-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded text-xs focus:ring-1 focus:ring-blue-500"
+                  title="Elementos por página"
+                  aria-label="Seleccionar cantidad de elementos por página"
                 >
                   <option value={25}>25</option>
                   <option value={50}>50</option>
@@ -131,6 +196,8 @@ export default function Audit() {
                 value={moduleFilter}
                 onChange={(e) => setModuleFilter(e.target.value)}
                 className="h-7 px-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded text-xs focus:ring-1 focus:ring-blue-500"
+                title="Filtrar por módulo"
+                aria-label="Filtrar por módulo"
               >
                 <option value="all">Todos los módulos</option>
                 <option value="Facturación">Facturación</option>
@@ -188,7 +255,16 @@ export default function Audit() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                  {filteredLogs.length > 0 ? (
+                  {loading ? (
+                    <tr>
+                      <td colSpan={5} className="px-3 py-12 text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          <Activity className="w-4 h-4 animate-spin" />
+                          <span className="text-gray-600 dark:text-gray-400">Cargando...</span>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : filteredLogs.length > 0 ? (
                     filteredLogs.slice(0, pageSize).map((log) => (
                       <tr 
                         key={log.id}
@@ -211,11 +287,12 @@ export default function Audit() {
                             <div className="text-gray-500 dark:text-gray-400 text-xs">{log.details}</div>
                           </div>
                         </td>
-                        <td className="px-3 py-2 border-r border-gray-200 dark:border-gray-700">
-                          <span className="text-gray-600 dark:text-gray-400 font-mono text-xs">{log.ipAddress}</span>
-                        </td>
                         <td className="px-3 py-2 text-center">
-                          <button className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded" title="Ver detalle">
+                          <button 
+                            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded" 
+                            title="Ver detalle"
+                            aria-label={`Ver detalle del evento: ${log.action}`}
+                          >
                             <Eye className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
                           </button>
                         </td>
@@ -223,7 +300,7 @@ export default function Audit() {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={6} className="px-3 py-12 text-center text-gray-500 dark:text-gray-400">
+                      <td colSpan={5} className="px-3 py-12 text-center text-gray-500 dark:text-gray-400">
                         No se encontraron registros de auditoría
                       </td>
                     </tr>
@@ -242,6 +319,8 @@ export default function Audit() {
                   className="w-8 h-8 flex items-center justify-center border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50"
                   disabled={currentPage === 1}
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  title="Página anterior"
+                  aria-label="Página anterior"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
@@ -253,6 +332,8 @@ export default function Audit() {
                       ? 'bg-blue-500 border-blue-500 text-white'
                       : 'border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
                   }`}
+                  title="Primera página"
+                  aria-label="Primera página"
                 >
                   1
                 </button>
@@ -260,6 +341,8 @@ export default function Audit() {
                 <button
                   className="w-8 h-8 flex items-center justify-center border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
                   onClick={() => setCurrentPage(p => p + 1)}
+                  title="Página siguiente"
+                  aria-label="Página siguiente"
                 >
                   <ChevronRight className="w-4 h-4" />
                 </button>
@@ -297,7 +380,7 @@ export default function Audit() {
           <CardContent className="p-4">
             <p className="text-sm text-gray-600">Usuarios Activos</p>
             <p className="text-2xl font-bold text-blue-600 mt-1">
-              {new Set(logs.map(log => log.userId)).size}
+                {new Set(filteredByUser.map(log => log.userId)).size}
             </p>
           </CardContent>
         </Card>
@@ -305,7 +388,7 @@ export default function Audit() {
           <CardContent className="p-4">
             <p className="text-sm text-gray-600">Módulos Accedidos</p>
             <p className="text-2xl font-bold text-purple-600 mt-1">
-              {new Set(logs.map(log => log.module)).size}
+                {new Set(filteredByUser.map(log => log.module)).size}
             </p>
           </CardContent>
         </Card>
@@ -326,15 +409,23 @@ export default function Audit() {
               <input
                 type="text"
                 placeholder="Buscar en auditoría..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
-            <select className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-              <option value="">Todos los módulos</option>
-              <option value="facturacion">Facturación</option>
-              <option value="clientes">Clientes</option>
-              <option value="ordenes">Órdenes</option>
-              <option value="configuracion">Configuración</option>
+            <select 
+              value={moduleFilter}
+              onChange={(e) => setModuleFilter(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              title="Filtrar por módulo"
+              aria-label="Filtrar por módulo"
+            >
+              <option value="all">Todos los módulos</option>
+              <option value="Facturación">Facturación</option>
+              <option value="Clientes">Clientes</option>
+              <option value="Órdenes">Órdenes</option>
+              <option value="Configuración">Configuración</option>
             </select>
             <Button variant="outline">
               <Filter className="w-4 h-4 mr-2" />
@@ -355,7 +446,19 @@ export default function Audit() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {logs.map((log, index) => (
+            {loading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="flex items-center gap-2">
+                  <Activity className="w-4 h-4 animate-spin" />
+                  <span className="text-gray-600 dark:text-gray-400">Cargando registros...</span>
+                </div>
+              </div>
+            ) : filteredLogs.length === 0 ? (
+              <div className="flex items-center justify-center py-12">
+                <p className="text-gray-600 dark:text-gray-400">No hay registros de auditoría</p>
+              </div>
+            ) : null}
+            {filteredLogs.map((log, index) => (
               <div key={log.id} className="relative">
                 {/* Línea de tiempo */}
                 {index !== logs.length - 1 && (
@@ -409,13 +512,22 @@ export default function Audit() {
           {/* Paginación */}
           <div className="mt-6 flex items-center justify-between">
             <p className="text-sm text-gray-600">
-              Mostrando {logs.length} de {logs.length} eventos
+              Mostrando {filteredLogs.length} de {filteredLogs.length} eventos
             </p>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" disabled>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              >
                 Anterior
               </Button>
-              <Button variant="outline" size="sm">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setCurrentPage(p => p + 1)}
+              >
                 Siguiente
               </Button>
             </div>

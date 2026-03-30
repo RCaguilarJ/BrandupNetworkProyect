@@ -896,73 +896,80 @@ export interface ServerManagementData {
   };
 }
 
-export interface GeneralSettingsOption {
-  value: string;
-  label: string;
-}
-
-export interface GeneralSettingsField {
-  key: string;
-  label: string;
-  value: string;
-  type: 'select' | 'text' | 'time';
-  options?: GeneralSettingsOption[];
-  description?: string;
-}
-
-export interface GeneralSettingsToggle {
-  key: string;
-  label: string;
-  enabled: boolean;
-  description: string;
-}
-
 export interface GeneralSettingsLogoAsset {
-  key: string;
-  label: string;
-  imageUrl: string;
-  uploadActionLabel: string;
-  maxSizeText: string;
-  recommendationText?: string;
+  fileName: string;
+  previewUrl: string;
+  mimeType: string;
+  size: number;
 }
 
-export interface GeneralSettingsData {
-  pageTitle: string;
-  pageDescription: string;
-  breadcrumb: string[];
-  companyPanel: {
-    title: string;
-    fields: GeneralSettingsField[];
-    helperText?: string;
-    primaryActionLabel: string;
-    primaryActionKey: string;
+export interface GeneralSettingsLoginImageAsset extends GeneralSettingsLogoAsset {
+  id: string;
+  label: string;
+}
+
+export interface GeneralSettingsCompanySection {
+  companyName: string;
+  address: string;
+  phoneNumbers: string;
+  identification: string;
+}
+
+export interface GeneralSettingsBasicConfigSection {
+  timezone: string;
+  backupEmail: string;
+  supportEmail: string;
+  billingEmail: string;
+  validateIdentity: boolean;
+}
+
+export interface GeneralSettingsNotificationsSection {
+  routerDownEmail: string;
+  routerDownMobile: string;
+  paymentReportEmail: string;
+}
+
+export interface GeneralSettingsLoginImageSection {
+  selectedImageId: string;
+  images: GeneralSettingsLoginImageAsset[];
+}
+
+export interface GeneralSettingsStorageData {
+  company: GeneralSettingsCompanySection;
+  basicConfig: GeneralSettingsBasicConfigSection;
+  notifications: GeneralSettingsNotificationsSection;
+  logos: {
+    mainLogo: GeneralSettingsLogoAsset | null;
+    invoiceLogo: GeneralSettingsLogoAsset | null;
   };
-  basicConfigPanel: {
-    title: string;
-    fields: GeneralSettingsField[];
-    validationToggle: GeneralSettingsToggle;
-    validationHelpText?: string;
-    primaryActionLabel: string;
-    primaryActionKey: string;
-  };
-  notificationsPanel: {
-    title: string;
-    fields: GeneralSettingsField[];
-    primaryActionLabel: string;
-    primaryActionKey: string;
-  };
-  logosPanel: {
-    title: string;
-    assets: GeneralSettingsLogoAsset[];
-  };
-  loginImagePanel: {
-    title: string;
-    selectorLabel: string;
-    selectedImage: string;
-    availableImages: GeneralSettingsOption[];
-    uploadPathHelpText: string;
-    previewImageUrl?: string;
-    primaryActionLabel: string;
-    primaryActionKey: string;
-  };
+  loginImage: GeneralSettingsLoginImageSection;
+}
+
+export interface UserManagementRecord {
+  id: string;
+  fullName: string;
+  documentType: string;
+  documentNumber: string;
+  profile: string;
+  cellphone: string;
+  status: 'active' | 'inactive';
+}
+
+export interface RoleManagementRecord {
+  id: string;
+  profile: string;
+  description: string;
+  associatedUsers: number;
+  createdAt: string;
+  status: 'active' | 'inactive';
+}
+
+export interface CurrencyManagementRecord {
+  id: string;
+  isoCode: string;
+  currencyName: string;
+  languageCode: string;
+  symbol: string;
+  createdAt: string;
+  status: 'active' | 'inactive';
 }

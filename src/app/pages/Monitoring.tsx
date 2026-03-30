@@ -66,13 +66,16 @@ export default function Monitoring() {
         <div className="bg-gray-800 dark:bg-gray-900 px-6 py-3 flex items-center justify-between">
           <h1 className="text-base font-bold text-white">Monitoreo de Red</h1>
           <div className="flex items-center gap-2">
-            <button className="w-7 h-7 flex items-center justify-center bg-white/20 hover:bg-white/30 rounded-full">
+            <button type="button" className="w-7 h-7 flex items-center justify-center bg-white/20 hover:bg-white/30 rounded-full" title="Actualizar" aria-label="Actualizar monitoreo">
+              <span className="sr-only">Actualizar monitoreo</span>
               <RefreshCw className="w-4 h-4 text-white" />
             </button>
-            <button className="w-7 h-7 flex items-center justify-center bg-white/20 hover:bg-white/30 rounded-full">
+            <button type="button" className="w-7 h-7 flex items-center justify-center bg-white/20 hover:bg-white/30 rounded-full" title="Configuración">
+              <span className="sr-only">Abrir configuracion de monitoreo</span>
               <Settings className="w-4 h-4 text-white" />
             </button>
-            <button className="w-7 h-7 flex items-center justify-center bg-white/20 hover:bg-white/30 rounded-full">
+            <button type="button" className="w-7 h-7 flex items-center justify-center bg-white/20 hover:bg-white/30 rounded-full" title="Agregar" aria-label="Agregar dispositivo">
+              <span className="sr-only">Agregar dispositivo</span>
               <Plus className="w-4 h-4 text-white" />
             </button>
           </div>
@@ -135,6 +138,7 @@ export default function Monitoring() {
                 <select
                   value={pageSize}
                   onChange={(e) => setPageSize(Number(e.target.value))}
+                  aria-label="Registros por página"
                   className="h-7 px-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded text-xs focus:ring-1 focus:ring-blue-500"
                 >
                   <option value={15}>15</option>
@@ -144,7 +148,8 @@ export default function Monitoring() {
               </div>
 
               {/* Botón Vista */}
-              <button className="p-1.5 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600">
+              <button type="button" className="p-1.5 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600" title="Vista de lista">
+                <span className="sr-only">Cambiar a vista de lista</span>
                 <List className="w-4 h-4" />
               </button>
 
@@ -204,7 +209,7 @@ export default function Monitoring() {
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                   {filteredDevices.length > 0 ? (
-                    filteredDevices.slice(0, pageSize).map((device) => (
+                    filteredDevices.slice((currentPage - 1) * pageSize, currentPage * pageSize).map((device) => (
                       <tr 
                         key={device.id}
                         className="hover:bg-gray-50 dark:hover:bg-gray-700/50"
@@ -233,17 +238,17 @@ export default function Monitoring() {
                           </span>
                         </td>
                         <td className="px-3 py-2 border-r border-gray-200 dark:border-gray-700 text-center">
-                          <span className="text-gray-700 dark:text-gray-300">{device.ping || 'N/A'}</span>
+                          <span className="text-gray-700 dark:text-gray-300">{'N/A'}</span>
                         </td>
                         <td className="px-3 py-2 border-r border-gray-200 dark:border-gray-700">
                           <span className="text-gray-600 dark:text-gray-400">{formatDateTime(device.lastCheck)}</span>
                         </td>
                         <td className="px-3 py-2 text-center">
                           <div className="flex items-center justify-center gap-1">
-                            <button className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded" title="Editar">
+                            <button type="button" className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded" title="Editar dispositivo" aria-label="Editar dispositivo">
                               <Edit className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
                             </button>
-                            <button className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded" title="Eliminar">
+                            <button type="button" className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded" title="Eliminar dispositivo" aria-label="Eliminar dispositivo">
                               <Trash2 className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
                             </button>
                           </div>
@@ -268,14 +273,17 @@ export default function Monitoring() {
               </div>
               <div className="flex items-center gap-2">
                 <button
+                  type="button"
                   className="w-8 h-8 flex items-center justify-center border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50"
                   disabled={currentPage === 1}
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                 >
+                  <span className="sr-only">Ir a la página anterior</span>
                   <ChevronLeft className="w-4 h-4" />
                 </button>
                 
                 <button
+                  type="button"
                   onClick={() => setCurrentPage(1)}
                   className={`w-8 h-8 flex items-center justify-center border rounded text-xs font-medium ${
                     currentPage === 1
@@ -287,9 +295,12 @@ export default function Monitoring() {
                 </button>
 
                 <button
+                  type="button"
                   className="w-8 h-8 flex items-center justify-center border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
                   onClick={() => setCurrentPage(p => p + 1)}
+                  title="Página siguiente"
                 >
+                  <span className="sr-only">Ir a la página siguiente</span>
                   <ChevronRight className="w-4 h-4" />
                 </button>
               </div>

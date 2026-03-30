@@ -20,10 +20,14 @@ import Radius from './pages/Radius';
 import Suspensions from './pages/Suspensions';
 import Reports from './pages/Reports';
 import Audit from './pages/Audit';
+import Backups from './pages/Backups';
 import Settings from './pages/Settings';
 import GeneralSettings from './pages/GeneralSettings';
 import ServerManagement from './pages/ServerManagement';
 import PaymentMethods from './pages/PaymentMethods';
+import UsersManagement from './pages/UsersManagement';
+import RolesManagement from './pages/RolesManagement';
+import CurrenciesManagement from './pages/CurrenciesManagement';
 
 // Billing subpages
 import Invoices from './pages/billing/Invoices';
@@ -104,8 +108,12 @@ export const router = createBrowserRouter([
       { path: 'suspensions', element: <Suspensions /> },
       { path: 'reports', element: <Reports /> },
       { path: 'audit', element: <Audit /> },
+      { path: 'backups', element: <Backups /> },
       { path: 'settings', element: <Settings /> },
       { path: 'settings/general', element: <GeneralSettings /> },
+      { path: 'settings/users', element: <UsersManagement /> },
+      { path: 'settings/roles', element: <RolesManagement /> },
+      { path: 'settings/currencies', element: <CurrenciesManagement /> },
       { path: 'settings/server', element: <ServerManagement /> },
       { path: 'payment-methods', element: <PaymentMethods /> },
       { path: 'support-calendar', element: <SupportCalendar /> },
