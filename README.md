@@ -786,7 +786,17 @@ Descripcion funcional:
 - El boton `Plantillas de WSP` dentro de `Ajustes` navega al modulo `Plantilla WSP`.
 - La ruta activa es `/settings/wsp-templates`.
 - La pantalla replica la captura de referencia con una grilla de recuadros visuales y breadcrumb `Dashboard / Campaña / Plantilla WSP`.
-- Por decision actual del alcance, solo se implementa la estructura de tarjetas. El contenido editable interno de cada plantilla se completara en una fase posterior.
+- Actualmente las tarjetas `CONFIRMACIÓN DE REGISTRO DE PAGO`, `SOPORTE TECNICO`, `PAGO PENDIENTE`, `CONFIRMACIÓN DE PAGO`, `RESTABLECIMIENTO DE SU SERVICIO`, `SUSPENSIÓN DE SERVICIO POR FALTA DE PAGO`, `CONFIRMACIÓN DE CANCELACIÓN DE SERVICIO`, `+10 DÍAS SUSPENDIDOS*` y `COMPROMISO DE PAGO` abren un editor funcional.
+- El editor debe preservar literalmente los tokens tipo `{cliente}`, `{payment_total}`, `{payment_months}`, `{list_payments}` y los asteriscos de formato usados por WhatsApp.
+- La plantilla `SOPORTE TECNICO` debe preservar literalmente el token `{ticket_num}` junto con `{cliente}` y `{business_name}`.
+- La plantilla `PAGO PENDIENTE` debe preservar literalmente `{cliente}`, `{debt_amount}`, `{debt_list}` y los resaltados `*PENDIENTE*` y `*TOTAL*`.
+- La plantilla `CONFIRMACIÓN DE PAGO` debe preservar literalmente `{payment_total}`, `{payment_num}`, `{payment_months}`, `{payment_links}` y el formato `*{cliente}*`.
+- La plantilla `RESTABLECIMIENTO DE SU SERVICIO` debe preservar literalmente `{cliente}` y `{business_name}` sin introducir variables operativas adicionales.
+- La plantilla `SUSPENSIÓN DE SERVICIO POR FALTA DE PAGO` debe preservar literalmente `{cliente}`, `{debt_total_list}`, `{debt_total_month_count}` y el resaltado `*SUSPENDIDO*`.
+- La plantilla `CONFIRMACIÓN DE CANCELACIÓN DE SERVICIO` debe preservar literalmente `{cliente}` y `{business_name}` sin introducir variables operativas adicionales.
+- La plantilla `+10 DÍAS SUSPENDIDOS*` debe conservar exactamente el contenido hoy aprobado, que por ahora solo incluye `Estimado(a) *{cliente}*,` y el catálogo de variables de deuda mostrado en UI.
+- La plantilla `COMPROMISO DE PAGO` debe preservar literalmente `{cliente}`, `{promise_date}`, `{promise_comment}`, `{debt_total_list}`, `{debt_total_month_count}` y el resaltado `*TOTAL*`.
+- El resto de tarjetas sigue siendo visual y se completara en una fase posterior.
 
 ### Contrato esperado para backend
 
@@ -795,18 +805,42 @@ interface WspTemplateCard {
   id: string;
   title: string;
 }
+
+interface WspTemplateVariable {
+  key: string;
+  description: string;
+}
+
+interface WspTemplateEditorData {
+  id: string;
+  code: string;
+  title: string;
+  content: string;
+  variables: WspTemplateVariable[];
+}
 ```
 
 ### Preparacion backend recomendada
 
 - `GET /api/v1/wsp-templates`: listar tarjetas o plantillas disponibles.
-- No conectar todavia endpoints de detalle o edicion hasta que se apruebe la siguiente fase de campos internos.
+- `GET /api/v1/wsp-templates/:id`: obtener detalle editable de una plantilla.
+- `PUT /api/v1/wsp-templates/:id`: guardar titulo y contenido.
+- `GET /api/v1/wsp-templates/variables`: exponer catalogo de variables disponibles y su descripcion.
+- Backend no debe normalizar ni escapar automaticamente los tokens `{...}` del contenido, salvo validaciones explicitas acordadas por negocio.
+- Para `SOPORTE TECNICO`, backend debe exponer `ticket_num` como variable disponible del contexto del ticket.
+- Para `PAGO PENDIENTE`, backend debe exponer `debt_amount`, `debt_list` y `debt_months` como variables disponibles del contexto de cobranza.
+- Para `CONFIRMACIÓN DE PAGO`, backend debe exponer `payment_total`, `payment_num`, `payment_months`, `payment_links` y `payment_pending` en el contexto del recibo.
+- Para `RESTABLECIMIENTO DE SU SERVICIO`, backend debe resolver el contexto base del cliente y el nombre comercial sin requerir variables extra de cobranza.
+- Para `SUSPENSIÓN DE SERVICIO POR FALTA DE PAGO`, backend debe resolver `debt_total_list` y `debt_total_month_count` desde el contexto de cobranza consolidada del cliente.
+- Para `CONFIRMACIÓN DE CANCELACIÓN DE SERVICIO`, backend debe resolver el contexto base del cliente y la empresa sin requerir variables operativas extra.
+- Para `+10 DÍAS SUSPENDIDOS*`, backend debe exponer `debt_list`, `debt_amount` y `debt_months`, aunque el cuerpo aprobado hoy todavía no los consume.
+- Para `COMPROMISO DE PAGO`, backend debe exponer `promise_date` y `promise_comment` junto con `debt_total_list` y `debt_total_month_count` desde el contexto de promesas de pago.
 
 ### Notas de mantenimiento
 
-- Mientras el alcance siga limitado a recuadros, no agregar formularios internos ni editores de plantilla en este modulo.
-- Si negocio aprueba el siguiente nivel, extender el contrato en `src/app/types/index.ts` antes de tocar la UI.
-- Si cambia `WspTemplateCard`, actualizar `src/app/types/index.ts`, `src/app/pages/WspTemplatesManagement.tsx` y este README en el mismo cambio.
+- Solo `CONFIRMACIÓN DE REGISTRO DE PAGO`, `SOPORTE TECNICO`, `PAGO PENDIENTE`, `CONFIRMACIÓN DE PAGO`, `RESTABLECIMIENTO DE SU SERVICIO`, `SUSPENSIÓN DE SERVICIO POR FALTA DE PAGO`, `CONFIRMACIÓN DE CANCELACIÓN DE SERVICIO`, `+10 DÍAS SUSPENDIDOS*` y `COMPROMISO DE PAGO` estan activas hoy; no abrir las demas hasta tener contenido aprobado.
+- Si negocio aprueba mas editores, extender el contrato en `src/app/types/index.ts` antes de tocar la UI.
+- Si cambia `WspTemplateCard`, `WspTemplateVariable` o `WspTemplateEditorData`, actualizar `src/app/types/index.ts`, `src/app/pages/WspTemplatesManagement.tsx` y este README en el mismo cambio.
 
 ## Pantalla General
 

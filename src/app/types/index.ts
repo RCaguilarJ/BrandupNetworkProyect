@@ -1048,3 +1048,16 @@ export interface WspTemplateCard {
   id: string;
   title: string;
 }
+
+export interface WspTemplateVariable {
+  key: string;
+  description: string;
+}
+
+export interface WspTemplateEditorData {
+  id: string;
+  code: string;
+  title: string;
+  content: string;
+  variables: WspTemplateVariable[];
+}
