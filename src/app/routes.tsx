@@ -21,6 +21,8 @@ import Suspensions from './pages/Suspensions';
 import Reports from './pages/Reports';
 import Audit from './pages/Audit';
 import Settings from './pages/Settings';
+import GeneralSettings from './pages/GeneralSettings';
+import ServerManagement from './pages/ServerManagement';
 import PaymentMethods from './pages/PaymentMethods';
 
 // Billing subpages
@@ -103,6 +105,8 @@ export const router = createBrowserRouter([
       { path: 'reports', element: <Reports /> },
       { path: 'audit', element: <Audit /> },
       { path: 'settings', element: <Settings /> },
+      { path: 'settings/general', element: <GeneralSettings /> },
+      { path: 'settings/server', element: <ServerManagement /> },
       { path: 'payment-methods', element: <PaymentMethods /> },
       { path: 'support-calendar', element: <SupportCalendar /> },
       { path: 'support-calendar/settings', element: <CalendarSettings /> },

@@ -174,7 +174,11 @@ export interface DashboardMetrics {
 }
 
 export interface DashboardMikrosystemTarjetaSuperior {
-  clave: string;
+  clave:
+    | 'clientes_online'
+    | 'transacciones_hoy'
+    | 'facturas_no_pagadas'
+    | 'tickets_soporte';
   titulo: string;
   valorPrincipal: string;
   etiquetaDetalle: string;
@@ -205,7 +209,13 @@ export interface DashboardMikrosystemFilaActividad {
 
 export interface DashboardMikrosystemEstadoServidorItem {
   id: number;
-  clave: string;
+  clave:
+    | 'cpu_cores'
+    | 'carga_promedio'
+    | 'uso_cpu'
+    | 'memoria'
+    | 'disco'
+    | 'ultima_copia';
   etiqueta: string;
   valorPrincipal: string;
   valorSecundario?: string;
@@ -825,3 +835,134 @@ export interface WispHubTicketsHoyDatos
 
 export interface MikrosystemTicketsHoyDatos
   extends MikrosystemListaTicketsDatos {}
+
+export interface ServerManagementMysqlVariable {
+  key: string;
+  label: string;
+  value: string;
+  tone?: 'default' | 'error';
+}
+
+export interface ServerManagementTextItem {
+  id: string;
+  title: string;
+  description: string;
+}
+
+export interface ServerManagementAction {
+  id: string;
+  label: string;
+  actionKey: string;
+  variant: 'outline' | 'destructive';
+  helperText?: string;
+  requiresConfirmation?: boolean;
+}
+
+export interface ServerManagementRemoteAccess {
+  description: string;
+  webAccessLabel: string;
+  webAccessUrl: string;
+  sshAccessLabel: string;
+  sshAccessHost: string;
+  sshTokenLabel: string;
+  sshTokenValue: string;
+  helperText: string;
+  helperLinkLabel: string;
+  helperLinkUrl: string;
+  actionLabel: string;
+  actionKey: string;
+}
+
+export interface ServerManagementData {
+  pageTitle: string;
+  pageDescription: string;
+  mysqlPanel: {
+    title: string;
+    variables: ServerManagementMysqlVariable[];
+  };
+  repairPanel: {
+    title: string;
+    items: ServerManagementTextItem[];
+    actionLabel: string;
+    actionKey: string;
+  };
+  controlPanel: {
+    title: string;
+    actions: ServerManagementAction[];
+  };
+  remoteAccessPanel: {
+    title: string;
+    access: ServerManagementRemoteAccess;
+  };
+}
+
+export interface GeneralSettingsOption {
+  value: string;
+  label: string;
+}
+
+export interface GeneralSettingsField {
+  key: string;
+  label: string;
+  value: string;
+  type: 'select' | 'text' | 'time';
+  options?: GeneralSettingsOption[];
+  description?: string;
+}
+
+export interface GeneralSettingsToggle {
+  key: string;
+  label: string;
+  enabled: boolean;
+  description: string;
+}
+
+export interface GeneralSettingsLogoAsset {
+  key: string;
+  label: string;
+  imageUrl: string;
+  uploadActionLabel: string;
+  maxSizeText: string;
+  recommendationText?: string;
+}
+
+export interface GeneralSettingsData {
+  pageTitle: string;
+  pageDescription: string;
+  breadcrumb: string[];
+  companyPanel: {
+    title: string;
+    fields: GeneralSettingsField[];
+    helperText?: string;
+    primaryActionLabel: string;
+    primaryActionKey: string;
+  };
+  basicConfigPanel: {
+    title: string;
+    fields: GeneralSettingsField[];
+    validationToggle: GeneralSettingsToggle;
+    validationHelpText?: string;
+    primaryActionLabel: string;
+    primaryActionKey: string;
+  };
+  notificationsPanel: {
+    title: string;
+    fields: GeneralSettingsField[];
+    primaryActionLabel: string;
+    primaryActionKey: string;
+  };
+  logosPanel: {
+    title: string;
+    assets: GeneralSettingsLogoAsset[];
+  };
+  loginImagePanel: {
+    title: string;
+    selectorLabel: string;
+    selectedImage: string;
+    availableImages: GeneralSettingsOption[];
+    uploadPathHelpText: string;
+    previewImageUrl?: string;
+    primaryActionLabel: string;
+    primaryActionKey: string;
+  };
+}

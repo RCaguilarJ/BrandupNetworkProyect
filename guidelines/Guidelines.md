@@ -1,61 +1,67 @@
 **Add your own guidelines here**
 <!--
 
-System Guidelines
+Directrices del Sistema (System Guidelines)
+Utiliza este archivo para proporcionar a la IA las reglas y directrices que deseas que siga. Esta plantilla describe algunos ejemplos de cosas que puedes añadir. Puedes agregar tus propias secciones y darle el formato que mejor se adapte a tus necesidades.
 
-Use this file to provide the AI with rules and guidelines you want it to follow.
-This template outlines a few examples of things you can add. You can add your own sections and format it to suit your needs
+CONSEJO: Más contexto no siempre es mejor. Puede confundir al LLM (modelo de lenguaje). Intenta añadir solo las reglas más importantes que necesites.
 
-TIP: More context isn't always better. It can confuse the LLM. Try and add the most important rules you need
+Directrices generales
+Cualquier regla general que desees que la IA siga. Por ejemplo:
 
-# General guidelines
+Usa posicionamiento absoluto solo cuando sea necesario. Opta por diseños responsivos y bien estructurados que utilicen Flexbox y Grid por defecto.
 
-Any general rules you want the AI to follow.
-For example:
+Refactoriza el código sobre la marcha para mantenerlo limpio.
 
-* Only use absolute positioning when necessary. Opt for responsive and well structured layouts that use flexbox and grid by default
-* Refactor code as you go to keep code clean
-* Keep file sizes small and put helper functions and components in their own files.
+Mantén los tamaños de archivo pequeños y coloca las funciones auxiliares (helpers) y componentes en sus propios archivos.
 
---------------
+Directrices del sistema de diseño
+Reglas sobre cómo la IA debe hacer que las generaciones se ajusten al sistema de diseño de tu empresa.
 
-# Design system guidelines
-Rules for how the AI should make generations look like your company's design system
+Además, si seleccionas un sistema de diseño en el cuadro de chat, puedes hacer referencia a sus componentes, tokens y variables. Por ejemplo:
 
-Additionally, if you select a design system to use in the prompt box, you can reference
-your design system's components, tokens, variables and components.
-For example:
+Usa un tamaño de fuente base de 14px.
 
-* Use a base font-size of 14px
-* Date formats should always be in the format “Jun 10”
-* The bottom toolbar should only ever have a maximum of 4 items
-* Never use the floating action button with the bottom toolbar
-* Chips should always come in sets of 3 or more
-* Don't use a dropdown if there are 2 or fewer options
+Los formatos de fecha siempre deben seguir el formato "Jun 10".
 
-You can also create sub sections and add more specific details
-For example:
+La barra de herramientas inferior solo debe tener un máximo de 4 elementos.
 
+Nunca uses el botón de acción flotante (FAB) junto con la barra de herramientas inferior.
 
-## Button
-The Button component is a fundamental interactive element in our design system, designed to trigger actions or navigate
-users through the application. It provides visual feedback and clear affordances to enhance user experience.
+Los "Chips" siempre deben aparecer en grupos de 3 o más.
 
-### Usage
-Buttons should be used for important actions that users need to take, such as form submissions, confirming choices,
-or initiating processes. They communicate interactivity and should have clear, action-oriented labels.
+No uses un menú desplegable (dropdown) si hay 2 opciones o menos.
 
-### Variants
-* Primary Button
-  * Purpose : Used for the main action in a section or page
-  * Visual Style : Bold, filled with the primary brand color
-  * Usage : One primary button per section to guide users toward the most important action
-* Secondary Button
-  * Purpose : Used for alternative or supporting actions
-  * Visual Style : Outlined with the primary color, transparent background
-  * Usage : Can appear alongside a primary button for less important actions
-* Tertiary Button
-  * Purpose : Used for the least important actions
-  * Visual Style : Text-only with no border, using primary color
-  * Usage : For actions that should be available but not emphasized
+También puedes crear subsecciones y añadir detalles más específicos. Por ejemplo:
+
+Botón (Button)
+El componente Botón es un elemento interactivo fundamental en nuestro sistema de diseño, creado para activar acciones o guiar a los usuarios a través de la aplicación. Proporciona retroalimentación visual y señales claras para mejorar la experiencia del usuario.
+
+Uso
+Los botones deben usarse para acciones importantes que los usuarios deban realizar, como enviar formularios, confirmar elecciones o iniciar procesos. Deben comunicar interactividad y tener etiquetas claras orientadas a la acción.
+
+Variantes
+Botón Primario
+
+Propósito: Se utiliza para la acción principal en una sección o página.
+
+Estilo visual: Llamativo, relleno con el color principal de la marca.
+
+Uso: Un botón primario por sección para guiar a los usuarios hacia la acción más importante.
+
+Botón Secundario
+
+Propósito: Se utiliza para acciones alternativas o de apoyo.
+
+Estilo visual: Contorno con el color primario, fondo transparente.
+
+Uso: Puede aparecer junto a un botón primario para acciones de menor importancia.
+
+Botón Terciario
+
+Propósito: Se utiliza para las acciones de menor importancia.
+
+Estilo visual: Solo texto, sin borde, utilizando el color primario.
+
+Uso: Para acciones que deben estar disponibles pero no enfatizadas.
 -->

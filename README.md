@@ -17,6 +17,506 @@ Levantar entorno local:
 npm run dev
 ```
 
+## Analisis tecnico del codigo
+
+Este repositorio es una aplicacion frontend construida con `React 18`, `Vite 6`, `react-router` y una capa de componentes UI propia en `src/app/components/ui`. El proyecto esta orientado a una plataforma ISP/ERP con dos vistas visuales intercambiables:
+
+- `mikrosystem`
+- `wisphub`
+
+La aplicacion no consume backend real todavia de forma transversal. Hoy conviven:
+
+- autenticacion mock persistida en `localStorage`
+- datos mock centralizados en `src/app/data/mockData.ts`
+- contratos visuales ya documentados en este `README`
+- pantallas que ya fueron preparadas para recibir datos reales sin redisenar el layout
+
+### Estado actual detectado
+
+- El punto de entrada es `src/main.tsx`, que monta `src/app/App.tsx`.
+- `App.tsx` envuelve la aplicacion con `ThemeProvider`, `ViewThemeProvider` y `AuthProvider`.
+- La proteccion de rutas actual es visual y usa `localStorage` dentro de `src/app/routes.tsx`.
+- La navegacion lateral principal vive en `src/app/layouts/MainLayout.tsx`.
+- El tema visual de cada vista se controla con `ViewThemeContext` y se persiste en `localStorage`.
+- El modo oscuro/claro se controla con `ThemeContext` y se aplica sobre la clase `dark` del documento.
+- La mayor parte de las pantallas de negocio dependen hoy de `mockData.ts`, por lo que backend todavia no es la fuente unica de verdad.
+- La pagina `src/app/pages/Settings.tsx` actualmente es una vista visual unica de accesos rapidos llamada `Ajustes`; no navega ni consume endpoints reales todavia.
+
+## Arquitectura general
+
+### Bootstrap y providers
+
+- `src/main.tsx`: monta React y carga estilos globales.
+- `src/app/App.tsx`: compone providers globales y el router.
+- `src/app/context/AuthContext.tsx`: sesion del usuario, login/logout mock, persistencia en `localStorage`.
+- `src/app/context/ThemeContext.tsx`: tema `light/dark`.
+- `src/app/context/ViewThemeContext.tsx`: tema de vista `mikrosystem/wisphub`.
+
+### Enrutamiento
+
+- `src/app/routes.tsx` define todas las rutas privadas y publicas.
+- `ProtectedRoute` valida presencia de `brandup_user` en `localStorage`.
+- La ruta publica vigente es `/book-appointment/:companyId`.
+- El resto de la app se monta dentro de `MainLayout`.
+
+### Layout y navegacion
+
+- `src/app/layouts/MainLayout.tsx` resuelve sidebar, navegacion por rol, header y salida con `<Outlet />`.
+- La informacion de roles esta acoplada al menu del frontend. Si backend cambia permisos o modulos visibles, se debe actualizar el menu y este README en el mismo cambio.
+
+### Capas del codigo
+
+- `src/app/pages/*`: pantallas completas.
+- `src/app/pages/billing/*`: submodulos de facturacion.
+- `src/app/pages/tickets/*`: submodulos de tickets.
+- `src/app/pages/calendar/*`: submodulos del calendario de soporte.
+- `src/app/components/*`: bloques reutilizables de negocio o presentacion.
+- `src/app/components/ui/*`: primitives UI reutilizables.
+- `src/app/types/index.ts`: tipos globales del dominio.
+- `src/app/data/mockData.ts`: fuente temporal de datos mientras no exista backend integrado.
+
+## Mapa funcional del codigo
+
+### Modulos principales detectados por rutas
+
+- `Dashboard`: selector de dashboard por rol y por tema visual.
+- `Companies`: gestion de empresas.
+- `Clients` y `ClientsMap`: listado y mapa de clientes.
+- `Plans`: catalogo de planes y servicios.
+- `Billing` + subrutas: facturas, pagos, promesas, estadisticas, ingresos/egresos.
+- `Tickets` + subrutas: listado general, hoy, en proceso, finalizados.
+- `ServiceOrders`: ordenes de servicio.
+- `SupportCalendar`: agenda y configuracion de soporte.
+- `Monitoring`: monitoreo de red.
+- `Hotspot`: vouchers y hotspot.
+- `Radius`: configuracion/estado RADIUS.
+- `Suspensions`: cortes y reactivaciones.
+- `Reports`: reportes operativos.
+- `Audit`: auditoria.
+- `PaymentMethods`: catalogo/configuracion de metodos de pago.
+- `Settings`: vista unica de `Ajustes` con accesos rapidos visuales.
+
+### Roles actuales detectados
+
+Definidos en `src/app/types/index.ts`:
+
+- `super_admin`
+- `isp_admin`
+- `cobranza`
+- `soporte`
+- `tecnico`
+- `cliente`
+
+### Fuente de verdad actual por area
+
+- Sesion: `AuthContext` + `localStorage`.
+- Preferencias de tema: `ThemeContext` + `ViewThemeContext` + `localStorage`.
+- Datos de negocio: `src/app/data/mockData.ts`.
+- Tipos de dominio: `src/app/types/index.ts`.
+- Disponibilidad de vistas por rol: `MainLayout.tsx` y paginas que condicionan render por `user.role`.
+
+## Protocolo de documentacion e integracion
+
+Esta seccion define el protocolo que se debe seguir en adelante para que frontend y backend hablen el mismo idioma y el `README` siga siendo util.
+
+### Regla 1: cada pantalla con datos reales debe documentarse
+
+Toda pantalla nueva o redisenada que dependa de backend debe incluir en este `README`:
+
+- nombre de la pantalla
+- archivos clave
+- contrato esperado para backend
+- mapeo visual por bloque
+- notas de mantenimiento
+
+Si falta alguno de esos puntos, la documentacion se considera incompleta.
+
+### Regla 2: el contrato debe ser estable y explicito
+
+El frontend no debe depender de campos ambiguos o implícitos. El contrato documentado debe indicar:
+
+- nombre exacto de cada propiedad
+- tipo esperado
+- formato esperado
+- enums permitidos
+- que campos son opcionales
+- quien formatea el valor: backend o frontend
+
+Ejemplos de formato que deben definirse siempre:
+
+- fechas
+- moneda
+- porcentajes
+- estados
+- ids
+- nombres visibles para UI
+
+### Regla 3: un solo source of truth por modulo
+
+Cada modulo debe identificar claramente su fuente primaria:
+
+- mientras no exista backend: `mockData.ts`
+- cuando exista backend: endpoint o servicio especifico
+
+No se deben mezclar datos armados en multiples componentes sin dejar documentado el ensamblado. Si una pantalla requiere composicion de varias respuestas, el README debe decirlo.
+
+### Regla 4: cuando cambie la UI, cambia la documentacion
+
+Si se modifica cualquiera de estos elementos, el README debe actualizarse en el mismo commit:
+
+- layout principal de una pantalla
+- nombres visibles de bloques
+- columnas de tablas
+- cards KPI
+- filtros
+- formularios
+- estados posibles
+- rutas involucradas
+- permisos por rol
+
+### Regla 5: responsabilidades separadas
+
+Frontend:
+
+- renderizar layout, estados visuales y validaciones de UI
+- mapear datos al componente con tipos consistentes
+- documentar contratos y dependencias visuales
+
+Backend:
+
+- entregar datos listos y consistentes con el contrato
+- respetar enums, formatos y semantica documentada
+- no cambiar nombres o estructura sin versionar el cambio
+
+### Regla 6: toda pantalla debe contemplar estados base
+
+Aunque la maqueta inicial no los implemente completos, toda documentacion de pantalla debe contemplar:
+
+- `loading`
+- `empty`
+- `error`
+- `success`
+- restricciones por rol
+
+Si aun no existen en UI, debe indicarse como deuda tecnica.
+
+### Regla 7: no usar strings magicos fuera del contrato
+
+Buenas practicas obligatorias:
+
+- estados de negocio como union types o enums
+- ids estables
+- nombres de roles centralizados
+- contratos versionables
+- funciones de formato centralizadas
+- comentarios solo donde aporten contexto tecnico real
+
+## Buenas practicas obligatorias para este proyecto
+
+### Documentacion
+
+- Toda pantalla importante debe estar en el README.
+- Todo contrato nuevo debe escribirse en TypeScript antes de pedir backend.
+- Toda vista con mocks debe indicar explicitamente que aun no esta conectada.
+
+### Tipado
+
+- Los tipos compartidos deben vivir en `src/app/types/index.ts` o en un modulo de tipos adyacente si el dominio crece.
+- No introducir objetos anonimos complejos repetidos en multiples componentes.
+
+### Integracion futura con API
+
+- Crear una capa intermedia de servicios o adapters antes de conectar fetches directos en paginas.
+- Evitar que un componente de pantalla conozca detalles crudos del backend si puede resolverse en un mapper.
+- Mantener un contrato visual estable aunque cambie la forma cruda de la respuesta.
+
+### Estado y persistencia
+
+- `localStorage` solo debe usarse para sesion mock o preferencias de UI.
+- Cuando se integre backend real, la autenticacion debe migrarse a un flujo formal y el `ProtectedRoute` debe dejar de depender solo de `localStorage`.
+
+### UI y mantenimiento
+
+- Si un modulo existe en ambos temas, ambos deben documentarse o justificarse si solo uno tiene implementacion completa.
+- Si una pantalla es solo visual y no funcional, debe quedar declarado.
+- No agregar botones o accesos que no tengan propietario funcional claro.
+
+## Hallazgos importantes del analisis
+
+- El proyecto ya tiene una base buena para documentar pantallas por contrato visual; esa practica debe mantenerse.
+- Falta una capa global de documentacion de arquitectura e integracion; esta seccion la cubre.
+- La autenticacion y los permisos siguen siendo mock. Backend debe asumir que el comportamiento actual no es una implementacion final de seguridad.
+- `mockData.ts` es hoy un dataset central de demo. Cualquier integracion real debe ir reemplazando modulo por modulo y eliminar dependencia del mock una vez estabilizado el endpoint.
+- `Settings.tsx` quedo deliberadamente como una sola vista de `Ajustes` y debe tratarse como catalogo visual de modulos, no como modulo configurador final.
+
+## Pantalla Ajustes
+
+Archivos clave del estado actual:
+
+- `src/app/pages/Settings.tsx`
+
+Descripcion funcional:
+
+- La pantalla `Configuracion` muestra una sola vista llamada `Ajustes`.
+- La vista replica un tablero de accesos rapidos en formato de botones circulares.
+- Los modulos marcados con cruces en la referencia fueron omitidos deliberadamente.
+- Actualmente los botones `General` y `Servidor` ya navegan a vistas reales.
+- `General` usa la ruta `/settings/general`.
+- `Servidor` usa la ruta `/settings/server`.
+- El resto de los botones sigue siendo visual y no debe conectarse hasta tener contrato backend y modulo propio documentado.
+
+### Protocolo especifico para backend
+
+Antes de conectar esta pantalla con backend se debe definir, por cada boton:
+
+- si abre una ruta interna, modal o modulo independiente
+- permiso por rol
+- si requiere configuracion de empresa, configuracion global o ambas
+- endpoint de lectura
+- endpoint de escritura
+- payload minimo esperado
+
+### Recomendacion de implementacion
+
+No conectar los botones directamente a endpoints desde `Settings.tsx`. La practica recomendada es:
+
+1. definir contrato por modulo
+2. documentarlo en este README
+3. crear pagina o subruta real
+4. conectar datos reales en esa pagina
+5. convertir el boton de `Ajustes` en un acceso navegable
+
+## Pantalla General
+
+Archivos clave del estado actual:
+
+- `src/app/pages/GeneralSettings.tsx`
+- `src/app/routes.tsx`
+- `src/app/pages/Settings.tsx`
+- `src/app/types/index.ts`
+
+Descripcion funcional:
+
+- La pantalla representa el modulo `General` accesible desde `Ajustes`.
+- La ruta actual es `/settings/general`.
+- Replica la vista `Ajustes generales` de la referencia.
+- Agrupa cinco bloques: `Datos de la empresa`, `Configuración básica`, `Notificaciones del sistema`, `Logo (.png)` e `Imagen Login administrador`.
+- La pantalla ya esta preparada para backend mediante un contrato tipado llamado `GeneralSettingsData`.
+- Los controles se muestran en modo lectura mientras no exista integracion real de escritura.
+
+### Contrato esperado para backend
+
+```ts
+interface GeneralSettingsOption {
+  value: string;
+  label: string;
+}
+
+interface GeneralSettingsField {
+  key: string;
+  label: string;
+  value: string;
+  type: 'select' | 'text' | 'time';
+  options?: GeneralSettingsOption[];
+  description?: string;
+}
+
+interface GeneralSettingsToggle {
+  key: string;
+  label: string;
+  enabled: boolean;
+  description: string;
+}
+
+interface GeneralSettingsData {
+  pageTitle: string;
+  pageDescription: string;
+  breadcrumb: string[];
+  companyPanel: {
+    title: string;
+    fields: GeneralSettingsField[];
+    helperText?: string;
+    primaryActionLabel: string;
+    primaryActionKey: string;
+  };
+  basicConfigPanel: {
+    title: string;
+    fields: GeneralSettingsField[];
+    validationToggle: GeneralSettingsToggle;
+    validationHelpText?: string;
+    primaryActionLabel: string;
+    primaryActionKey: string;
+  };
+  notificationsPanel: {
+    title: string;
+    fields: GeneralSettingsField[];
+    primaryActionLabel: string;
+    primaryActionKey: string;
+  };
+  logosPanel: {
+    title: string;
+    assets: GeneralSettingsLogoAsset[];
+  };
+  loginImagePanel: {
+    title: string;
+    selectorLabel: string;
+    selectedImage: string;
+    availableImages: GeneralSettingsOption[];
+    uploadPathHelpText: string;
+    previewImageUrl?: string;
+    primaryActionLabel: string;
+    primaryActionKey: string;
+  };
+}
+```
+
+### Mapeo visual por bloque
+
+- `breadcrumb`: ruta visual superior. El orden importa.
+- `companyPanel.fields`: datos corporativos visibles.
+- `companyPanel.helperText`: texto explicativo bajo `Identificación`.
+- `basicConfigPanel.fields`: zona horaria y correos base del sistema.
+- `basicConfigPanel.validationToggle`: toggle global de validación de documento.
+- `notificationsPanel.fields`: correos y teléfonos usados para alertas del sistema.
+- `logosPanel.assets`: logos visuales y metadatos de subida por cada caso de uso.
+- `loginImagePanel.availableImages`: imágenes disponibles para login administrador.
+- `loginImagePanel.uploadPathHelpText`: texto operativo visible de ruta en servidor.
+- `GeneralSettingsField.type`: evita inferencias visuales escondidas en el frontend y obliga a backend a declarar la naturaleza del control.
+
+### Preparacion backend recomendada
+
+- Exponer un endpoint de lectura para la pantalla completa, por ejemplo `GET /settings/general`.
+- Exponer un endpoint de escritura para persistencia, por ejemplo `PUT /settings/general`.
+- Si el backend divide configuracion por scopes, devolverlos ya agrupados segun `companyPanel`, `basicConfigPanel`, `notificationsPanel`, `logosPanel` y `loginImagePanel` para no recomponer la semantica en JSX.
+
+### Notas de mantenimiento
+
+- Si cambia `GeneralSettingsData`, actualizar `src/app/types/index.ts`, `src/app/pages/GeneralSettings.tsx` y este README en el mismo cambio.
+- No volver a embutir campos generales dentro de `Settings.tsx`; `Ajustes` debe seguir siendo catalogo de accesos y no pantalla de edicion.
+
+## Pantalla Servidor
+
+Archivos clave del estado actual:
+
+- `src/app/pages/ServerManagement.tsx`
+- `src/app/routes.tsx`
+- `src/app/pages/Settings.tsx`
+- `src/app/types/index.ts`
+
+Descripcion funcional:
+
+- La pantalla replica la vista operativa del modulo `Servidor` mostrada en la referencia.
+- Se compone de cuatro paneles: `Servidor MYSQL`, `Reparar Permisos & Archivos`, `Servidor` y `LocalTunnel & ngrok (Acceso remoto)`.
+- La ruta actual es `/settings/server`.
+- La pantalla ya esta preparada para backend mediante un contrato tipado llamado `ServerManagementData`.
+- Los botones siguen siendo visuales; aun no disparan servicios reales.
+
+### Contrato esperado para backend
+
+```ts
+interface ServerManagementMysqlVariable {
+  key: string;
+  label: string;
+  value: string;
+  tone?: 'default' | 'error';
+}
+
+interface ServerManagementTextItem {
+  id: string;
+  title: string;
+  description: string;
+}
+
+interface ServerManagementAction {
+  id: string;
+  label: string;
+  actionKey: string;
+  variant: 'outline' | 'destructive';
+  helperText?: string;
+  requiresConfirmation?: boolean;
+}
+
+interface ServerManagementRemoteAccess {
+  description: string;
+  webAccessLabel: string;
+  webAccessUrl: string;
+  sshAccessLabel: string;
+  sshAccessHost: string;
+  sshTokenLabel: string;
+  sshTokenValue: string;
+  helperText: string;
+  helperLinkLabel: string;
+  helperLinkUrl: string;
+  actionLabel: string;
+  actionKey: string;
+}
+
+interface ServerManagementData {
+  pageTitle: string;
+  pageDescription: string;
+  mysqlPanel: {
+    title: string;
+    variables: ServerManagementMysqlVariable[];
+  };
+  repairPanel: {
+    title: string;
+    items: ServerManagementTextItem[];
+    actionLabel: string;
+    actionKey: string;
+  };
+  controlPanel: {
+    title: string;
+    actions: ServerManagementAction[];
+  };
+  remoteAccessPanel: {
+    title: string;
+    access: ServerManagementRemoteAccess;
+  };
+}
+```
+
+### Mapeo visual por bloque
+
+- `mysqlPanel.variables`: lista vertical de variables del servidor SQL. `key` sirve como identificador estable; `label` es el texto visible y `value` el valor renderizado.
+- `mysqlPanel.variables[].tone`: permite marcar visualmente valores de error sin esconder la semantica en el JSX.
+- `repairPanel.items`: lista descriptiva de tareas de reparacion previas al boton principal.
+- `repairPanel.actionKey`: clave que backend o un adapter podra usar para invocar la operacion real de reparacion.
+- `controlPanel.actions`: acciones sensibles del servidor. `requiresConfirmation` debe usarse cuando el flujo real quede conectado.
+- `remoteAccessPanel.access.webAccessUrl`: URL publica de acceso web cuando exista tunel activo.
+- `remoteAccessPanel.access.sshAccessHost`: acceso SSH remoto expuesto por tunel o gateway.
+- `remoteAccessPanel.access.sshTokenValue`: token visible o precargado. Si backend no quiere exponerlo completo, puede enviar una mascara y un flag adicional en una version futura.
+- `remoteAccessPanel.access.actionKey`: comando funcional para crear o renovar el tunel remoto.
+
+### Preparacion backend recomendada
+
+- Exponer un endpoint de lectura unico para la pantalla completa, por ejemplo `GET /settings/server`.
+- Exponer endpoints de accion separados por operacion, por ejemplo:
+- `POST /settings/server/actions/repair_services`
+- `POST /settings/server/actions/restart_telegram`
+- `POST /settings/server/actions/restart_server`
+- `POST /settings/server/actions/shutdown_server`
+- `POST /settings/server/actions/create_tunnel_vpn`
+
+### Notas de mantenimiento
+
+- Si cambia la forma de `ServerManagementData`, actualizar `src/app/types/index.ts`, `src/app/pages/ServerManagement.tsx` y este README en el mismo cambio.
+- No codificar nombres de acciones reales dentro de multiples componentes; usar siempre `actionKey`.
+- Si una accion pasa a ejecutarse de verdad, documentar estados `loading`, `success`, `error` y confirmacion antes de considerarla terminada.
+
+## Checklist de protocolo para futuros cambios
+
+Antes de cerrar cualquier cambio de frontend relacionado con negocio, validar:
+
+- se actualizo el README
+- existe contrato documentado
+- los tipos de TypeScript reflejan el contrato
+- se definieron permisos por rol
+- la pantalla identifica su fuente de verdad
+- los campos visibles de UI estan explicados
+- backend puede entender que dato llena cada bloque sin leer JSX
+
+Si alguna respuesta es `no`, el cambio no esta completamente documentado.
+
 ## Dashboard Mikrosystem
 
 Archivos clave del rediseño:
@@ -24,7 +524,7 @@ Archivos clave del rediseño:
 - `src/app/pages/DashboardMikrosystem.tsx`
 - `src/app/types/index.ts`
 
-La pantalla del dashboard Mikrosystem ahora se construye a partir de un contrato unico llamado `DashboardMikrosystemDatos`. La idea es que backend entregue una respuesta con esta misma estructura o una transformacion muy cercana para evitar que el frontend vuelva a repartir campos sueltos.
+La pantalla del dashboard Mikrosystem ahora se construye a partir de un contrato unico llamado `DashboardMikrosystemDatos`. La idea es que backend entregue una respuesta con esta misma estructura o una transformacion para evitar que el frontend vuelva a repartir campos sueltos.
 
 ### Contrato esperado para backend
 
@@ -130,8 +630,8 @@ interface DashboardMikrosystemDatos {
 ### Notas de mantenimiento
 
 - Si cambia una clave del contrato `DashboardMikrosystemDatos`, actualizar `src/app/types/index.ts`, `src/app/pages/DashboardMikrosystem.tsx` y este README en el mismo cambio.
-- Las variables y comentarios del dashboard se dejaron en espanol a proposito para que backend pueda mapear la respuesta sin traducir conceptos.
-- Los datos actuales del dashboard son placeholders visuales alineados con la maqueta de referencia; backend debe reemplazarlos por datos reales sin cambiar la forma del objeto.
+- Las variables y comentarios del dashboard se dejaron en español a proposito para que backend pueda mapear la respuesta sin traducir conceptos.
+- Los datos actuales del dashboard son placeholders visuales alineados con la maqueta de referencia; el backend debe reemplazarlos por datos reales sin cambiar la forma del objeto.
 
 ## Dashboard WispHub
 
@@ -140,7 +640,7 @@ Archivos clave del rediseño:
 - `src/app/pages/DashboardWispHub.tsx`
 - `src/app/types/index.ts`
 
-La vista WispHub se rehizo con un layout clasico tipo ERP, apoyado en un contrato unico llamado `DashboardWispHubDatos`. Igual que en Mikrosystem, la recomendacion es que backend entregue esta forma o algo muy cercano para no repartir el mapeo del dashboard en multiples transformaciones.
+La vista WispHub se hizo con un layout ERP, con un "contrato unico" llamado `DashboardWispHubDatos`. Igual que en Mikrosystem, la recomendacion es que backend entregue esta forma o algo muy cercano para no repartir el mapeo del dashboard en multiples transformaciones.
 
 ### Contrato esperado para backend
 
