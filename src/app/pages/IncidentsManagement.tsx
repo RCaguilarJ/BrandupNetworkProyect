@@ -1,58 +1,34 @@
 import { useMemo, useState } from 'react';
 import { Button } from '../components/ui/button';
-import { type PaymentGatewayManagementRecord } from '../types';
+import { type IncidentManagementRecord } from '../types';
 import {
   ChevronLeft,
   ChevronRight,
   Ellipsis,
   Expand,
   List,
-  Pencil,
   Plus,
   RefreshCw,
-  Trash2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
-const SYSTEM_PAYMENT_GATEWAYS: PaymentGatewayManagementRecord[] = [
-  {
-    id: 'gateway-bank-transfer',
-    type: 'TRANSFERENCIA',
-    createdAt: '23/06/2023',
-    status: 'active',
-    canDelete: true,
-  },
-  {
-    id: 'gateway-bank-deposit',
-    type: 'DEPOSITO EN CUENTA',
-    createdAt: '23/06/2023',
-    status: 'active',
-    canDelete: true,
-  },
-  {
-    id: 'gateway-cash',
-    type: 'EFECTIVO',
-    createdAt: '13/06/2023',
-    status: 'active',
-    canDelete: false,
-  },
-];
+const SYSTEM_INCIDENTS: IncidentManagementRecord[] = [];
 
-export default function PaymentMethods() {
+export default function IncidentsManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const [pageSize] = useState(15);
   const [currentPage, setCurrentPage] = useState(1);
 
   /**
-   * Catalogo base operativo de pasarelas y formas de cobro.
-   * Backend debe reemplazar esta fuente por el listado persistido del sistema sin
-   * alterar el contrato tipado ni la composicion visual aprobada por negocio.
+   * La referencia aprobada para incidencias muestra el listado vacio.
+   * Backend debe reemplazar esta fuente por el listado persistido cuando exista,
+   * manteniendo el contrato tipado y la estructura visual del modulo.
    */
-  const records = useMemo(() => SYSTEM_PAYMENT_GATEWAYS, []);
+  const records = useMemo(() => SYSTEM_INCIDENTS, []);
 
   const filteredRecords = useMemo(() => {
     return records.filter((record) =>
-      record.type.toLowerCase().includes(searchTerm.toLowerCase()),
+      record.incidentName.toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }, [records, searchTerm]);
 
@@ -63,31 +39,18 @@ export default function PaymentMethods() {
   );
 
   function handleRefresh() {
-    toast.success('Listado de pasarelas actualizado');
+    toast.success('Listado de incidencias actualizado');
   }
 
-  function handleCreateGateway() {
-    toast.info('La creacion de pasarelas queda lista para integrarse con backend.');
-  }
-
-  function handleEditGateway(record: PaymentGatewayManagementRecord) {
-    toast.info(`Edicion de ${record.type} lista para conectarse con backend.`);
-  }
-
-  function handleDeleteGateway(record: PaymentGatewayManagementRecord) {
-    if (!record.canDelete) {
-      toast.warning('Esta pasarela base del sistema no puede eliminarse.');
-      return;
-    }
-
-    toast.info(`Eliminacion de ${record.type} lista para conectarse con backend.`);
+  function handleCreateIncident() {
+    toast.info('La creacion de incidencias queda lista para integrarse con backend.');
   }
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-[#d3dce7] px-[30px] pb-6 pt-[18px]">
       <div className="mb-4 flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
         <h1 className="text-[26px] font-normal leading-none text-[#1f2933]">
-          Pasarelas de pago
+          Gestión de Incidencias
         </h1>
 
         <div className="flex items-center gap-2 pt-[3px] text-[12px] text-[#1f2933]">
@@ -95,13 +58,13 @@ export default function PaymentMethods() {
           <span>/</span>
           <span>Ajustes</span>
           <span>/</span>
-          <span className="text-[#1bc3dc]">Pagos</span>
+          <span className="text-[#1bc3dc]">Incidencias</span>
         </div>
       </div>
 
       <section className="overflow-hidden rounded-[2px] border border-[#d7dfe8] bg-white shadow-sm">
         <div className="flex items-center justify-between border-b border-[#d7dfe8] px-4 py-3">
-          <p className="text-[14px] text-[#1f2933]">Lista de pasarelas</p>
+          <p className="text-[14px] text-[#1f2933]">Lista de incidencias</p>
 
           <div className="flex items-center gap-2">
             <button
@@ -111,7 +74,7 @@ export default function PaymentMethods() {
               }
               className="flex h-8 w-8 items-center justify-center rounded-full border border-[#d7dfe8] text-[#4b5563] hover:bg-[#f8fafc]"
               title="Expandir"
-              aria-label="Expandir listado de pasarelas"
+              aria-label="Expandir listado de incidencias"
             >
               <Expand className="h-4 w-4" />
             </button>
@@ -120,7 +83,7 @@ export default function PaymentMethods() {
               onClick={handleRefresh}
               className="flex h-8 w-8 items-center justify-center rounded-full border border-[#d7dfe8] text-[#4b5563] hover:bg-[#f8fafc]"
               title="Actualizar"
-              aria-label="Actualizar listado de pasarelas"
+              aria-label="Actualizar listado de incidencias"
             >
               <RefreshCw className="h-4 w-4" />
             </button>
@@ -158,7 +121,7 @@ export default function PaymentMethods() {
 
               <Button
                 type="button"
-                onClick={handleCreateGateway}
+                onClick={handleCreateIncident}
                 variant="outline"
                 size="sm"
                 className="h-[34px] rounded-[4px] border-[#cfd8e3] px-4 text-[14px] font-medium text-[#111827] hover:bg-[#f8fafc]"
@@ -184,29 +147,28 @@ export default function PaymentMethods() {
             <table className="w-full border-collapse">
               <thead>
                 <tr className="border border-[#d7dfe8]">
-                  <th className="w-[7%] border-r border-[#d7dfe8] px-3 py-[9px] text-left text-[14px] font-normal text-[#111827]">
+                  <th className="w-[12%] border-r border-[#d7dfe8] px-3 py-[9px] text-left text-[14px] font-normal text-[#111827]">
                     N°
                   </th>
-                  <th className="w-[46%] border-r border-[#d7dfe8] px-3 py-[9px] text-left text-[14px] font-normal text-[#111827]">
-                    TIPO
+                  <th className="w-[34%] border-r border-[#d7dfe8] px-3 py-[9px] text-left text-[14px] font-normal text-[#111827]">
+                    INCIDENCIA
                   </th>
-                  <th className="w-[24%] border-r border-[#d7dfe8] px-3 py-[9px] text-center text-[14px] font-normal text-[#111827]">
+                  <th className="w-[25%] border-r border-[#d7dfe8] px-3 py-[9px] text-center text-[14px] font-normal text-[#111827]">
                     CREADO
                   </th>
-                  <th className="w-[18%] border-r border-[#d7dfe8] px-3 py-[9px] text-center text-[14px] font-normal text-[#111827]">
+                  <th className="w-[24%] px-3 py-[9px] text-center text-[14px] font-normal text-[#111827]">
                     ESTADO
                   </th>
-                  <th className="px-3 py-[9px] text-center text-[14px] font-normal text-[#111827]"></th>
                 </tr>
               </thead>
               <tbody>
                 {paginatedRecords.length === 0 ? (
                   <tr className="border border-t-0 border-[#d7dfe8]">
                     <td
-                      colSpan={5}
+                      colSpan={4}
                       className="px-3 py-[18px] text-center text-[14px] text-[#374151]"
                     >
-                      No hay informacion
+                      No hay información
                     </td>
                   </tr>
                 ) : (
@@ -219,37 +181,15 @@ export default function PaymentMethods() {
                         {(currentPage - 1) * pageSize + index + 1}
                       </td>
                       <td className="border-r border-[#d7dfe8] px-3 py-[10px]">
-                        {record.type}
+                        {record.incidentName}
                       </td>
                       <td className="border-r border-[#d7dfe8] px-3 py-[10px] text-center">
                         {record.createdAt}
                       </td>
-                      <td className="border-r border-[#d7dfe8] px-3 py-[10px] text-center">
+                      <td className="px-3 py-[10px] text-center">
                         <span className="inline-flex rounded-[4px] bg-[#10b8b8] px-2 py-[2px] text-[11px] font-semibold text-white">
                           {record.status === 'active' ? 'ACTIVO' : 'INACTIVO'}
                         </span>
-                      </td>
-                      <td className="px-3 py-[10px] text-center">
-                        <div className="flex items-center justify-center gap-2">
-                          <button
-                            type="button"
-                            className="text-[#5b9bd5]"
-                            onClick={() => handleEditGateway(record)}
-                            aria-label={`Editar pasarela ${record.type}`}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </button>
-                          {record.canDelete ? (
-                            <button
-                              type="button"
-                              className="text-[#ff6b57]"
-                              onClick={() => handleDeleteGateway(record)}
-                              aria-label={`Eliminar pasarela ${record.type}`}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          ) : null}
-                        </div>
                       </td>
                     </tr>
                   ))

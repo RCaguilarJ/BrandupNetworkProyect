@@ -260,14 +260,23 @@ Descripcion funcional:
 - La pantalla `Configuracion` muestra una sola vista llamada `Ajustes`.
 - La vista replica un tablero de accesos rapidos en formato de botones circulares.
 - El fondo del modulo debe cubrir toda el area util bajo el header con el color `#D3DCE7`.
-- La composicion visual vigente replica una matriz fija de dos filas: 8 botones en la fila superior y 5 botones centrados en la fila inferior.
+- La composicion visual vigente replica una matriz de dos filas en escritorio amplio: 8 botones en la fila superior y 5 botones centrados en la fila inferior.
+- En anchos intermedios o moviles, la pantalla debe reordenar los botones en una grilla fluida sin desbordes horizontales ni recortes visuales.
 - El tablero actual contiene estos accesos: `General`, `Base de datos`, `Usuarios`, `Roles`, `Divisas`, `Formas de pago`, `Comprobantes`, `Unidades de medida`, `Incidencias`, `Cron Jobs`, `Zonas`, `Campo Personalizados` y `Plantillas de WSP`.
-- Actualmente los botones `General`, `Base de datos`, `Usuarios`, `Roles` y `Divisas` ya navegan a vistas reales.
+- Actualmente los botones `General`, `Base de datos`, `Usuarios`, `Roles`, `Divisas`, `Formas de pago`, `Comprobantes`, `Unidades de medida`, `Incidencias`, `Cron Jobs`, `Zonas`, `Campo Personalizados` y `Plantillas de WSP` ya navegan a vistas reales.
 - `General` usa la ruta `/settings/general`.
 - `Base de datos` reutiliza la ruta `/backups` y la pantalla `Copias de Seguridad`, para no duplicar un modulo que ya existe.
 - `Usuarios` usa la ruta `/settings/users`.
 - `Roles` usa la ruta `/settings/roles`.
 - `Divisas` usa la ruta `/settings/currencies`.
+- `Formas de pago` reutiliza la ruta `/payment-methods`.
+- `Comprobantes` usa la ruta `/settings/receipts`.
+- `Unidades de medida` usa la ruta `/settings/units`.
+- `Incidencias` usa la ruta `/settings/incidents`.
+- `Cron Jobs` usa la ruta `/settings/cron-jobs`.
+- `Zonas` usa la ruta `/settings/zones`.
+- `Campo Personalizados` usa la ruta `/settings/custom-fields`.
+- `Plantillas de WSP` usa la ruta `/settings/wsp-templates`.
 - El resto de los botones sigue siendo visual y no debe conectarse hasta tener contrato backend y modulo propio documentado.
 
 ### Protocolo especifico para backend
@@ -280,7 +289,8 @@ Antes de conectar esta pantalla con backend se debe definir, por cada boton:
 - endpoint de lectura
 - endpoint de escritura
 - payload minimo esperado
-- si conserva la posicion exacta dentro de la matriz 8+5 o si la captura de referencia cambia y obliga a reordenar la composicion completa
+- si conserva la posicion exacta dentro de la matriz 8+5 en escritorio amplio o si la captura de referencia cambia y obliga a reordenar la composicion completa
+- como debe comportarse el reflow responsive para evitar desfases en despliegues externos
 
 ### Recomendacion de implementacion
 
@@ -460,6 +470,343 @@ interface CurrencyManagementRecord {
 - No mezclar `Divisas` con configuraciones de moneda de empresa dentro de `GeneralSettings`.
 - Cuando backend exista, reemplazar el catÃ¡logo base por el listado real y conservar la composiciÃ³n visual.
 - Si cambia `CurrencyManagementRecord`, actualizar `src/app/types/index.ts`, `src/app/pages/CurrenciesManagement.tsx` y este README en el mismo cambio.
+
+## Pantalla Formas de pago
+
+Archivos clave del estado actual:
+
+- `src/app/pages/PaymentMethods.tsx`
+- `src/app/pages/Settings.tsx`
+- `src/app/routes.tsx`
+- `src/app/types/index.ts`
+
+Descripcion funcional:
+
+- El boton `Formas de pago` dentro de `Ajustes` no crea una vista nueva; reutiliza el modulo canonico `Pasarelas de pago`.
+- La ruta activa es `/payment-methods`.
+- La pantalla replica la captura de referencia: breadcrumb `Dashboard / Ajustes / Pagos`, toolbar compacta, tabla unica y paginacion simple.
+- Mientras backend no exista, la tabla usa un catalogo base operativo del sistema, no una lista mock proveniente de `mockData.ts`.
+
+### Contrato esperado para backend
+
+```ts
+interface PaymentGatewayManagementRecord {
+  id: string;
+  type: string;
+  createdAt: string;
+  status: 'active' | 'inactive';
+  canDelete: boolean;
+}
+```
+
+### Preparacion backend recomendada
+
+- `GET /api/v1/payment-gateways`: listar pasarelas o formas de pago.
+- `POST /api/v1/payment-gateways`: crear pasarela.
+- `PUT /api/v1/payment-gateways/:id`: editar pasarela.
+- `DELETE /api/v1/payment-gateways/:id`: eliminar pasarela cuando `canDelete` sea verdadero.
+
+### Notas de mantenimiento
+
+- No crear una segunda pantalla de `Formas de pago` mientras `PaymentMethods.tsx` siga siendo el modulo canonico.
+- No reutilizar el catalogo visual antiguo basado en tarjetas; la composicion aprobada ahora es tabla administrativa.
+- Si cambia `PaymentGatewayManagementRecord`, actualizar `src/app/types/index.ts`, `src/app/pages/PaymentMethods.tsx` y este README en el mismo cambio.
+
+## Pantalla Comprobantes
+
+Archivos clave del estado actual:
+
+- `src/app/pages/ReceiptsManagement.tsx`
+- `src/app/pages/Settings.tsx`
+- `src/app/routes.tsx`
+- `src/app/types/index.ts`
+
+Descripcion funcional:
+
+- El boton `Comprobantes` dentro de `Ajustes` navega al modulo `Gestión de Comprobantes`.
+- La ruta activa es `/settings/receipts`.
+- La pantalla replica la captura de referencia: breadcrumb `Dashboard / Ajustes / Comprobantes`, toolbar compacta, tabla unica y paginacion simple.
+- Mientras backend no exista, la tabla usa un catalogo base de tipos de comprobante del sistema, no una lista mock externa.
+
+### Contrato esperado para backend
+
+```ts
+interface ReceiptManagementRecord {
+  id: string;
+  receiptName: string;
+  createdAt: string;
+  status: 'active' | 'inactive';
+  canEdit: boolean;
+  canCreateSeries: boolean;
+  canManageTemplate: boolean;
+}
+```
+
+### Preparacion backend recomendada
+
+- `GET /api/v1/receipts`: listar comprobantes.
+- `POST /api/v1/receipts`: crear comprobante.
+- `PUT /api/v1/receipts/:id`: editar comprobante.
+- `POST /api/v1/receipts/:id/series`: crear o asociar series.
+- `PUT /api/v1/receipts/:id/template`: administrar plantilla o formato del comprobante.
+
+### Notas de mantenimiento
+
+- No mezclar este modulo con listados de facturas o pagos completados; `Comprobantes` administra tipos y configuracion, no transacciones.
+- Cuando backend exista, reemplazar el catalogo base por el listado real sin alterar la semantica de acciones por fila.
+- Si cambia `ReceiptManagementRecord`, actualizar `src/app/types/index.ts`, `src/app/pages/ReceiptsManagement.tsx` y este README en el mismo cambio.
+
+## Pantalla Unidades de medida
+
+Archivos clave del estado actual:
+
+- `src/app/pages/UnitsManagement.tsx`
+- `src/app/pages/Settings.tsx`
+- `src/app/routes.tsx`
+- `src/app/types/index.ts`
+
+Descripcion funcional:
+
+- El boton `Unidades de medida` dentro de `Ajustes` navega al modulo `Gestión de Unidades`.
+- La ruta activa es `/settings/units`.
+- La pantalla replica la captura de referencia: breadcrumb `Dashboard / Ajustes / Unidades de Medida`, toolbar compacta, tabla unica y paginacion simple.
+- Mientras backend no exista, la tabla usa un catalogo base de unidades del sistema, no una lista mock externa.
+
+### Contrato esperado para backend
+
+```ts
+interface MeasurementUnitRecord {
+  id: string;
+  unitName: string;
+  abbreviation: string;
+  createdAt: string;
+  status: 'active' | 'inactive';
+  canEdit: boolean;
+}
+```
+
+### Preparacion backend recomendada
+
+- `GET /api/v1/measurement-units`: listar unidades de medida.
+- `POST /api/v1/measurement-units`: crear unidad.
+- `PUT /api/v1/measurement-units/:id`: editar unidad.
+
+### Notas de mantenimiento
+
+- No mezclar este modulo con catalogos de productos o inventario; `Unidades de medida` administra solo el catalogo base reusable.
+- Cuando backend exista, reemplazar el catalogo base por el listado real sin alterar la composicion visual.
+- Si cambia `MeasurementUnitRecord`, actualizar `src/app/types/index.ts`, `src/app/pages/UnitsManagement.tsx` y este README en el mismo cambio.
+
+## Pantalla Incidencias
+
+Archivos clave del estado actual:
+
+- `src/app/pages/IncidentsManagement.tsx`
+- `src/app/pages/Settings.tsx`
+- `src/app/routes.tsx`
+- `src/app/types/index.ts`
+
+Descripcion funcional:
+
+- El boton `Incidencias` dentro de `Ajustes` navega al modulo `Gestión de Incidencias`.
+- La ruta activa es `/settings/incidents`.
+- La pantalla replica la captura de referencia: breadcrumb `Dashboard / Ajustes / Incidencias`, toolbar compacta, tabla unica y paginacion simple.
+- La referencia aprobada muestra el listado vacio, por lo que el modulo parte de un estado vacio real y no de filas mock.
+
+### Contrato esperado para backend
+
+```ts
+interface IncidentManagementRecord {
+  id: string;
+  incidentName: string;
+  createdAt: string;
+  status: 'active' | 'inactive';
+}
+```
+
+### Preparacion backend recomendada
+
+- `GET /api/v1/incidents`: listar incidencias.
+- `POST /api/v1/incidents`: crear incidencia.
+- `PUT /api/v1/incidents/:id`: editar incidencia si el negocio lo habilita despues.
+
+### Notas de mantenimiento
+
+- Mientras la referencia siga vacia, no sembrar filas ficticias para "llenar" la tabla.
+- Cuando backend exista, reemplazar el estado vacio por el listado real manteniendo la misma composicion visual.
+- Si cambia `IncidentManagementRecord`, actualizar `src/app/types/index.ts`, `src/app/pages/IncidentsManagement.tsx` y este README en el mismo cambio.
+
+## Pantalla Cron Jobs
+
+Archivos clave del estado actual:
+
+- `src/app/pages/CronJobsManagement.tsx`
+- `src/app/pages/Settings.tsx`
+- `src/app/routes.tsx`
+- `src/app/types/index.ts`
+
+Descripcion funcional:
+
+- El boton `Cron Jobs` dentro de `Ajustes` navega al modulo `Tareas programadas`.
+- La ruta activa es `/settings/cron-jobs`.
+- La pantalla replica la captura de referencia: breadcrumb `Dashboard / Ajustes / Cronjobs`, alerta superior de configuracion y tabla operativa con acciones por fila.
+- Este modulo no sustituye al bloque `Crontab` de `ServerManagement`; aqui se administra el tablero de tareas, no solo la reparacion del servicio.
+
+### Contrato esperado para backend
+
+```ts
+interface CronJobManagementAlert {
+  message: string;
+  command: string;
+  dismissible: boolean;
+}
+
+interface CronJobManagementRecord {
+  id: string;
+  description: string;
+  frequency: string;
+  parameter: string;
+  parameterHint?: string;
+  lastResult: string;
+  lastExecution: string;
+  status: 'active' | 'inactive';
+  canRun: boolean;
+  canToggle: boolean;
+  canViewLogs: boolean;
+  canInspect: boolean;
+  canConfigure: boolean;
+}
+```
+
+### Preparacion backend recomendada
+
+- `GET /api/v1/cron-jobs`: listar tareas programadas.
+- `GET /api/v1/cron-jobs/health`: obtener alerta y comando sugerido cuando la tarea principal falle.
+- `POST /api/v1/cron-jobs/:id/run`: ejecutar tarea manualmente.
+- `PATCH /api/v1/cron-jobs/:id/status`: activar o desactivar tarea.
+- `GET /api/v1/cron-jobs/:id/logs`: consultar logs.
+- `GET /api/v1/cron-jobs/:id`: inspeccionar configuracion detallada.
+- `PUT /api/v1/cron-jobs/:id`: actualizar configuracion de la tarea.
+
+### Notas de mantenimiento
+
+- No reutilizar este modulo para tareas de servidor genericas; `Cron Jobs` expone estado y acciones del scheduler del negocio.
+- Si backend cambia nombres de acciones o estados, actualizar la semantica visual y este README en el mismo cambio.
+- Si cambia `CronJobManagementAlert` o `CronJobManagementRecord`, actualizar `src/app/types/index.ts`, `src/app/pages/CronJobsManagement.tsx` y este README en el mismo cambio.
+
+## Pantalla Zonas
+
+Archivos clave del estado actual:
+
+- `src/app/pages/ZonesManagement.tsx`
+- `src/app/pages/Settings.tsx`
+- `src/app/routes.tsx`
+- `src/app/types/index.ts`
+
+Descripcion funcional:
+
+- El boton `Zonas` dentro de `Ajustes` navega al modulo `Lista de zonas`.
+- La ruta activa es `/settings/zones`.
+- La pantalla replica la captura de referencia: breadcrumb `Dashboard / Ajustes / Zonas`, toolbar compacta, tabla unica y paginacion simple.
+- La referencia aprobada muestra el listado vacio, por lo que el modulo parte de un estado vacio real y no de filas mock.
+
+### Contrato esperado para backend
+
+```ts
+interface ZoneManagementRecord {
+  id: string;
+  zoneName: string;
+  createdAt: string;
+  status: 'active' | 'inactive';
+}
+```
+
+### Preparacion backend recomendada
+
+- `GET /api/v1/zones`: listar zonas.
+- `POST /api/v1/zones`: crear zona.
+- `PUT /api/v1/zones/:id`: editar zona si el negocio lo habilita despues.
+
+### Notas de mantenimiento
+
+- No mezclar este modulo con `filtroZona` usado en otras pantallas; aqui se administra el catalogo fuente de zonas.
+- Mientras la referencia siga vacia, no sembrar filas ficticias para llenar la tabla.
+- Si cambia `ZoneManagementRecord`, actualizar `src/app/types/index.ts`, `src/app/pages/ZonesManagement.tsx` y este README en el mismo cambio.
+
+## Pantalla Campos Personalizados
+
+Archivos clave del estado actual:
+
+- `src/app/pages/CustomFieldsManagement.tsx`
+- `src/app/pages/Settings.tsx`
+- `src/app/routes.tsx`
+- `src/app/types/index.ts`
+
+Descripcion funcional:
+
+- El boton `Campo Personalizados` dentro de `Ajustes` navega al modulo `Campos Personalizados`.
+- La ruta activa es `/settings/custom-fields`.
+- La pantalla replica la captura de referencia: breadcrumb `Dashboard / Gestión de Red / Campos Personalizados`, toolbar compacta, tabla unica y paginacion simple.
+- La referencia aprobada muestra el listado vacio, por lo que el modulo parte de un estado vacio real y no de filas mock.
+
+### Contrato esperado para backend
+
+```ts
+interface CustomFieldManagementRecord {
+  id: string;
+  appliesToList: string;
+  tableName: string;
+  fieldCount: number;
+}
+```
+
+### Preparacion backend recomendada
+
+- `GET /api/v1/custom-fields`: listar configuraciones de campos personalizados.
+- `POST /api/v1/custom-fields`: crear configuracion.
+- `PUT /api/v1/custom-fields/:id`: editar configuracion.
+
+### Notas de mantenimiento
+
+- Aunque la referencia visual muestra `Gestión de Red` en el breadcrumb, este acceso se habilita desde `Ajustes`; documentar ambos contextos si backend decide mover la ruta canónica.
+- Mientras la referencia siga vacia, no sembrar filas ficticias para llenar la tabla.
+- Si cambia `CustomFieldManagementRecord`, actualizar `src/app/types/index.ts`, `src/app/pages/CustomFieldsManagement.tsx` y este README en el mismo cambio.
+
+## Pantalla Plantillas de WSP
+
+Archivos clave del estado actual:
+
+- `src/app/pages/WspTemplatesManagement.tsx`
+- `src/app/pages/Settings.tsx`
+- `src/app/routes.tsx`
+- `src/app/types/index.ts`
+
+Descripcion funcional:
+
+- El boton `Plantillas de WSP` dentro de `Ajustes` navega al modulo `Plantilla WSP`.
+- La ruta activa es `/settings/wsp-templates`.
+- La pantalla replica la captura de referencia con una grilla de recuadros visuales y breadcrumb `Dashboard / Campaña / Plantilla WSP`.
+- Por decision actual del alcance, solo se implementa la estructura de tarjetas. El contenido editable interno de cada plantilla se completara en una fase posterior.
+
+### Contrato esperado para backend
+
+```ts
+interface WspTemplateCard {
+  id: string;
+  title: string;
+}
+```
+
+### Preparacion backend recomendada
+
+- `GET /api/v1/wsp-templates`: listar tarjetas o plantillas disponibles.
+- No conectar todavia endpoints de detalle o edicion hasta que se apruebe la siguiente fase de campos internos.
+
+### Notas de mantenimiento
+
+- Mientras el alcance siga limitado a recuadros, no agregar formularios internos ni editores de plantilla en este modulo.
+- Si negocio aprueba el siguiente nivel, extender el contrato en `src/app/types/index.ts` antes de tocar la UI.
+- Si cambia `WspTemplateCard`, actualizar `src/app/types/index.ts`, `src/app/pages/WspTemplatesManagement.tsx` y este README en el mismo cambio.
 
 ## Pantalla General
 

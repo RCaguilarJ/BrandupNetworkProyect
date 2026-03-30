@@ -973,3 +973,78 @@ export interface CurrencyManagementRecord {
   createdAt: string;
   status: 'active' | 'inactive';
 }
+
+export interface PaymentGatewayManagementRecord {
+  id: string;
+  type: string;
+  createdAt: string;
+  status: 'active' | 'inactive';
+  canDelete: boolean;
+}
+
+export interface ReceiptManagementRecord {
+  id: string;
+  receiptName: string;
+  createdAt: string;
+  status: 'active' | 'inactive';
+  canEdit: boolean;
+  canCreateSeries: boolean;
+  canManageTemplate: boolean;
+}
+
+export interface MeasurementUnitRecord {
+  id: string;
+  unitName: string;
+  abbreviation: string;
+  createdAt: string;
+  status: 'active' | 'inactive';
+  canEdit: boolean;
+}
+
+export interface IncidentManagementRecord {
+  id: string;
+  incidentName: string;
+  createdAt: string;
+  status: 'active' | 'inactive';
+}
+
+export interface CronJobManagementAlert {
+  message: string;
+  command: string;
+  dismissible: boolean;
+}
+
+export interface CronJobManagementRecord {
+  id: string;
+  description: string;
+  frequency: string;
+  parameter: string;
+  parameterHint?: string;
+  lastResult: string;
+  lastExecution: string;
+  status: 'active' | 'inactive';
+  canRun: boolean;
+  canToggle: boolean;
+  canViewLogs: boolean;
+  canInspect: boolean;
+  canConfigure: boolean;
+}
+
+export interface ZoneManagementRecord {
+  id: string;
+  zoneName: string;
+  createdAt: string;
+  status: 'active' | 'inactive';
+}
+
+export interface CustomFieldManagementRecord {
+  id: string;
+  appliesToList: string;
+  tableName: string;
+  fieldCount: number;
+}
+
+export interface WspTemplateCard {
+  id: string;
+  title: string;
+}

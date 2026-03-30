@@ -28,6 +28,13 @@ import PaymentMethods from './pages/PaymentMethods';
 import UsersManagement from './pages/UsersManagement';
 import RolesManagement from './pages/RolesManagement';
 import CurrenciesManagement from './pages/CurrenciesManagement';
+import ReceiptsManagement from './pages/ReceiptsManagement';
+import UnitsManagement from './pages/UnitsManagement';
+import IncidentsManagement from './pages/IncidentsManagement';
+import CronJobsManagement from './pages/CronJobsManagement';
+import ZonesManagement from './pages/ZonesManagement';
+import CustomFieldsManagement from './pages/CustomFieldsManagement';
+import WspTemplatesManagement from './pages/WspTemplatesManagement';
 
 // Billing subpages
 import Invoices from './pages/billing/Invoices';
@@ -114,6 +121,13 @@ export const router = createBrowserRouter([
       { path: 'settings/users', element: <UsersManagement /> },
       { path: 'settings/roles', element: <RolesManagement /> },
       { path: 'settings/currencies', element: <CurrenciesManagement /> },
+      { path: 'settings/receipts', element: <ReceiptsManagement /> },
+      { path: 'settings/units', element: <UnitsManagement /> },
+      { path: 'settings/incidents', element: <IncidentsManagement /> },
+      { path: 'settings/cron-jobs', element: <CronJobsManagement /> },
+      { path: 'settings/zones', element: <ZonesManagement /> },
+      { path: 'settings/custom-fields', element: <CustomFieldsManagement /> },
+      { path: 'settings/wsp-templates', element: <WspTemplatesManagement /> },
       { path: 'settings/server', element: <ServerManagement /> },
       { path: 'payment-methods', element: <PaymentMethods /> },
       { path: 'support-calendar', element: <SupportCalendar /> },

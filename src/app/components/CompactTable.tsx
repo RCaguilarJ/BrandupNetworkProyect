@@ -327,6 +327,7 @@ export function CompactTableToolbar({
                   onChange={(e) => onPageSizeChange(Number(e.target.value))}
                   className="h-7 px-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-0 rounded text-xs focus:ring-1 focus:ring-green-300 text-xs"
                   aria-label="Seleccionar cantidad de registros a mostrar"
+                  title="Seleccionar cantidad de registros a mostrar"
                 >
                   <option value={10}>10</option>
                   <option value={25}>25</option>
@@ -410,6 +411,8 @@ export function CompactTableToolbar({
                 value={pageSize}
                 onChange={(e) => onPageSizeChange(Number(e.target.value))}
                 className="h-7 px-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded text-xs focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                aria-label="Seleccionar cantidad de registros a mostrar"
+                title="Seleccionar cantidad de registros a mostrar"
               >
                 <option value={10}>10</option>
                 <option value={25}>25</option>

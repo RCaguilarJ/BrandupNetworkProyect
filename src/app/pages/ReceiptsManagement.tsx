@@ -1,58 +1,65 @@
 import { useMemo, useState } from 'react';
 import { Button } from '../components/ui/button';
-import { type PaymentGatewayManagementRecord } from '../types';
+import { type ReceiptManagementRecord } from '../types';
 import {
   ChevronLeft,
   ChevronRight,
   Ellipsis,
   Expand,
+  FileText,
   List,
   Pencil,
   Plus,
   RefreshCw,
-  Trash2,
+  SquarePlus,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
-const SYSTEM_PAYMENT_GATEWAYS: PaymentGatewayManagementRecord[] = [
+const SYSTEM_RECEIPTS: ReceiptManagementRecord[] = [
   {
-    id: 'gateway-bank-transfer',
-    type: 'TRANSFERENCIA',
-    createdAt: '23/06/2023',
-    status: 'active',
-    canDelete: true,
-  },
-  {
-    id: 'gateway-bank-deposit',
-    type: 'DEPOSITO EN CUENTA',
-    createdAt: '23/06/2023',
-    status: 'active',
-    canDelete: true,
-  },
-  {
-    id: 'gateway-cash',
-    type: 'EFECTIVO',
+    id: 'receipt-electronic-ticket',
+    receiptName: 'BOLETA ELECTRONICA',
     createdAt: '13/06/2023',
     status: 'active',
-    canDelete: false,
+    canEdit: true,
+    canCreateSeries: true,
+    canManageTemplate: true,
+  },
+  {
+    id: 'receipt-electronic-invoice',
+    receiptName: 'FACTURA ELECTRONICA',
+    createdAt: '13/06/2023',
+    status: 'active',
+    canEdit: true,
+    canCreateSeries: true,
+    canManageTemplate: true,
+  },
+  {
+    id: 'receipt-voucher',
+    receiptName: 'RECIBO',
+    createdAt: '13/06/2023',
+    status: 'active',
+    canEdit: true,
+    canCreateSeries: true,
+    canManageTemplate: true,
   },
 ];
 
-export default function PaymentMethods() {
+export default function ReceiptsManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const [pageSize] = useState(15);
   const [currentPage, setCurrentPage] = useState(1);
 
   /**
-   * Catalogo base operativo de pasarelas y formas de cobro.
-   * Backend debe reemplazar esta fuente por el listado persistido del sistema sin
-   * alterar el contrato tipado ni la composicion visual aprobada por negocio.
+   * Catalogo base de tipos de comprobante administrados por el sistema.
+   * Backend debe reemplazar esta fuente por el listado persistido sin alterar
+   * el contrato tipado ni la estructura visual aprobada.
    */
-  const records = useMemo(() => SYSTEM_PAYMENT_GATEWAYS, []);
+  const records = useMemo(() => SYSTEM_RECEIPTS, []);
 
   const filteredRecords = useMemo(() => {
     return records.filter((record) =>
-      record.type.toLowerCase().includes(searchTerm.toLowerCase()),
+      record.receiptName.toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }, [records, searchTerm]);
 
@@ -63,31 +70,30 @@ export default function PaymentMethods() {
   );
 
   function handleRefresh() {
-    toast.success('Listado de pasarelas actualizado');
+    toast.success('Listado de comprobantes actualizado');
   }
 
-  function handleCreateGateway() {
-    toast.info('La creacion de pasarelas queda lista para integrarse con backend.');
+  function handleCreateReceipt() {
+    toast.info('La creacion de comprobantes queda lista para integrarse con backend.');
   }
 
-  function handleEditGateway(record: PaymentGatewayManagementRecord) {
-    toast.info(`Edicion de ${record.type} lista para conectarse con backend.`);
+  function handleEditReceipt(record: ReceiptManagementRecord) {
+    toast.info(`Edicion de ${record.receiptName} lista para conectarse con backend.`);
   }
 
-  function handleDeleteGateway(record: PaymentGatewayManagementRecord) {
-    if (!record.canDelete) {
-      toast.warning('Esta pasarela base del sistema no puede eliminarse.');
-      return;
-    }
+  function handleCreateSeries(record: ReceiptManagementRecord) {
+    toast.info(`Series de ${record.receiptName} listas para conectarse con backend.`);
+  }
 
-    toast.info(`Eliminacion de ${record.type} lista para conectarse con backend.`);
+  function handleManageTemplate(record: ReceiptManagementRecord) {
+    toast.info(`Plantilla de ${record.receiptName} lista para conectarse con backend.`);
   }
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-[#d3dce7] px-[30px] pb-6 pt-[18px]">
       <div className="mb-4 flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
         <h1 className="text-[26px] font-normal leading-none text-[#1f2933]">
-          Pasarelas de pago
+          Gestión de Comprobantes
         </h1>
 
         <div className="flex items-center gap-2 pt-[3px] text-[12px] text-[#1f2933]">
@@ -95,13 +101,13 @@ export default function PaymentMethods() {
           <span>/</span>
           <span>Ajustes</span>
           <span>/</span>
-          <span className="text-[#1bc3dc]">Pagos</span>
+          <span className="text-[#1bc3dc]">Comprobantes</span>
         </div>
       </div>
 
       <section className="overflow-hidden rounded-[2px] border border-[#d7dfe8] bg-white shadow-sm">
         <div className="flex items-center justify-between border-b border-[#d7dfe8] px-4 py-3">
-          <p className="text-[14px] text-[#1f2933]">Lista de pasarelas</p>
+          <p className="text-[14px] text-[#1f2933]">Lista de comprobantes</p>
 
           <div className="flex items-center gap-2">
             <button
@@ -111,7 +117,7 @@ export default function PaymentMethods() {
               }
               className="flex h-8 w-8 items-center justify-center rounded-full border border-[#d7dfe8] text-[#4b5563] hover:bg-[#f8fafc]"
               title="Expandir"
-              aria-label="Expandir listado de pasarelas"
+              aria-label="Expandir listado de comprobantes"
             >
               <Expand className="h-4 w-4" />
             </button>
@@ -120,7 +126,7 @@ export default function PaymentMethods() {
               onClick={handleRefresh}
               className="flex h-8 w-8 items-center justify-center rounded-full border border-[#d7dfe8] text-[#4b5563] hover:bg-[#f8fafc]"
               title="Actualizar"
-              aria-label="Actualizar listado de pasarelas"
+              aria-label="Actualizar listado de comprobantes"
             >
               <RefreshCw className="h-4 w-4" />
             </button>
@@ -158,7 +164,7 @@ export default function PaymentMethods() {
 
               <Button
                 type="button"
-                onClick={handleCreateGateway}
+                onClick={handleCreateReceipt}
                 variant="outline"
                 size="sm"
                 className="h-[34px] rounded-[4px] border-[#cfd8e3] px-4 text-[14px] font-medium text-[#111827] hover:bg-[#f8fafc]"
@@ -187,8 +193,8 @@ export default function PaymentMethods() {
                   <th className="w-[7%] border-r border-[#d7dfe8] px-3 py-[9px] text-left text-[14px] font-normal text-[#111827]">
                     N°
                   </th>
-                  <th className="w-[46%] border-r border-[#d7dfe8] px-3 py-[9px] text-left text-[14px] font-normal text-[#111827]">
-                    TIPO
+                  <th className="w-[45%] border-r border-[#d7dfe8] px-3 py-[9px] text-left text-[14px] font-normal text-[#111827]">
+                    COMPROBANTE
                   </th>
                   <th className="w-[24%] border-r border-[#d7dfe8] px-3 py-[9px] text-center text-[14px] font-normal text-[#111827]">
                     CREADO
@@ -219,7 +225,7 @@ export default function PaymentMethods() {
                         {(currentPage - 1) * pageSize + index + 1}
                       </td>
                       <td className="border-r border-[#d7dfe8] px-3 py-[10px]">
-                        {record.type}
+                        {record.receiptName}
                       </td>
                       <td className="border-r border-[#d7dfe8] px-3 py-[10px] text-center">
                         {record.createdAt}
@@ -231,22 +237,34 @@ export default function PaymentMethods() {
                       </td>
                       <td className="px-3 py-[10px] text-center">
                         <div className="flex items-center justify-center gap-2">
-                          <button
-                            type="button"
-                            className="text-[#5b9bd5]"
-                            onClick={() => handleEditGateway(record)}
-                            aria-label={`Editar pasarela ${record.type}`}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </button>
-                          {record.canDelete ? (
+                          {record.canEdit ? (
                             <button
                               type="button"
-                              className="text-[#ff6b57]"
-                              onClick={() => handleDeleteGateway(record)}
-                              aria-label={`Eliminar pasarela ${record.type}`}
+                              className="text-[#5b9bd5]"
+                              onClick={() => handleEditReceipt(record)}
+                              aria-label={`Editar comprobante ${record.receiptName}`}
                             >
-                              <Trash2 className="h-4 w-4" />
+                              <Pencil className="h-4 w-4" />
+                            </button>
+                          ) : null}
+                          {record.canCreateSeries ? (
+                            <button
+                              type="button"
+                              className="text-[#10b8b8]"
+                              onClick={() => handleCreateSeries(record)}
+                              aria-label={`Crear serie para ${record.receiptName}`}
+                            >
+                              <SquarePlus className="h-4 w-4" />
+                            </button>
+                          ) : null}
+                          {record.canManageTemplate ? (
+                            <button
+                              type="button"
+                              className="text-[#4b5563]"
+                              onClick={() => handleManageTemplate(record)}
+                              aria-label={`Gestionar plantilla de ${record.receiptName}`}
+                            >
+                              <FileText className="h-4 w-4" />
                             </button>
                           ) : null}
                         </div>
