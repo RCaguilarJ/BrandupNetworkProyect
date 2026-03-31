@@ -25,10 +25,10 @@ export function ViewThemeSelector() {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors view-theme-button"
+        className="flex h-11 w-11 items-center justify-center rounded-full transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 view-theme-button"
         title="Cambiar vista"
       >
-        <Palette className="w-5 h-5" />
+        <Palette className="h-5 w-5" />
       </button>
 
       {isOpen && (

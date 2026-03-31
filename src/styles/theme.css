@@ -119,6 +119,32 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+@keyframes background_zoom {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+
+  50% {
+    transform: scale(1.4) rotate(0.3deg);
+  }
+
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.login-background-media {
+  animation: background_zoom 24s ease-in-out infinite;
+  transform-origin: center;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-background-media {
+    animation: none;
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

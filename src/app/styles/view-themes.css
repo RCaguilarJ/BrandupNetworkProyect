@@ -69,51 +69,51 @@
 
 /* Header Mikrosystem */
 html.view-mikrosystem header {
-  background: #2196F3 !important;
-  border-bottom: 1px solid #1976D2 !important;
+  background: #ffffff !important;
+  border-bottom: 1px solid #e5e7eb !important;
 }
 
 html.view-mikrosystem.dark header {
-  background: #2196F3 !important;
-  border-bottom: 1px solid #1976D2 !important;
+  background: #ffffff !important;
+  border-bottom: 1px solid #e5e7eb !important;
 }
 
 /* Logo en el header - Mikrosystem */
 html.view-mikrosystem header img[alt*="BRANDUP"],
 html.view-mikrosystem.dark header img[alt*="BRANDUP"] {
-  filter: brightness(0) invert(1);
+  filter: none !important;
 }
 
 html.view-mikrosystem header *:not(input) {
-  color: white !important;
+  color: #1f2937 !important;
 }
 
 html.view-mikrosystem.dark header *:not(input) {
-  color: white !important;
+  color: #1f2937 !important;
 }
 
 html.view-mikrosystem header button {
-  color: white !important;
+  color: #4b5563 !important;
 }
 
 html.view-mikrosystem.dark header button {
-  color: white !important;
+  color: #4b5563 !important;
 }
 
 html.view-mikrosystem header button:hover {
-  background: rgba(255, 255, 255, 0.2) !important;
+  background: #f3f4f6 !important;
 }
 
 html.view-mikrosystem.dark header button:hover {
-  background: rgba(255, 255, 255, 0.2) !important;
+  background: #f3f4f6 !important;
 }
 
 html.view-mikrosystem header svg {
-  color: white !important;
+  color: #4b5563 !important;
 }
 
 html.view-mikrosystem.dark header svg {
-  color: white !important;
+  color: #4b5563 !important;
 }
 
 /* Submenús del header en Mikrosystem */
@@ -397,34 +397,34 @@ html.view-mikrosystem.dark header nav a:hover {
 /* Header Wisphub - Verde en ambos modos */
 .view-wisphub header,
 .dark.view-wisphub header {
-  background: #49BF67 !important;
-  border-bottom: 1px solid #3da856 !important;
+  background: #ffffff !important;
+  border-bottom: 1px solid #e5e7eb !important;
 }
 
 .view-wisphub header *:not(input),
 .dark.view-wisphub header *:not(input) {
-  color: white !important;
+  color: #1f2937 !important;
 }
 
 .view-wisphub header button,
 .dark.view-wisphub header button {
-  color: white !important;
+  color: #4b5563 !important;
 }
 
 .view-wisphub header button:hover,
 .dark.view-wisphub header button:hover {
-  background: rgba(255, 255, 255, 0.2) !important;
-  color: white !important;
+  background: #f3f4f6 !important;
+  color: #1f2937 !important;
 }
 
 .view-wisphub header button:hover svg,
 .dark.view-wisphub header button:hover svg {
-  color: white !important;
+  color: #1f2937 !important;
 }
 
 .view-wisphub header svg,
 .dark.view-wisphub header svg {
-  color: white !important;
+  color: #4b5563 !important;
 }
 
 .view-wisphub header nav a,
@@ -600,28 +600,37 @@ table button svg {
 
 /* Botón del selector de vista */
 .view-mikrosystem header .view-theme-button {
-  color: white !important;
+  color: #4b5563 !important;
 }
 
 .view-mikrosystem.dark header .view-theme-button {
-  color: white !important;
+  color: #4b5563 !important;
 }
 
 .view-mikrosystem header .view-theme-button:hover {
-  background: rgba(255, 255, 255, 0.2) !important;
+  background: #f3f4f6 !important;
 }
 
 .view-mikrosystem.dark header .view-theme-button:hover {
-  background: rgba(255, 255, 255, 0.2) !important;
+  background: #f3f4f6 !important;
 }
 
 .view-wisphub header .view-theme-button {
-  color: white !important;
+  color: #4b5563 !important;
+}
+
+.dark.view-wisphub header .view-theme-button {
+  color: #4b5563 !important;
 }
 
 .view-wisphub header .view-theme-button:hover {
-  background: rgba(39, 112, 58, 0.3) !important;
-  color: white !important;
+  background: #f3f4f6 !important;
+  color: #1f2937 !important;
+}
+
+.dark.view-wisphub header .view-theme-button:hover {
+  background: #f3f4f6 !important;
+  color: #1f2937 !important;
 }
 
 /* Transiciones suaves */

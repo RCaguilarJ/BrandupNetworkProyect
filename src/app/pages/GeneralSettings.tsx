@@ -3,6 +3,7 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Switch } from '../components/ui/switch';
 import { useAuth } from '../context/AuthContext';
+import { notifyGeneralSettingsUpdated } from '../lib/login-background';
 import {
   type GeneralSettingsBasicConfigSection,
   type GeneralSettingsCompanySection,
@@ -13,7 +14,7 @@ import {
   type GeneralSettingsStorageData,
 } from '../types';
 import { toast } from 'sonner';
-import { CircleHelp, FileImage, Save, Upload } from 'lucide-react';
+import { CircleHelp, FileImage, Save, Trash2, Upload } from 'lucide-react';
 
 const GENERAL_SETTINGS_STORAGE_PREFIX = 'brandup_general_settings';
 const LOGO_MAX_SIZE_BYTES = 20 * 1024 * 1024;
@@ -239,6 +240,7 @@ export default function GeneralSettings() {
   function persistSettings(nextSettings: GeneralSettingsStorageData, successMessage: string) {
     setSettings(nextSettings);
     localStorage.setItem(storageKey, JSON.stringify(nextSettings));
+    notifyGeneralSettingsUpdated();
     toast.success(successMessage);
   }
 
@@ -312,6 +314,27 @@ export default function GeneralSettings() {
 
   function handleSaveLoginImageSection() {
     persistSettings(settings, 'Imagen de login guardada.');
+  }
+
+  function handleRemoveSelectedLoginImage() {
+    if (!settings.loginImage.selectedImageId) {
+      toast.error('Selecciona una imagen para eliminar.');
+      return;
+    }
+
+    const nextImages = settings.loginImage.images.filter(
+      (image) => image.id !== settings.loginImage.selectedImageId,
+    );
+    const nextSelectedImageId = nextImages[0]?.id ?? '';
+    const nextSettings: GeneralSettingsStorageData = {
+      ...settings,
+      loginImage: {
+        selectedImageId: nextSelectedImageId,
+        images: nextImages,
+      },
+    };
+
+    persistSettings(nextSettings, 'Imagen de login eliminada.');
   }
 
   async function handleLogoUpload(slot: LogoSlotKey, event: ChangeEvent<HTMLInputElement>) {
@@ -657,21 +680,47 @@ export default function GeneralSettings() {
               onChange={(event) => void handleLoginImageUpload(event)}
             />
 
-            <button
-              type="button"
-              onClick={() => loginImageInputRef.current?.click()}
-              className="mt-3 flex min-h-[380px] w-full items-center justify-center rounded-[4px] bg-[#e5e5e5] transition hover:bg-[#dedede]"
-            >
-              {selectedLoginImage ? (
-                <img
-                  src={selectedLoginImage.previewUrl}
-                  alt={selectedLoginImage.fileName}
-                  className="max-h-[360px] w-full rounded-[4px] object-contain"
-                />
-              ) : (
-                <EmptyPreview iconSize="h-12 w-12" />
-              )}
-            </button>
+            <div className="mt-3 space-y-3">
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => loginImageInputRef.current?.click()}
+                  className="h-9 gap-2 border-[#cbd5e1] px-4 text-[14px]"
+                >
+                  <Upload className="h-4 w-4" />
+                  Subir imagen
+                </Button>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  onClick={handleRemoveSelectedLoginImage}
+                  disabled={!selectedLoginImage}
+                  className="h-9 gap-2 px-4 text-[14px]"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Eliminar imagen seleccionada
+                </Button>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => loginImageInputRef.current?.click()}
+                className="flex min-h-[380px] w-full items-center justify-center rounded-[4px] bg-[#e5e5e5] transition hover:bg-[#dedede]"
+              >
+                {selectedLoginImage ? (
+                  <img
+                    src={selectedLoginImage.previewUrl}
+                    alt={selectedLoginImage.fileName}
+                    className="max-h-[360px] w-full rounded-[4px] object-contain"
+                  />
+                ) : (
+                  <EmptyPreview iconSize="h-12 w-12" />
+                )}
+              </button>
+            </div>
           </div>
 
           <div className="flex justify-end border-t border-slate-200 px-6 py-3">

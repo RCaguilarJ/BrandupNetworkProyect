@@ -61,7 +61,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const user = localStorage.getItem('brandup_user');
   
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
   
   return <>{children}</>;
@@ -69,18 +69,21 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 export const router = createBrowserRouter([
   {
-    path: '/login',
+    path: '/',
     element: <Login />,
   },
   {
-    path: '/',
+    path: '/login',
+    element: <Navigate to="/" replace />,
+  },
+  {
     element: (
       <ProtectedRoute>
         <MainLayout />
       </ProtectedRoute>
     ),
     children: [
-      { index: true, element: <Dashboard /> },
+      { path: 'dashboard', element: <Dashboard /> },
       { path: 'companies', element: <Companies /> },
       { path: 'companies/new', element: <CompanyForm /> },
       { path: 'companies/:id/edit', element: <CompanyForm /> },

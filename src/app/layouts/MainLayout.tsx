@@ -1,48 +1,56 @@
 import {
   Link,
   Outlet,
-  useNavigate,
   useLocation,
+  useNavigate,
 } from "react-router";
-import { useAuth } from "../context/AuthContext";
-import { useTheme } from "../context/ThemeContext";
 import {
-  Building2,
-  Users,
-  Package,
-  CreditCard,
-  Ticket,
-  Wrench,
-  Network,
-  Wifi,
-  BarChart3,
-  Settings,
-  Bell,
-  LogOut,
-  Menu,
-  X,
-  Home,
-  ShieldCheck,
-  Zap,
-  FileText,
-  Sun,
-  Moon,
-  Clock,
-  CheckCircle,
-  TrendingUp,
   ArrowUpDown,
+  Bell,
+  Building2,
   Calendar,
-  Wallet,
-  MapPin,
-  List,
+  CheckCircle,
   ChevronDown,
   ChevronRight,
-  Database,
+  Clock,
+  CreditCard,
+  DollarSign,
+  FileText,
+  Headset,
+  Home,
+  KeyRound,
+  List,
+  LogOut,
+  MapPin,
+  Menu,
+  Network,
+  Package,
+  Search,
+  Send,
+  Settings,
+  Ticket,
+  TrendingUp,
+  User,
+  Users,
+  Wallet,
+  Wifi,
+  X,
 } from "lucide-react";
 import { useState } from "react";
+import { Avatar, AvatarFallback } from "../components/ui/avatar";
 import { Button } from "../components/ui/button";
 import { ViewThemeSelector } from "../components/ViewThemeSelector";
-import logo from "../../assets/1fe9c15b53c884f010789ae03712f9a257bcab54.png";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../components/ui/dropdown-menu";
+import { useAuth } from "../context/AuthContext";
+import { useConfiguredLoginBackground } from "../lib/login-background";
+import { toast } from "sonner";
+import logo from "../../assets/logo_admin.png";
 
 interface NavItem {
   name: string;
@@ -55,8 +63,8 @@ interface NavItem {
 const navigationItems: NavItem[] = [
   {
     name: "Dashboard",
-    path: "/",
-    icon: <Home className="w-5 h-5" />,
+    path: "/dashboard",
+    icon: <Home className="h-5 w-5" />,
     roles: [
       "super_admin",
       "isp_admin",
@@ -69,205 +77,161 @@ const navigationItems: NavItem[] = [
   {
     name: "Empresas",
     path: "/companies",
-    icon: <Building2 className="w-5 h-5" />,
+    icon: <Building2 className="h-5 w-5" />,
     roles: ["super_admin"],
   },
   {
     name: "Clientes",
     path: "/clients",
-    icon: <Users className="w-5 h-5" />,
+    icon: <Users className="h-5 w-5" />,
     roles: ["super_admin", "isp_admin", "cobranza", "soporte"],
     subItems: [
       {
         name: "Lista de Clientes",
         path: "/clients",
-        icon: <List className="w-4 h-4" />,
-        roles: [
-          "super_admin",
-          "isp_admin",
-          "cobranza",
-          "soporte",
-        ],
+        icon: <List className="h-4 w-4" />,
+        roles: ["super_admin", "isp_admin", "cobranza", "soporte"],
       },
       {
         name: "Mapa de Clientes",
         path: "/clients/map",
-        icon: <MapPin className="w-4 h-4" />,
-        roles: [
-          "super_admin",
-          "isp_admin",
-          "cobranza",
-          "soporte",
-        ],
+        icon: <MapPin className="h-4 w-4" />,
+        roles: ["super_admin", "isp_admin", "cobranza", "soporte"],
       },
     ],
   },
   {
     name: "Planes y Servicios",
     path: "/plans",
-    icon: <Package className="w-5 h-5" />,
+    icon: <Package className="h-5 w-5" />,
     roles: ["super_admin", "isp_admin"],
   },
   {
-    name: "Facturación",
+    name: "Facturacion",
     path: "/billing",
-    icon: <CreditCard className="w-5 h-5" />,
+    icon: <CreditCard className="h-5 w-5" />,
     roles: ["super_admin", "isp_admin", "cobranza"],
     subItems: [
       {
         name: "Lista de Facturas",
         path: "/billing/invoices",
-        icon: <FileText className="w-4 h-4" />,
+        icon: <FileText className="h-4 w-4" />,
         roles: ["super_admin", "isp_admin", "cobranza"],
       },
       {
         name: "Facturas Pendientes",
         path: "/billing/pending-invoices",
-        icon: <Clock className="w-4 h-4" />,
+        icon: <Clock className="h-4 w-4" />,
         roles: ["super_admin", "isp_admin", "cobranza"],
       },
       {
         name: "Registrar Pago",
         path: "/billing/register-payment",
-        icon: <CreditCard className="w-4 h-4" />,
+        icon: <CreditCard className="h-4 w-4" />,
         roles: ["super_admin", "isp_admin", "cobranza"],
       },
       {
         name: "Cobranzas Realizadas",
         path: "/billing/completed-payments",
-        icon: <CheckCircle className="w-4 h-4" />,
+        icon: <CheckCircle className="h-4 w-4" />,
         roles: ["super_admin", "isp_admin", "cobranza"],
       },
       {
-        name: "Estadísticas",
+        name: "Estadisticas",
         path: "/billing/stats",
-        icon: <TrendingUp className="w-4 h-4" />,
+        icon: <TrendingUp className="h-4 w-4" />,
         roles: ["super_admin", "isp_admin", "cobranza"],
       },
       {
-        name: "Otros Ingresos & Egresos",
+        name: "Otros Ingresos y Egresos",
         path: "/billing/other-income-expenses",
-        icon: <ArrowUpDown className="w-4 h-4" />,
+        icon: <ArrowUpDown className="h-4 w-4" />,
         roles: ["super_admin", "isp_admin", "cobranza"],
       },
       {
         name: "Promesas",
         path: "/billing/promises",
-        icon: <Calendar className="w-4 h-4" />,
+        icon: <Calendar className="h-4 w-4" />,
         roles: ["super_admin", "isp_admin", "cobranza"],
       },
     ],
   },
   {
-    name: "Métodos de Pago",
+    name: "Metodos de Pago",
     path: "/payment-methods",
-    icon: <Wallet className="w-5 h-5" />,
+    icon: <Wallet className="h-5 w-5" />,
     roles: ["super_admin", "isp_admin"],
   },
   {
     name: "Tickets",
     path: "/tickets",
-    icon: <Ticket className="w-5 h-5" />,
+    icon: <Ticket className="h-5 w-5" />,
     roles: ["super_admin", "isp_admin", "soporte", "cliente"],
     subItems: [
       {
         name: "Todos los Tickets",
         path: "/tickets",
-        icon: <List className="w-4 h-4" />,
-        roles: [
-          "super_admin",
-          "isp_admin",
-          "soporte",
-          "cliente",
-        ],
+        icon: <List className="h-4 w-4" />,
+        roles: ["super_admin", "isp_admin", "soporte", "cliente"],
       },
       {
         name: "Tickets de Hoy",
         path: "/tickets/today",
-        icon: <Clock className="w-4 h-4" />,
+        icon: <Clock className="h-4 w-4" />,
         roles: ["super_admin", "isp_admin", "soporte"],
       },
       {
         name: "Tickets en Proceso",
         path: "/tickets/in-progress",
-        icon: <Clock className="w-4 h-4" />,
+        icon: <Clock className="h-4 w-4" />,
         roles: ["super_admin", "isp_admin", "soporte"],
       },
       {
         name: "Tickets Finalizados",
         path: "/tickets/completed",
-        icon: <CheckCircle className="w-4 h-4" />,
+        icon: <CheckCircle className="h-4 w-4" />,
         roles: ["super_admin", "isp_admin", "soporte"],
       },
     ],
   },
   {
-    name: "Calendario de Soporte",
-    path: "/support-calendar",
-    icon: <Calendar className="w-5 h-5" />,
-    roles: ["super_admin", "isp_admin", "soporte", "tecnico"],
-  },
-  {
-    name: "Órdenes de Servicio",
-    path: "/service-orders",
-    icon: <Wrench className="w-5 h-5" />,
-    roles: ["super_admin", "isp_admin", "tecnico"],
-  },
-  {
     name: "Monitoreo de Red",
     path: "/monitoring",
-    icon: <Network className="w-5 h-5" />,
+    icon: <Network className="h-5 w-5" />,
     roles: ["super_admin", "isp_admin", "tecnico"],
   },
   {
     name: "Hotspot / Vouchers",
     path: "/hotspot",
-    icon: <Wifi className="w-5 h-5" />,
+    icon: <Wifi className="h-5 w-5" />,
     roles: ["super_admin", "isp_admin"],
   },
   {
-    name: "RADIUS",
-    path: "/radius",
-    icon: <ShieldCheck className="w-5 h-5" />,
-    roles: ["super_admin", "isp_admin"],
-  },
-  {
-    name: "Cortes/Reactivaciones",
-    path: "/suspensions",
-    icon: <Zap className="w-5 h-5" />,
-    roles: ["super_admin", "isp_admin", "cobranza"],
-  },
-  {
-    name: "Reportes",
-    path: "/reports",
-    icon: <BarChart3 className="w-5 h-5" />,
-    roles: ["super_admin", "isp_admin", "cobranza"],
-  },
-  {
-    name: "Auditoría",
-    path: "/audit",
-    icon: <FileText className="w-5 h-5" />,
-    roles: ["super_admin", "isp_admin"],
-  },
-  {
-    name: "Copias de Seguridad",
-    path: "/backups",
-    icon: <Database className="w-5 h-5" />,
-    roles: ["super_admin", "isp_admin"],
-  },
-  {
-    name: "Configuración",
+    name: "Configuracion",
     path: "/settings",
-    icon: <Settings className="w-5 h-5" />,
+    icon: <Settings className="h-5 w-5" />,
     roles: ["super_admin", "isp_admin"],
   },
 ];
 
+function matchesPath(currentPath: string, itemPath: string) {
+  if (itemPath === "/") {
+    return currentPath === "/";
+  }
+
+  return (
+    currentPath === itemPath ||
+    currentPath.startsWith(`${itemPath}/`)
+  );
+}
+
 export default function MainLayout() {
   const { user, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
+  const sidebarBackgroundUrl = useConfiguredLoginBackground(
+    user?.companyId,
+  );
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [expandedItems, setExpandedItems] = useState<string[]>(
     [],
@@ -275,8 +239,43 @@ export default function MainLayout() {
 
   const handleLogout = () => {
     logout();
-    navigate("/login");
+    navigate("/");
   };
+
+  const userInitials = (user?.name || "Usuario")
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() || "")
+    .join("");
+
+  const roleLabel =
+    {
+      super_admin: "ADMIN",
+      isp_admin: "ADMIN",
+      cobranza: "COBRANZA",
+      soporte: "SOPORTE",
+      tecnico: "TECNICO",
+      cliente: "CLIENTE",
+    }[user?.role ?? ""] ?? "USUARIO";
+
+  const roleDescription =
+    {
+      super_admin: "Administrador",
+      isp_admin: "Administrador",
+      cobranza: "Cobranza",
+      soporte: "Soporte",
+      tecnico: "Tecnico",
+      cliente: "Cliente",
+    }[user?.role ?? ""] ?? "Usuario";
+
+  const sidebarHeroStyle = sidebarBackgroundUrl
+    ? {
+        backgroundImage: `linear-gradient(rgba(19, 24, 29, 0.35), rgba(19, 24, 29, 0.78)), url(${sidebarBackgroundUrl})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }
+    : undefined;
 
   const filteredNavigation = navigationItems.filter(
     (item) => user && item.roles.includes(user.role),
@@ -285,7 +284,7 @@ export default function MainLayout() {
   const toggleExpand = (path: string) => {
     setExpandedItems((prev) =>
       prev.includes(path)
-        ? prev.filter((p) => p !== path)
+        ? prev.filter((itemPath) => itemPath !== path)
         : [...prev, path],
     );
   };
@@ -295,58 +294,75 @@ export default function MainLayout() {
     isMobile: boolean = false,
   ) => {
     const isActive =
-      location.pathname === item.path ||
-      item.subItems?.some(
-        (sub) => location.pathname === sub.path,
+      matchesPath(location.pathname, item.path) ||
+      item.subItems?.some((subItem) =>
+        matchesPath(location.pathname, subItem.path),
       );
     const isExpanded = expandedItems.includes(item.path);
     const hasSubItems =
-      item.subItems && item.subItems.length > 0;
+      Boolean(item.subItems) && item.subItems.length > 0;
 
     if (hasSubItems) {
       return (
         <div key={item.path}>
           <button
             onClick={() => toggleExpand(item.path)}
-            className={`flex items-center justify-between w-full gap-3 px-3 py-2 rounded-lg mb-1 transition-colors ${
+            className={`group mb-1.5 flex w-full items-center justify-between gap-3 rounded-lg px-4 py-3 text-left text-sm transition-colors ${
               isActive
-                ? "active bg-gray-100 dark:bg-gray-700"
-                : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                ? "bg-[#22292f] text-white shadow-[inset_3px_0_0_#4f8fff]"
+                : "text-slate-200 hover:bg-white/5 hover:text-white"
             }`}
           >
             <div className="flex items-center gap-3">
-              {item.icon}
-              <span className="text-sm">{item.name}</span>
+              <span
+                className={`${
+                  isActive
+                    ? "text-[#4f8fff]"
+                    : "text-slate-400 group-hover:text-slate-200"
+                }`}
+              >
+                {item.icon}
+              </span>
+              <span>{item.name}</span>
             </div>
+
             {isExpanded ? (
-              <ChevronDown className="w-4 h-4" />
+              <ChevronDown className="h-4 w-4 text-slate-500" />
             ) : (
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="h-4 w-4 text-slate-500" />
             )}
           </button>
+
           {isExpanded && item.subItems && (
-            <div className="ml-4 mb-1">
-              {item.subItems.map((subItem) => (
-                <Link
-                  key={subItem.path}
-                  to={subItem.path}
-                  onClick={
-                    isMobile
-                      ? () => setSidebarOpen(false)
-                      : undefined
-                  }
-                  className={`flex items-center gap-3 px-3 py-2 rounded-lg mb-0.5 transition-colors ${
-                    location.pathname === subItem.path
-                      ? "active bg-gray-100 dark:bg-gray-700"
-                      : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
-                  }`}
-                >
-                  {subItem.icon}
-                  <span className="text-sm">
-                    {subItem.name}
-                  </span>
-                </Link>
-              ))}
+            <div className="mb-2 ml-5 space-y-1 border-l border-white/10 pl-3">
+              {item.subItems.map((subItem) => {
+                const subItemActive = matchesPath(
+                  location.pathname,
+                  subItem.path,
+                );
+
+                return (
+                  <Link
+                    key={subItem.path}
+                    to={subItem.path}
+                    onClick={
+                      isMobile
+                        ? () => setSidebarOpen(false)
+                        : undefined
+                    }
+                    className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
+                      subItemActive
+                        ? "bg-white/8 text-white"
+                        : "text-slate-400 hover:bg-white/5 hover:text-slate-100"
+                    }`}
+                  >
+                    <span className="text-slate-400">
+                      {subItem.icon}
+                    </span>
+                    <span>{subItem.name}</span>
+                  </Link>
+                );
+              })}
             </div>
           )}
         </div>
@@ -360,166 +376,219 @@ export default function MainLayout() {
         onClick={
           isMobile ? () => setSidebarOpen(false) : undefined
         }
-        className={`flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors ${
+        className={`group mb-1.5 flex items-center gap-3 rounded-lg px-4 py-3 text-sm transition-colors ${
           isActive
-            ? "active bg-gray-100 dark:bg-gray-700"
-            : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+            ? "bg-[#22292f] text-white shadow-[inset_3px_0_0_#4f8fff]"
+            : "text-slate-200 hover:bg-white/5 hover:text-white"
         }`}
       >
-        {item.icon}
-        <span className="text-sm">{item.name}</span>
+        <span
+          className={`${
+            isActive
+              ? "text-[#4f8fff]"
+              : "text-slate-400 group-hover:text-slate-200"
+          }`}
+        >
+          {item.icon}
+        </span>
+        <span>{item.name}</span>
       </Link>
     );
   };
 
-  return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Sidebar Desktop - Sin logo */}
-      <aside className="sidebar fixed inset-y-0 left-0 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 hidden lg:block pt-16">
-        <div className="flex flex-col h-full">
-          <nav className="flex-1 px-3 py-4 overflow-y-auto">
-            {filteredNavigation.map((item) =>
-              renderNavItem(item),
-            )}
-          </nav>
-          <div className="px-3 py-4 border-t border-gray-200 dark:border-gray-700">
-            <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-700/50">
-              <img
-                src={user?.avatar}
-                alt={user?.name}
-                className="w-8 h-8 rounded-full"
-              />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                  {user?.name}
-                </p>
-                <p className="text-xs text-gray-600 dark:text-gray-400 capitalize">
-                  {user?.role.replace("_", " ")}
-                </p>
-              </div>
+  const renderSidebarContent = (isMobile: boolean = false) => (
+    <div className="flex h-full flex-col bg-[#2d3338] text-slate-100">
+      <div
+        className="relative overflow-hidden border-b border-white/10"
+        style={sidebarHeroStyle}
+      >
+        {isMobile && (
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="absolute right-3 top-3 z-10 rounded-full bg-black/25 p-2 text-white transition hover:bg-black/40"
+            title="Cerrar menu"
+            aria-label="Cerrar menu de navegacion"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        )}
+
+        <div className="relative px-5 py-5">
+          <div className="flex items-center gap-3">
+            <Avatar className="h-11 w-11 bg-[#8e4dd8] ring-2 ring-white/10">
+              <AvatarFallback className="bg-[#8e4dd8] text-sm font-semibold text-white">
+                {userInitials}
+              </AvatarFallback>
+            </Avatar>
+
+            <div className="min-w-0">
+              <p className="truncate text-base font-semibold text-white">
+                {user?.name ?? "Usuario"}
+              </p>
+              <p className="text-sm text-slate-200/90">
+                {roleDescription}
+              </p>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-full mt-2 justify-start text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/30"
-              onClick={handleLogout}
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Cerrar Sesión
-            </Button>
           </div>
         </div>
+      </div>
+
+      <div className="border-b border-white/8 px-5 py-3 text-xs uppercase tracking-[0.22em] text-slate-400">
+        Menu
+      </div>
+
+      <nav className="flex-1 overflow-y-auto px-3 py-3">
+        {filteredNavigation.map((item) =>
+          renderNavItem(item, isMobile),
+        )}
+      </nav>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-[#eef2f6] dark:bg-gray-900">
+      <aside className="sidebar fixed inset-y-0 left-0 hidden w-64 border-r border-[#1f2529] pt-28 lg:block">
+        {renderSidebarContent()}
       </aside>
 
-      {/* Sidebar Mobile */}
       {sidebarOpen && (
         <>
           <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+            className="fixed inset-0 z-40 bg-black/50 lg:hidden"
             onClick={() => setSidebarOpen(false)}
           />
-          <aside className="sidebar fixed inset-y-0 left-0 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-50 lg:hidden pt-16">
-            <div className="flex flex-col h-full">
-              <div className="flex items-center justify-end px-6 py-4 absolute top-0 right-0">
-                <button 
-                  onClick={() => setSidebarOpen(false)} 
-                  title="Cerrar menú"
-                  aria-label="Cerrar menú de navegación"
-                >
-                  <X className="w-6 h-6 text-gray-600 dark:text-gray-400" />
-                </button>
-              </div>
-              <nav className="flex-1 px-3 py-4 overflow-y-auto">
-                {filteredNavigation.map((item) =>
-                  renderNavItem(item, true),
-                )}
-              </nav>
-              <div className="px-3 py-4 border-t border-gray-200 dark:border-gray-700">
-                <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-700/50">
-                  <img
-                    src={user?.avatar}
-                    alt={user?.name}
-                    className="w-8 h-8 rounded-full"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                      {user?.name}
-                    </p>
-                    <p className="text-xs text-gray-600 dark:text-gray-400 capitalize">
-                      {user?.role.replace("_", " ")}
-                    </p>
-                  </div>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-full mt-2 justify-start text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/30"
-                  onClick={handleLogout}
-                >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Cerrar Sesión
-                </Button>
-              </div>
-            </div>
+          <aside className="sidebar fixed inset-y-0 left-0 z-50 w-64 border-r border-[#1f2529] pt-28 lg:hidden">
+            {renderSidebarContent(true)}
           </aside>
         </>
       )}
 
-      {/* Header - Fixed en la parte superior con logo */}
-      <header className="fixed top-0 left-0 right-0 z-40 w-full border-b">
-        <div className="flex items-center justify-between h-16 px-4">
-          {/* Logo en el header */}
+      <header className="fixed left-0 right-0 top-0 z-40 w-full border-b border-gray-200 bg-white/95 shadow-sm backdrop-blur dark:border-gray-700 dark:bg-gray-900/95">
+        <div className="flex h-28 items-center justify-between gap-5 px-4 md:px-6">
           <div className="flex items-center gap-4">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2"
-              title="Abrir menú"
-              aria-label="Abrir menú de navegación"
+              className="p-2.5 lg:hidden"
+              title="Abrir menu"
+              aria-label="Abrir menu de navegacion"
             >
-              <Menu className="w-6 h-6" />
+              <Menu className="h-7 w-7" />
             </button>
+
             <img
               src={logo}
               alt="BRANDUP Network"
-              className="h-10 w-auto object-contain"
+              className="h-24 w-auto object-contain md:h-28"
             />
           </div>
-          
-          {/* Botones de la derecha */}
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="relative"
-              title="Notificaciones"
-              aria-label="Notificaciones"
-            >
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="relative"
-              onClick={toggleTheme}
-              title={theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
-              aria-label={theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
-            >
-              {theme === "dark" ? (
-                <Sun className="w-5 h-5" />
-              ) : (
-                <Moon className="w-5 h-5" />
-              )}
-            </Button>
-            <ViewThemeSelector />
+
+          <div className="flex flex-1 items-center justify-end gap-3 md:gap-4">
+            <div className="relative hidden w-full max-w-xs md:block lg:max-w-sm">
+              <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+              <input
+                type="search"
+                placeholder="Buscar Cliente..."
+                className="h-11 w-full rounded-full border border-gray-200 bg-gray-50 pl-12 pr-4 text-sm text-gray-700 outline-none transition focus:border-cyan-300 focus:bg-white focus:ring-2 focus:ring-cyan-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:focus:border-cyan-500 dark:focus:bg-gray-900 dark:focus:ring-cyan-900/40"
+              />
+            </div>
+
+            <div className="hidden items-center gap-2 sm:flex md:gap-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-11 w-11 rounded-full p-0 text-gray-600 hover:bg-gray-100 hover:text-cyan-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-cyan-400"
+                title="Mensajes"
+                aria-label="Mensajes"
+              >
+                <Send className="h-5 w-5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-11 w-11 rounded-full p-0 text-gray-600 hover:bg-gray-100 hover:text-cyan-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-cyan-400"
+                title="Facturacion"
+                aria-label="Facturacion"
+              >
+                <DollarSign className="h-5 w-5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="relative h-11 w-11 rounded-full p-0 text-gray-600 hover:bg-gray-100 hover:text-cyan-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-cyan-400"
+                title="Notificaciones"
+                aria-label="Notificaciones"
+              >
+                <Bell className="h-5 w-5" />
+                <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-11 w-11 rounded-full p-0 text-gray-600 hover:bg-gray-100 hover:text-cyan-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-cyan-400"
+                title="Soporte"
+                aria-label="Soporte"
+              >
+                <Headset className="h-5 w-5" />
+              </Button>
+              <ViewThemeSelector />
+            </div>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className="flex items-center gap-3 rounded-full border border-transparent px-2 py-1.5 transition hover:border-gray-200 hover:bg-gray-50 dark:hover:border-gray-700 dark:hover:bg-gray-800"
+                  aria-label="Abrir menu de usuario"
+                >
+                  <Avatar className="h-11 w-11 border border-cyan-100 bg-cyan-500 text-white">
+                    <AvatarFallback className="bg-cyan-500 text-sm font-semibold tracking-wide text-white">
+                      {userInitials}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="hidden text-sm font-medium text-gray-700 md:inline dark:text-gray-200">
+                    {roleLabel}
+                  </span>
+                  <ChevronDown className="hidden h-5 w-5 text-gray-500 md:inline" />
+                </button>
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent
+                align="end"
+                className="mt-2 w-48 rounded-xl border border-gray-200 bg-white p-2 shadow-xl dark:border-gray-700 dark:bg-gray-800"
+              >
+                <DropdownMenuItem
+                  className="cursor-pointer rounded-lg px-3 py-2 text-[15px] text-gray-700 dark:text-gray-200"
+                  onSelect={() => navigate("/settings")}
+                >
+                  <User className="h-4 w-4 text-gray-500" />
+                  Mi cuenta
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="cursor-pointer rounded-lg px-3 py-2 text-[15px] text-gray-700 dark:text-gray-200"
+                  onSelect={() =>
+                    toast.info(
+                      "La vista para cambiar contrasena aun no esta definida.",
+                    )
+                  }
+                >
+                  <KeyRound className="h-4 w-4 text-gray-500" />
+                  Cambiar contrasena
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="cursor-pointer rounded-lg px-3 py-2 text-[15px] font-semibold text-gray-700 dark:text-gray-100"
+                  onSelect={handleLogout}
+                >
+                  <LogOut className="h-4 w-4 text-gray-600" />
+                  Cerrar sesion
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>
 
-      {/* Contenido principal */}
-      <div className="lg:pl-64 pt-16 flex flex-col min-h-screen gap-0">
-        {/* Contenido - Sin padding ni margin */}
-        <main className="flex-1 p-0 m-0">
+      <div className="flex min-h-screen flex-col gap-0 pt-28 lg:pl-64">
+        <main className="m-0 flex-1 p-0">
           <Outlet />
         </main>
       </div>
