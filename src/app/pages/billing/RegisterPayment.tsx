@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+﻿import { useState, type FormEvent } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
@@ -30,12 +30,24 @@ import { useViewTheme } from '../../context/ViewThemeContext';
 import { toast } from 'sonner';
 import { formatCurrency } from '../../lib/utils';
 
-const MOCK_REGISTERED_PAYMENTS = [
+type RegisteredPayment = {
+  id: string;
+  clientId: string;
+  invoiceId: string;
+  invoiceFolio: string;
+  legalNumber: string;
+  transactionId: string;
+  type: string;
+  date: string;
+  amount: number;
+};
+
+const MOCK_REGISTERED_PAYMENTS: RegisteredPayment[] = [
   {
     id: '1',
-    clientId: 'client-1',
-    invoiceId: 'inv-1',
-    invoiceFolio: '00002352',
+    clientId: 'cli1',
+    invoiceId: 'inv1',
+    invoiceFolio: 'FAC-2026-001',
     legalNumber: '2104',
     transactionId: '925864726839',
     type: 'SERVICIOS',
@@ -84,6 +96,7 @@ export default function RegisterPayment() {
       )
     : [];
 
+  const selectedClientData = clients.find((client) => client.id === selectedClient);
   const selectedInvoiceData = invoices.find((invoice) => invoice.id === selectedInvoice);
 
   const resetForm = () => {
@@ -95,16 +108,28 @@ export default function RegisterPayment() {
     setNotes('');
   };
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const parsedAmount = Number.parseFloat(amount);
 
     if (!selectedClient || !paymentMethod || !amount) {
       toast.error('Por favor completa todos los campos requeridos');
       return;
     }
 
+    if (Number.isNaN(parsedAmount) || parsedAmount <= 0) {
+      toast.error('Ingresa un monto valido mayor a 0');
+      return;
+    }
+
     toast.success('Pago registrado exitosamente');
     resetForm();
+  };
+
+  const handleClientChange = (clientId: string) => {
+    setSelectedClient(clientId);
+    setSelectedInvoice('');
+    setAmount('');
   };
 
   const getClientName = (clientId: string) => {
@@ -514,7 +539,7 @@ export default function RegisterPayment() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <Label htmlFor="client">Cliente *</Label>
-                  <Select value={selectedClient} onValueChange={setSelectedClient}>
+                  <Select value={selectedClient} onValueChange={handleClientChange}>
                     <SelectTrigger id="client">
                       <SelectValue placeholder="Selecciona un cliente" />
                     </SelectTrigger>
@@ -629,9 +654,9 @@ export default function RegisterPayment() {
                       <p className="text-sm text-gray-600 dark:text-gray-400">
                         Cliente seleccionado
                       </p>
-                      <p className="mt-1 text-sm font-medium text-gray-900 dark:text-white">
-                        {clients.find((client) => client.id === selectedClient)?.name}
-                      </p>
+                        <p className="mt-1 text-sm font-medium text-gray-900 dark:text-white">
+                          {selectedClientData?.name}
+                        </p>
                     </div>
                     {selectedInvoiceData && (
                       <div>

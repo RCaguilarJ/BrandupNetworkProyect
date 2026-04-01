@@ -8,10 +8,12 @@ import {
   ArrowUpDown,
   Bell,
   CheckCircle,
+  Circle,
   ChevronDown,
   ChevronRight,
   Clock,
   CreditCard,
+  Globe,
   DollarSign,
   FileText,
   Headset,
@@ -21,6 +23,7 @@ import {
   LogOut,
   MapPin,
   Menu,
+  Monitor,
   Network,
   Package,
   Search,
@@ -34,7 +37,7 @@ import {
   Wifi,
   X,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback } from "../components/ui/avatar";
 import { Button } from "../components/ui/button";
 import { ViewThemeSelector } from "../components/ViewThemeSelector";
@@ -205,16 +208,98 @@ const navigationItems: NavItem[] = [
     ],
   },
   {
-    name: "Monitoreo de Red",
-    path: "/monitoring",
-    icon: <Network className="h-5 w-5" />,
+    name: "Gestion de Red",
+    path: "/network-management",
+    icon: <Monitor className="h-5 w-5" />,
     roles: ["super_admin", "isp_admin", "tecnico"],
+    subItems: [
+      {
+        name: "Routers",
+        path: "/network-management/routers",
+        icon: <Circle className="h-3 w-3" />,
+        roles: ["super_admin", "isp_admin", "tecnico"],
+      },
+      {
+        name: "Smart Olt",
+        path: "/network-management/smart-olt",
+        icon: <Globe className="h-4 w-4" />,
+        roles: ["super_admin", "isp_admin", "tecnico"],
+      },
+      {
+        name: "AdminOLT",
+        path: "/network-management/admin-olt",
+        icon: <Network className="h-4 w-4" />,
+        roles: ["super_admin", "isp_admin", "tecnico"],
+      },
+      {
+        name: "Redes IPv4",
+        path: "/network-management/redes-ipv4",
+        icon: <Circle className="h-3 w-3" />,
+        roles: ["super_admin", "isp_admin", "tecnico"],
+      },
+      {
+        name: "Monitoreo",
+        path: "/network-management/monitoreo",
+        icon: <Circle className="h-3 w-3" />,
+        roles: ["super_admin", "isp_admin", "tecnico"],
+      },
+      {
+        name: "Cajas Nap",
+        path: "/network-management/cajas-nap",
+        icon: <Circle className="h-3 w-3" />,
+        roles: ["super_admin", "isp_admin", "tecnico"],
+      },
+      {
+        name: "Trafico",
+        path: "/network-management/trafico",
+        icon: <Circle className="h-3 w-3" />,
+        roles: ["super_admin", "isp_admin", "tecnico"],
+      },
+      {
+        name: "Ips Visitadas",
+        path: "/network-management/ips-visitadas",
+        icon: <Circle className="h-3 w-3" />,
+        roles: ["super_admin", "isp_admin", "tecnico"],
+      },
+      {
+        name: "Monitor BlackList",
+        path: "/network-management/monitor-blacklist",
+        icon: <Circle className="h-3 w-3" />,
+        roles: ["super_admin", "isp_admin", "tecnico"],
+      },
+      {
+        name: "Trapemn",
+        path: "/network-management/trapemn",
+        icon: <Circle className="h-3 w-3" />,
+        roles: ["super_admin", "isp_admin", "tecnico"],
+      },
+    ],
   },
   {
-    name: "Hotspot / Vouchers",
+    name: "Fichas Hotspot",
     path: "/hotspot",
     icon: <Wifi className="h-5 w-5" />,
     roles: ["super_admin", "isp_admin"],
+    subItems: [
+      {
+        name: "Fichas",
+        path: "/hotspot/fichas",
+        icon: <Circle className="h-3 w-3" />,
+        roles: ["super_admin", "isp_admin"],
+      },
+      {
+        name: "Routers",
+        path: "/hotspot/routers",
+        icon: <Circle className="h-3 w-3" />,
+        roles: ["super_admin", "isp_admin"],
+      },
+      {
+        name: "Plantillas",
+        path: "/hotspot/plantillas",
+        icon: <Circle className="h-3 w-3" />,
+        roles: ["super_admin", "isp_admin"],
+      },
+    ],
   },
   {
     name: "Configuracion",
@@ -290,6 +375,28 @@ export default function MainLayout() {
   const filteredNavigation = navigationItems.filter(
     (item) => user && item.roles.includes(user.role),
   );
+
+  useEffect(() => {
+    const activeParentPaths = navigationItems
+      .filter(
+        (item) =>
+          user &&
+          item.roles.includes(user.role) &&
+          item.subItems?.some((subItem) =>
+            matchesPath(location.pathname, subItem.path),
+          ),
+      )
+      .map((item) => item.path);
+
+    if (activeParentPaths.length === 0) {
+      return;
+    }
+
+    setExpandedItems((prev) => {
+      const next = [...new Set([...prev, ...activeParentPaths])];
+      return next.length === prev.length ? prev : next;
+    });
+  }, [location.pathname, user]);
 
   const toggleExpand = (path: string) => {
     setExpandedItems((prev) =>
@@ -423,22 +530,20 @@ export default function MainLayout() {
           </button>
         )}
 
-        <div className="relative px-5 py-5">
-          <div className="flex items-center gap-3">
-            <Avatar className="h-11 w-11 bg-[#8e4dd8] ring-2 ring-white/10">
-              <AvatarFallback className="bg-[#8e4dd8] text-sm font-semibold text-white">
-                {userInitials}
-              </AvatarFallback>
-            </Avatar>
+        <div className="relative flex min-h-[112px] flex-col justify-end px-5 pb-5 pt-4">
+          <Avatar className="h-11 w-11 bg-[#8e4dd8] ring-2 ring-white/10">
+            <AvatarFallback className="bg-[#8e4dd8] text-sm font-semibold text-white">
+              {userInitials}
+            </AvatarFallback>
+          </Avatar>
 
-            <div className="min-w-0">
-              <p className="truncate text-base font-semibold text-white">
-                {user?.name ?? "Usuario"}
-              </p>
-              <p className="text-sm text-slate-200/90">
-                {roleDescription}
-              </p>
-            </div>
+          <div className="mt-4 min-w-0">
+            <p className="truncate text-[15px] font-semibold leading-tight text-white">
+              {user?.name ?? "Usuario"}
+            </p>
+            <p className="mt-1 text-sm text-slate-200/90">
+              {roleDescription}
+            </p>
           </div>
         </div>
       </div>

@@ -10,8 +10,6 @@ import PlanForm from './pages/PlanForm';
 import Billing from './pages/Billing';
 import Tickets from './pages/Tickets';
 import TicketForm from './pages/TicketForm';
-import Monitoring from './pages/Monitoring';
-import Hotspot from './pages/Hotspot';
 import Settings from './pages/Settings';
 import Tasks from './pages/Tasks';
 import GeneralSettings from './pages/GeneralSettings';
@@ -45,6 +43,19 @@ import OverdueTickets from './pages/tickets/OverdueTickets';
 import CompletedTickets from './pages/tickets/CompletedTickets';
 
 import BookAppointment from './pages/calendar/BookAppointment';
+import FichasHotspot from './pages/hotspot/FichasHotspot';
+import HotspotRouters from './pages/hotspot/HotspotRouters';
+import HotspotTemplates from './pages/hotspot/HotspotTemplates';
+import NetworkAdminOlt from './pages/network/NetworkAdminOlt';
+import NetworkBlacklist from './pages/network/NetworkBlacklist';
+import NetworkIpv4 from './pages/network/NetworkIpv4';
+import NetworkMonitoring from './pages/network/NetworkMonitoring';
+import NetworkNapBoxes from './pages/network/NetworkNapBoxes';
+import NetworkRouters from './pages/network/NetworkRouters';
+import NetworkSmartOlt from './pages/network/NetworkSmartOlt';
+import NetworkTraffic from './pages/network/NetworkTraffic';
+import NetworkTrapemn from './pages/network/NetworkTrapemn';
+import NetworkVisitedIps from './pages/network/NetworkVisitedIps';
 
 // HOC para proteger rutas
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -98,8 +109,22 @@ export const router = createBrowserRouter([
       { path: 'tickets/in-progress', element: <OverdueTickets /> },
       { path: 'tickets/overdue', element: <Navigate to="/tickets/in-progress" replace /> },
       { path: 'tickets/completed', element: <CompletedTickets /> },
-      { path: 'monitoring', element: <Monitoring /> },
-      { path: 'hotspot', element: <Hotspot /> },
+      { path: 'monitoring', element: <Navigate to="/network-management/routers" replace /> },
+      { path: 'network-management', element: <Navigate to="/network-management/routers" replace /> },
+      { path: 'network-management/routers', element: <NetworkRouters /> },
+      { path: 'network-management/smart-olt', element: <NetworkSmartOlt /> },
+      { path: 'network-management/admin-olt', element: <NetworkAdminOlt /> },
+      { path: 'network-management/redes-ipv4', element: <NetworkIpv4 /> },
+      { path: 'network-management/monitoreo', element: <NetworkMonitoring /> },
+      { path: 'network-management/cajas-nap', element: <NetworkNapBoxes /> },
+      { path: 'network-management/trafico', element: <NetworkTraffic /> },
+      { path: 'network-management/ips-visitadas', element: <NetworkVisitedIps /> },
+      { path: 'network-management/monitor-blacklist', element: <NetworkBlacklist /> },
+      { path: 'network-management/trapemn', element: <NetworkTrapemn /> },
+      { path: 'hotspot', element: <Navigate to="/hotspot/fichas" replace /> },
+      { path: 'hotspot/fichas', element: <FichasHotspot /> },
+      { path: 'hotspot/routers', element: <HotspotRouters /> },
+      { path: 'hotspot/plantillas', element: <HotspotTemplates /> },
       { path: 'tasks', element: <Tasks /> },
       { path: 'settings', element: <Settings /> },
       { path: 'settings/general', element: <GeneralSettings /> },
