@@ -152,6 +152,26 @@ const navigationItems: NavItem[] = [
     path: "/plans",
     icon: <Star className="h-5 w-5" />,
     roles: ["super_admin", "isp_admin"],
+    subItems: [
+      {
+        name: "Internet",
+        path: "/plans/internet",
+        icon: <Circle className="h-3 w-3" />,
+        roles: ["super_admin", "isp_admin"],
+      },
+      {
+        name: "Voz",
+        path: "/plans/voz",
+        icon: <Circle className="h-3 w-3" />,
+        roles: ["super_admin", "isp_admin"],
+      },
+      {
+        name: "Personalizado",
+        path: "/plans/personalizado",
+        icon: <Circle className="h-3 w-3" />,
+        roles: ["super_admin", "isp_admin"],
+      },
+    ],
   },
   {
     name: "Clientes",

@@ -5,7 +5,6 @@ import Dashboard from './pages/Dashboard';
 import Clients from './pages/Clients';
 import ClientForm from './pages/ClientForm';
 import ClientsMap from './pages/ClientsMap';
-import Plans from './pages/Plans';
 import PlanForm from './pages/PlanForm';
 import Billing from './pages/Billing';
 import Tickets from './pages/Tickets';
@@ -62,6 +61,9 @@ import MessagingReceived from './pages/messaging/MessagingReceived';
 import WarehouseProductTypes from './pages/warehouse/WarehouseProductTypes';
 import WarehouseSuppliers from './pages/warehouse/WarehouseSuppliers';
 import WarehouseProducts from './pages/warehouse/WarehouseProducts';
+import ServicesInternet from './pages/services/ServicesInternet';
+import ServicesVoice from './pages/services/ServicesVoice';
+import ServicesCustom from './pages/services/ServicesCustom';
 
 // HOC para proteger rutas
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -95,7 +97,10 @@ export const router = createBrowserRouter([
       { path: 'clients/new', element: <ClientForm /> },
       { path: 'clients/:id/edit', element: <ClientForm /> },
       { path: 'clients/map', element: <ClientsMap /> },
-      { path: 'plans', element: <Plans /> },
+      { path: 'plans', element: <Navigate to="/plans/internet" replace /> },
+      { path: 'plans/internet', element: <ServicesInternet /> },
+      { path: 'plans/voz', element: <ServicesVoice /> },
+      { path: 'plans/personalizado', element: <ServicesCustom /> },
       { path: 'plans/new', element: <PlanForm /> },
       { path: 'plans/:id/edit', element: <PlanForm /> },
       { path: 'billing', element: <Billing /> },
