@@ -1,9 +1,8 @@
-import { Link } from 'react-router';
+﻿import { Link } from 'react-router';
 import {
   Banknote,
   Box,
   Cog,
-  Database,
   FileText,
   HandCoins,
   ListChecks,
@@ -27,7 +26,6 @@ type ShortcutItem = {
 // Los modulos pendientes siguen visibles como catalogo hasta tener integracion completa.
 const shortcutItems: ShortcutItem[] = [
   { id: 'general', label: 'General', icon: Cog, path: '/settings/general' },
-  { id: 'database', label: 'Base de datos', icon: Database, path: '/backups' },
   { id: 'users', label: 'Usuarios', icon: UsersRound, path: '/settings/users' },
   { id: 'roles', label: 'Roles', icon: LockKeyhole, path: '/settings/roles' },
   { id: 'currencies', label: 'Divisas', icon: Banknote, path: '/settings/currencies' },
@@ -104,7 +102,7 @@ function ShortcutGrid() {
 
 /**
  * La pantalla replica la matriz 8+5 en escritorio amplio.
- * En anchos intermedios y moviles, los botones refluyén a una grilla fluida
+ * En anchos intermedios y moviles, los botones refluyeÌn a una grilla fluida
  * para evitar desbordes entre navegadores y despliegues como Vercel.
  */
 function SettingsCanvas() {
@@ -128,3 +126,4 @@ function SettingsCanvas() {
 export default function Settings() {
   return <SettingsCanvas />;
 }
+

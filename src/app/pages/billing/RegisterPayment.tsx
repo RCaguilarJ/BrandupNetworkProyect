@@ -1,31 +1,35 @@
-import { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/card';
+﻿import { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../../components/ui/select';
 import { Textarea } from '../../components/ui/textarea';
-import { 
-  CreditCard, 
-  Search, 
-  FileText,
-  Settings,
+import {
+  Calendar,
   ChevronLeft,
   ChevronRight,
-  Download,
+  CreditCard,
   Eye,
-  Trash2,
+  FileText,
   List,
-  Calendar
+  Search,
+  Settings,
+  Trash2,
 } from 'lucide-react';
 import { MOCK_CLIENTS, MOCK_INVOICES } from '../../data/mockData';
 import { useAuth } from '../../context/AuthContext';
 import { useViewTheme } from '../../context/ViewThemeContext';
 import { toast } from 'sonner';
-import { formatCurrency, formatDate } from '../../lib/utils';
+import { formatCurrency } from '../../lib/utils';
 
-// Datos mock para pagos registrados
 const MOCK_REGISTERED_PAYMENTS = [
   {
     id: '1',
@@ -36,20 +40,23 @@ const MOCK_REGISTERED_PAYMENTS = [
     transactionId: '925864726839',
     type: 'SERVICIOS',
     date: '2026-03-19T10:00:55',
-    amount: 0.20,
+    amount: 0.2,
   },
 ];
+
+type PaymentTab = 'register' | 'registered';
+type SearchType = 'client' | 'invoice';
 
 export default function RegisterPayment() {
   const { user } = useAuth();
   const { viewTheme } = useViewTheme();
-  const [activeTab, setActiveTab] = useState<'register' | 'registered' | 'promises'>('register');
-  const [searchType, setSearchType] = useState<'client' | 'invoice'>('client');
+
+  const [activeTab, setActiveTab] = useState<PaymentTab>('register');
+  const [searchType, setSearchType] = useState<SearchType>('client');
   const [searchTerm, setSearchTerm] = useState('');
   const [pageSize, setPageSize] = useState(15);
   const [currentPage, setCurrentPage] = useState(1);
-  
-  // Filtros para pagos registrados
+
   const [paymentType, setPaymentType] = useState('all');
   const [startDate, setStartDate] = useState('19/03/2026');
   const [endDate, setEndDate] = useState('19/03/2026');
@@ -57,7 +64,6 @@ export default function RegisterPayment() {
   const [operator, setOperator] = useState('all');
   const [router, setRouter] = useState('all');
 
-  // Estados del formulario original
   const [selectedClient, setSelectedClient] = useState('');
   const [selectedInvoice, setSelectedInvoice] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('');
@@ -65,27 +71,22 @@ export default function RegisterPayment() {
   const [reference, setReference] = useState('');
   const [notes, setNotes] = useState('');
 
-  const clients = user?.role === 'super_admin'
-    ? MOCK_CLIENTS
-    : MOCK_CLIENTS.filter(c => c.companyId === user?.companyId);
+  const clients =
+    user?.role === 'super_admin'
+      ? MOCK_CLIENTS
+      : MOCK_CLIENTS.filter((client) => client.companyId === user?.companyId);
 
   const invoices = selectedClient
-    ? MOCK_INVOICES.filter(i => i.clientId === selectedClient && (i.status === 'pending' || i.status === 'overdue'))
+    ? MOCK_INVOICES.filter(
+        (invoice) =>
+          invoice.clientId === selectedClient &&
+          (invoice.status === 'pending' || invoice.status === 'overdue'),
+      )
     : [];
 
-  const selectedInvoiceData = invoices.find(i => i.id === selectedInvoice);
+  const selectedInvoiceData = invoices.find((invoice) => invoice.id === selectedInvoice);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!selectedClient || !paymentMethod || !amount) {
-      toast.error('Por favor completa todos los campos requeridos');
-      return;
-    }
-
-    toast.success('Pago registrado exitosamente');
-    
-    // Reset form
+  const resetForm = () => {
     setSelectedClient('');
     setSelectedInvoice('');
     setPaymentMethod('');
@@ -94,127 +95,129 @@ export default function RegisterPayment() {
     setNotes('');
   };
 
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+
+    if (!selectedClient || !paymentMethod || !amount) {
+      toast.error('Por favor completa todos los campos requeridos');
+      return;
+    }
+
+    toast.success('Pago registrado exitosamente');
+    resetForm();
+  };
+
   const getClientName = (clientId: string) => {
-    const client = MOCK_CLIENTS.find(c => c.id === clientId);
+    const client = MOCK_CLIENTS.find((item) => item.id === clientId);
     return client?.name || 'N/A';
   };
 
-  // Totales para pagos registrados
-  const totalCobrado = MOCK_REGISTERED_PAYMENTS.reduce((sum, p) => sum + p.amount, 0);
+  const totalCobrado = MOCK_REGISTERED_PAYMENTS.reduce((sum, payment) => sum + payment.amount, 0);
   const totalComision = 0;
   const totalNeto = totalCobrado - totalComision;
 
-  // Si es tema Mikrosystem, mostrar diseño con tabs
   if (viewTheme === 'mikrosystem') {
     return (
       <div className="h-full bg-gray-50 dark:bg-gray-900">
-        {/* Tabs superiores */}
-        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div className="border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
           <div className="flex items-center px-4">
             <button
+              type="button"
               onClick={() => setActiveTab('register')}
-              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+              className={`border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
                 activeTab === 'register'
                   ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                  : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                  : 'border-transparent text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'
               }`}
             >
-              📋 Registrar pago
+              Registrar pago
             </button>
             <button
+              type="button"
               onClick={() => setActiveTab('registered')}
-              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+              className={`border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
                 activeTab === 'registered'
                   ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                  : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                  : 'border-transparent text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'
               }`}
             >
-              🛒 Pagos registrados (Hoy)
+              Pagos registrados (Hoy)
             </button>
             <button
-              onClick={() => setActiveTab('promises')}
-              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
-                activeTab === 'promises'
-                  ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                  : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-              }`}
+              type="button"
+              className="ml-auto rounded p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
+              aria-label="Configuracion"
             >
-              🕐 Promesas de pago (activos)
-            </button>
-            <button className="ml-auto p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
-              <Settings className="w-5 h-5" />
+              <Settings className="h-5 w-5" />
             </button>
           </div>
         </div>
 
-        {/* Contenido según tab activo */}
         <div className="p-6">
-          {/* Tab: Registrar pago */}
           {activeTab === 'register' && (
-            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-              {/* Radio buttons para tipo de búsqueda */}
-              <div className="flex items-center gap-6 mb-6">
-                <label className="flex items-center gap-2 cursor-pointer">
+            <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+              <div className="mb-6 flex items-center gap-6">
+                <label className="flex cursor-pointer items-center gap-2">
                   <input
                     type="radio"
                     name="searchType"
                     checked={searchType === 'client'}
                     onChange={() => setSearchType('client')}
-                    className="w-4 h-4 text-blue-600"
+                    className="h-4 w-4 text-blue-600"
                   />
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Buscar Cliente
+                    Buscar cliente
                   </span>
                 </label>
-                <label className="flex items-center gap-2 cursor-pointer">
+                <label className="flex cursor-pointer items-center gap-2">
                   <input
                     type="radio"
                     name="searchType"
                     checked={searchType === 'invoice'}
                     onChange={() => setSearchType('invoice')}
-                    className="w-4 h-4 text-blue-600"
+                    className="h-4 w-4 text-blue-600"
                   />
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Buscar Nº comprobante
+                    Buscar numero de comprobante
                   </span>
                 </label>
               </div>
 
-              {/* Campo de búsqueda */}
               <div className="max-w-2xl">
                 <input
                   type="text"
-                  placeholder={searchType === 'client' ? 'Nombre o Nº de cliente a COBRAR/NIT/RUC/DNI' : 'Número de comprobante'}
+                  placeholder={
+                    searchType === 'client'
+                      ? 'Nombre o numero de cliente a cobrar / NIT / RUC / DNI'
+                      : 'Numero de comprobante'
+                  }
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full h-12 px-4 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  onChange={(event) => setSearchTerm(event.target.value)}
+                  className="h-12 w-full rounded border border-gray-300 px-4 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 />
               </div>
 
-              {/* Mensaje informativo */}
-              <div className="mt-8 text-center text-gray-500 dark:text-gray-400 text-sm">
-                {searchType === 'client' 
-                  ? 'Ingresa el nombre o número del cliente para comenzar'
-                  : 'Ingresa el número de comprobante para buscar'}
+              <div className="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
+                {searchType === 'client'
+                  ? 'Ingresa el nombre o numero del cliente para comenzar'
+                  : 'Ingresa el numero de comprobante para buscar'}
               </div>
             </div>
           )}
 
-          {/* Tab: Pagos registrados */}
           {activeTab === 'registered' && (
             <>
-              {/* Filtros superiores */}
-              <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 mb-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3">
-                  {/* Tipo Pago */}
+              <div className="mb-4 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-3 lg:grid-cols-6">
                   <div>
-                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Tipo Pago
+                    <label className="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-300">
+                      Tipo pago
                     </label>
                     <select
+                      aria-label="Seleccionar tipo de pago"
                       value={paymentType}
-                      onChange={(e) => setPaymentType(e.target.value)}
-                      className="w-full h-8 px-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded text-xs focus:ring-1 focus:ring-blue-500"
+                      onChange={(event) => setPaymentType(event.target.value)}
+                      className="h-8 w-full rounded border border-gray-300 px-2 text-xs focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     >
                       <option value="all">Cualquiera</option>
                       <option value="cash">Efectivo</option>
@@ -223,69 +226,76 @@ export default function RegisterPayment() {
                     </select>
                   </div>
 
-                  {/* Fechas */}
-                  <div className="md:col-span-2 flex items-end gap-2">
+                  <div className="flex items-end gap-2 md:col-span-2">
                     <div className="flex-1">
-                      <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      <label className="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-300">
                         Fechas
                       </label>
                       <div className="flex gap-1">
                         <input
                           type="text"
+                          placeholder="Fecha inicio"
+                          aria-label="Fecha de inicio"
                           value={startDate}
-                          onChange={(e) => setStartDate(e.target.value)}
-                          className="w-full h-8 px-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded text-xs focus:ring-1 focus:ring-blue-500"
+                          onChange={(event) => setStartDate(event.target.value)}
+                          className="h-8 w-full rounded border border-gray-300 px-2 text-xs focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                         />
-                        <button className="w-8 h-8 flex items-center justify-center border border-gray-300 dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600">
-                          <Calendar className="w-3.5 h-3.5" />
+                        <button
+                          type="button"
+                          className="flex h-8 w-8 items-center justify-center rounded border border-gray-300 bg-gray-100 hover:bg-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600"
+                          aria-label="Abrir calendario"
+                        >
+                          <Calendar className="h-3.5 w-3.5" />
                         </button>
                       </div>
                     </div>
                     <input
                       type="text"
+                      placeholder="Fecha fin"
+                      aria-label="Fecha de fin"
                       value={endDate}
-                      onChange={(e) => setEndDate(e.target.value)}
-                      className="w-24 h-8 px-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded text-xs focus:ring-1 focus:ring-blue-500"
+                      onChange={(event) => setEndDate(event.target.value)}
+                      className="h-8 w-24 rounded border border-gray-300 px-2 text-xs focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     />
                   </div>
 
-                  {/* Ubicación */}
                   <div>
-                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Ubicación
+                    <label className="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-300">
+                      Ubicacion
                     </label>
                     <select
+                      aria-label="Seleccionar ubicacion"
                       value={location}
-                      onChange={(e) => setLocation(e.target.value)}
-                      className="w-full h-8 px-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded text-xs focus:ring-1 focus:ring-blue-500"
+                      onChange={(event) => setLocation(event.target.value)}
+                      className="h-8 w-full rounded border border-gray-300 px-2 text-xs focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     >
                       <option value="all">Cualquiera</option>
                     </select>
                   </div>
 
-                  {/* Operador */}
                   <div>
-                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-300">
                       Operador
                     </label>
                     <select
+                      aria-label="Seleccionar operador"
                       value={operator}
-                      onChange={(e) => setOperator(e.target.value)}
-                      className="w-full h-8 px-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded text-xs focus:ring-1 focus:ring-blue-500"
+                      onChange={(event) => setOperator(event.target.value)}
+                      className="h-8 w-full rounded border border-gray-300 px-2 text-xs focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     >
                       <option value="all">Cualquiera</option>
                     </select>
                   </div>
 
-                  {/* Router */}
                   <div>
-                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-300">
                       Router
                     </label>
                     <select
+                      aria-label="Seleccionar router"
                       value={router}
-                      onChange={(e) => setRouter(e.target.value)}
-                      className="w-full h-8 px-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded text-xs focus:ring-1 focus:ring-blue-500"
+                      onChange={(event) => setRouter(event.target.value)}
+                      className="h-8 w-full rounded border border-gray-300 px-2 text-xs focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     >
                       <option value="all">Cualquiera</option>
                     </select>
@@ -293,62 +303,71 @@ export default function RegisterPayment() {
                 </div>
               </div>
 
-              {/* Toolbar */}
-              <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-t-lg px-4 py-2 flex items-center justify-between">
+              <div className="flex items-center justify-between rounded-t-lg border border-gray-200 bg-white px-4 py-2 dark:border-gray-700 dark:bg-gray-800">
                 <div className="flex items-center gap-3">
                   <select
+                    aria-label="Seleccionar cantidad de registros por pagina"
                     value={pageSize}
-                    onChange={(e) => setPageSize(Number(e.target.value))}
-                    className="h-7 px-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded text-xs focus:ring-1 focus:ring-blue-500"
+                    onChange={(event) => setPageSize(Number(event.target.value))}
+                    className="h-7 rounded border border-gray-300 px-2 text-xs focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   >
                     <option value={15}>15</option>
                     <option value={25}>25</option>
                     <option value={50}>50</option>
                   </select>
-                  <button className="p-1.5 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600">
-                    <List className="w-3.5 h-3.5" />
+                  <button
+                    type="button"
+                    className="rounded border border-gray-300 bg-white p-1.5 text-gray-600 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-gray-600"
+                    aria-label="Cambiar vista"
+                  >
+                    <List className="h-3.5 w-3.5" />
                   </button>
-                  <button className="px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 text-xs font-medium">
-                    📄 Resumen PDF
+                  <button
+                    type="button"
+                    className="rounded border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                  >
+                    Resumen PDF
                   </button>
                 </div>
-                <button className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-xs hover:bg-gray-200 dark:hover:bg-gray-600">
+                <button
+                  type="button"
+                  className="rounded bg-gray-100 px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                >
                   Buscar
                 </button>
               </div>
 
-              {/* Tabla */}
-              <div className="bg-white dark:bg-gray-800 border-x border-gray-200 dark:border-gray-700">
+              <div className="border-x border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
                 <div className="overflow-x-auto">
                   <table className="w-full text-xs">
-                    <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+                    <thead className="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-900/50">
                       <tr>
-                        <th className="text-left px-3 py-2.5 font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-200 dark:border-gray-700">
-                          ID ▲
+                        <th className="border-r border-gray-200 px-3 py-2.5 text-left font-semibold text-gray-700 dark:border-gray-700 dark:text-gray-300">
+                          ID
                         </th>
-                        <th className="text-left px-3 py-2.5 font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-200 dark:border-gray-700">
+                        <th className="border-r border-gray-200 px-3 py-2.5 text-left font-semibold text-gray-700 dark:border-gray-700 dark:text-gray-300">
                           CLIENTE
                         </th>
-                        <th className="text-left px-3 py-2.5 font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-200 dark:border-gray-700">
+                        <th className="border-r border-gray-200 px-3 py-2.5 text-left font-semibold text-gray-700 dark:border-gray-700 dark:text-gray-300">
                           # FACTURA
                         </th>
-                        <th className="text-left px-3 py-2.5 font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-200 dark:border-gray-700">
+                        <th className="border-r border-gray-200 px-3 py-2.5 text-left font-semibold text-gray-700 dark:border-gray-700 dark:text-gray-300">
                           # LEGAL
                         </th>
-                        <th className="text-left px-3 py-2.5 font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-200 dark:border-gray-700">
-                          # TRANSACCIÓN
+                        <th className="border-r border-gray-200 px-3 py-2.5 text-left font-semibold text-gray-700 dark:border-gray-700 dark:text-gray-300">
+                          # TRANSACCION
                         </th>
-                        <th className="text-left px-3 py-2.5 font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-200 dark:border-gray-700">
+                        <th className="border-r border-gray-200 px-3 py-2.5 text-left font-semibold text-gray-700 dark:border-gray-700 dark:text-gray-300">
                           TIPO
                         </th>
-                        <th className="text-left px-3 py-2.5 font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-200 dark:border-gray-700">
-                          FECHA & HORA
+                        <th className="border-r border-gray-200 px-3 py-2.5 text-left font-semibold text-gray-700 dark:border-gray-700 dark:text-gray-300">
+                          FECHA Y HORA
                         </th>
-                        <th className="text-right px-3 py-2.5 font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-200 dark:border-gray-700">
+                        <th className="border-r border-gray-200 px-3 py-2.5 text-right font-semibold text-gray-700 dark:border-gray-700 dark:text-gray-300">
                           COBRADO
                         </th>
-                        <th className="text-center px-3 py-2.5 font-semibold text-gray-700 dark:text-gray-300">
-                          Acción
+                        <th className="px-3 py-2.5 text-center font-semibold text-gray-700 dark:text-gray-300">
+                          Accion
                         </th>
                       </tr>
                     </thead>
@@ -356,46 +375,60 @@ export default function RegisterPayment() {
                       {MOCK_REGISTERED_PAYMENTS.map((payment, index) => (
                         <tr
                           key={payment.id}
-                          className={`border-b border-gray-200 dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-gray-700/50 ${
-                            index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50/50 dark:bg-gray-900/30'
+                          className={`border-b border-gray-200 hover:bg-blue-50 dark:border-gray-700 dark:hover:bg-gray-700/50 ${
+                            index % 2 === 0
+                              ? 'bg-white dark:bg-gray-800'
+                              : 'bg-gray-50/50 dark:bg-gray-900/30'
                           }`}
                         >
-                          <td className="px-3 py-2.5 border-r border-gray-200 dark:border-gray-700 font-medium text-gray-900 dark:text-white">
+                          <td className="border-r border-gray-200 px-3 py-2.5 font-medium text-gray-900 dark:border-gray-700 dark:text-white">
                             {payment.id}
                           </td>
-                          <td className="px-3 py-2.5 border-r border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white">
+                          <td className="border-r border-gray-200 px-3 py-2.5 text-gray-900 dark:border-gray-700 dark:text-white">
                             {getClientName(payment.clientId)}
                           </td>
-                          <td className="px-3 py-2.5 border-r border-gray-200 dark:border-gray-700 font-medium text-gray-900 dark:text-white">
+                          <td className="border-r border-gray-200 px-3 py-2.5 font-medium text-gray-900 dark:border-gray-700 dark:text-white">
                             {payment.invoiceFolio}
                           </td>
-                          <td className="px-3 py-2.5 border-r border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400">
+                          <td className="border-r border-gray-200 px-3 py-2.5 text-gray-600 dark:border-gray-700 dark:text-gray-400">
                             {payment.legalNumber}
                           </td>
-                          <td className="px-3 py-2.5 border-r border-gray-200 dark:border-gray-700 font-mono text-gray-600 dark:text-gray-400">
+                          <td className="border-r border-gray-200 px-3 py-2.5 font-mono text-gray-600 dark:border-gray-700 dark:text-gray-400">
                             {payment.transactionId}
                           </td>
-                          <td className="px-3 py-2.5 border-r border-gray-200 dark:border-gray-700">
-                            <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 text-xs">
+                          <td className="border-r border-gray-200 px-3 py-2.5 dark:border-gray-700">
+                            <Badge className="bg-blue-100 text-xs text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
                               {payment.type}
                             </Badge>
                           </td>
-                          <td className="px-3 py-2.5 border-r border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400">
+                          <td className="border-r border-gray-200 px-3 py-2.5 text-gray-600 dark:border-gray-700 dark:text-gray-400">
                             {new Date(payment.date).toLocaleString('es-MX')}
                           </td>
-                          <td className="px-3 py-2.5 border-r border-gray-200 dark:border-gray-700 text-right font-medium text-gray-900 dark:text-white">
+                          <td className="border-r border-gray-200 px-3 py-2.5 text-right font-medium text-gray-900 dark:border-gray-700 dark:text-white">
                             {formatCurrency(payment.amount)}
                           </td>
                           <td className="px-3 py-2.5 text-center">
                             <div className="flex items-center justify-center gap-1">
-                              <button className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded" title="Ver">
-                                <Eye className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                              <button
+                                type="button"
+                                className="rounded p-1 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                aria-label="Ver"
+                              >
+                                <Eye className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                               </button>
-                              <button className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded" title="Editar">
-                                <FileText className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
+                              <button
+                                type="button"
+                                className="rounded p-1 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                aria-label="Editar"
+                              >
+                                <FileText className="h-3.5 w-3.5 text-gray-600 dark:text-gray-400" />
                               </button>
-                              <button className="p-1 hover:bg-red-50 dark:hover:bg-red-900/20 rounded" title="Eliminar">
-                                <Trash2 className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />
+                              <button
+                                type="button"
+                                className="rounded p-1 hover:bg-red-50 dark:hover:bg-red-900/20"
+                                aria-label="Eliminar"
+                              >
+                                <Trash2 className="h-3.5 w-3.5 text-red-600 dark:text-red-400" />
                               </button>
                             </div>
                           </td>
@@ -405,23 +438,22 @@ export default function RegisterPayment() {
                   </table>
                 </div>
 
-                {/* Footer con totales */}
-                <div className="border-t-2 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900/50 px-4 py-3">
-                  <div className="flex justify-center items-center gap-12 text-sm">
+                <div className="border-t-2 border-gray-300 bg-gray-50 px-4 py-3 dark:border-gray-600 dark:bg-gray-900/50">
+                  <div className="flex items-center justify-center gap-12 text-sm">
                     <div className="text-center">
-                      <div className="text-gray-600 dark:text-gray-400 mb-1">TOTAL COBRADO</div>
+                      <div className="mb-1 text-gray-600 dark:text-gray-400">TOTAL COBRADO</div>
                       <div className="text-xl font-bold text-gray-900 dark:text-white">
                         USD {totalCobrado.toFixed(2)}
                       </div>
                     </div>
                     <div className="text-center">
-                      <div className="text-gray-600 dark:text-gray-400 mb-1">TOTAL COMISION</div>
+                      <div className="mb-1 text-gray-600 dark:text-gray-400">TOTAL COMISION</div>
                       <div className="text-xl font-bold text-gray-900 dark:text-white">
                         USD {totalComision.toFixed(2)}
                       </div>
                     </div>
                     <div className="text-center">
-                      <div className="text-gray-600 dark:text-gray-400 mb-1">TOTAL NETO</div>
+                      <div className="mb-1 text-gray-600 dark:text-gray-400">TOTAL NETO</div>
                       <div className="text-xl font-bold text-blue-600 dark:text-blue-400">
                         USD {totalNeto.toFixed(2)}
                       </div>
@@ -429,112 +461,29 @@ export default function RegisterPayment() {
                   </div>
                 </div>
 
-                {/* Paginación */}
-                <div className="px-4 py-2 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
-                  <div>
-                    Mostrando de 1 al 1 de un total de 1
-                  </div>
+                <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-2 text-xs text-gray-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">
+                  <div>Mostrando de 1 al 1 de un total de 1</div>
                   <div className="flex items-center gap-2">
                     <button
-                      className="w-8 h-8 flex items-center justify-center border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50"
+                      type="button"
+                      className="flex h-8 w-8 items-center justify-center rounded border border-gray-300 hover:bg-gray-100 disabled:opacity-50 dark:border-gray-600 dark:hover:bg-gray-700"
                       disabled={currentPage === 1}
-                      onClick={() => setCurrentPage(currentPage - 1)}
+                      onClick={() => setCurrentPage((page) => page - 1)}
                     >
-                      <ChevronLeft className="w-4 h-4" />
+                      <ChevronLeft className="h-4 w-4" />
                     </button>
-                    <button className="w-8 h-8 flex items-center justify-center bg-blue-600 text-white rounded font-medium">
+                    <button
+                      type="button"
+                      className="flex h-8 w-8 items-center justify-center rounded bg-blue-600 font-medium text-white"
+                    >
                       {currentPage}
                     </button>
                     <button
-                      className="w-8 h-8 flex items-center justify-center border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
-                      onClick={() => setCurrentPage(currentPage + 1)}
+                      type="button"
+                      className="flex h-8 w-8 items-center justify-center rounded border border-gray-300 hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-700"
+                      onClick={() => setCurrentPage((page) => page + 1)}
                     >
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* Tab: Promesas de pago */}
-          {activeTab === 'promises' && (
-            <>
-              {/* Toolbar */}
-              <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-t-lg px-4 py-2 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <select
-                    value={pageSize}
-                    onChange={(e) => setPageSize(Number(e.target.value))}
-                    className="h-7 px-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded text-xs focus:ring-1 focus:ring-blue-500"
-                  >
-                    <option value={15}>15</option>
-                    <option value={25}>25</option>
-                    <option value={50}>50</option>
-                  </select>
-                  <button className="p-1.5 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600">
-                    <List className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-                <button className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-xs hover:bg-gray-200 dark:hover:bg-gray-600">
-                  Buscar
-                </button>
-              </div>
-
-              {/* Tabla vacía */}
-              <div className="bg-white dark:bg-gray-800 border-x border-b border-gray-200 dark:border-gray-700 rounded-b-lg">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-xs">
-                    <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
-                      <tr>
-                        <th className="text-left px-3 py-2.5 font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-200 dark:border-gray-700">
-                          ID ▲
-                        </th>
-                        <th className="text-left px-3 py-2.5 font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-200 dark:border-gray-700">
-                          CLIENTE
-                        </th>
-                        <th className="text-left px-3 py-2.5 font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-200 dark:border-gray-700">
-                          # FACTURA
-                        </th>
-                        <th className="text-left px-3 py-2.5 font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-200 dark:border-gray-700">
-                          FECHA
-                        </th>
-                        <th className="text-left px-3 py-2.5 font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-200 dark:border-gray-700">
-                          FECHA CORTE
-                        </th>
-                        <th className="text-left px-3 py-2.5 font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-200 dark:border-gray-700">
-                          OPERADOR
-                        </th>
-                        <th className="text-left px-3 py-2.5 font-semibold text-gray-700 dark:text-gray-300">
-                          DESCRIPCIÓN
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td colSpan={7} className="px-3 py-12 text-center text-gray-500 dark:text-gray-400">
-                          Ningún registro disponible
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* Footer */}
-                <div className="px-4 py-2 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
-                  <div>Mostrando 0 registros</div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      className="w-8 h-8 flex items-center justify-center border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50"
-                      disabled
-                    >
-                      <ChevronLeft className="w-4 h-4" />
-                    </button>
-                    <button
-                      className="w-8 h-8 flex items-center justify-center border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50"
-                      disabled
-                    >
-                      <ChevronRight className="w-4 h-4" />
+                      <ChevronRight className="h-4 w-4" />
                     </button>
                   </div>
                 </div>
@@ -546,29 +495,27 @@ export default function RegisterPayment() {
     );
   }
 
-  // Si es tema WispHub, mostrar formulario original
   return (
     <div>
-      {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Registrar Pago</h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-1">Registra un pago manual de cliente</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Registrar pago</h1>
+        <p className="mt-1 text-gray-600 dark:text-gray-400">
+          Registra un pago manual de cliente
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Formulario */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <Card>
             <CardHeader>
-              <CardTitle>Información del Pago</CardTitle>
+              <CardTitle>Informacion del pago</CardTitle>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Cliente */}
                 <div>
                   <Label htmlFor="client">Cliente *</Label>
                   <Select value={selectedClient} onValueChange={setSelectedClient}>
-                    <SelectTrigger>
+                    <SelectTrigger id="client">
                       <SelectValue placeholder="Selecciona un cliente" />
                     </SelectTrigger>
                     <SelectContent>
@@ -581,16 +528,15 @@ export default function RegisterPayment() {
                   </Select>
                 </div>
 
-                {/* Factura */}
                 {selectedClient && (
                   <div>
                     <Label htmlFor="invoice">Factura (Opcional)</Label>
                     <Select value={selectedInvoice} onValueChange={setSelectedInvoice}>
-                      <SelectTrigger>
+                      <SelectTrigger id="invoice">
                         <SelectValue placeholder="Selecciona una factura o pago general" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="none">Pago General (sin factura)</SelectItem>
+                        <SelectItem value="none">Pago general (sin factura)</SelectItem>
                         {invoices.map((invoice) => (
                           <SelectItem key={invoice.id} value={invoice.id}>
                             {invoice.folio} - {formatCurrency(invoice.amount)}
@@ -601,24 +547,22 @@ export default function RegisterPayment() {
                   </div>
                 )}
 
-                {/* Método de pago */}
                 <div>
-                  <Label htmlFor="method">Método de Pago *</Label>
+                  <Label htmlFor="method">Metodo de pago *</Label>
                   <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecciona método" />
+                    <SelectTrigger id="method">
+                      <SelectValue placeholder="Selecciona metodo" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="cash">Efectivo</SelectItem>
                       <SelectItem value="transfer">Transferencia</SelectItem>
                       <SelectItem value="card">Tarjeta</SelectItem>
                       <SelectItem value="check">Cheque</SelectItem>
-                      <SelectItem value="deposit">Depósito</SelectItem>
+                      <SelectItem value="deposit">Deposito</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
-                {/* Monto */}
                 <div>
                   <Label htmlFor="amount">Monto *</Label>
                   <Input
@@ -626,54 +570,44 @@ export default function RegisterPayment() {
                     type="number"
                     placeholder="0.00"
                     value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
+                    onChange={(event) => setAmount(event.target.value)}
                     min="0"
                     step="0.01"
                   />
                   {selectedInvoiceData && (
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                       Monto de factura: {formatCurrency(selectedInvoiceData.amount)}
                     </p>
                   )}
                 </div>
 
-                {/* Referencia */}
                 <div>
                   <Label htmlFor="reference">Referencia / Folio</Label>
                   <Input
                     id="reference"
                     placeholder="Ej: 123456789"
                     value={reference}
-                    onChange={(e) => setReference(e.target.value)}
+                    onChange={(event) => setReference(event.target.value)}
                   />
                 </div>
 
-                {/* Notas */}
                 <div>
                   <Label htmlFor="notes">Notas</Label>
                   <Textarea
                     id="notes"
-                    placeholder="Información adicional del pago..."
+                    placeholder="Informacion adicional del pago..."
                     value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
+                    onChange={(event) => setNotes(event.target.value)}
                     rows={3}
                   />
                 </div>
 
-                {/* Botones */}
                 <div className="flex gap-3 pt-4">
                   <Button type="submit" className="flex-1">
-                    <CreditCard className="w-4 h-4 mr-2" />
-                    Registrar Pago
+                    <CreditCard className="mr-2 h-4 w-4" />
+                    Registrar pago
                   </Button>
-                  <Button type="button" variant="outline" onClick={() => {
-                    setSelectedClient('');
-                    setSelectedInvoice('');
-                    setPaymentMethod('');
-                    setAmount('');
-                    setReference('');
-                    setNotes('');
-                  }}>
+                  <Button type="button" variant="outline" onClick={resetForm}>
                     Cancelar
                   </Button>
                 </div>
@@ -682,7 +616,6 @@ export default function RegisterPayment() {
           </Card>
         </div>
 
-        {/* Panel lateral */}
         <div>
           <Card>
             <CardHeader>
@@ -693,26 +626,28 @@ export default function RegisterPayment() {
                 {selectedClient ? (
                   <>
                     <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Cliente seleccionado</p>
-                      <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">
-                        {clients.find(c => c.id === selectedClient)?.name}
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Cliente seleccionado
+                      </p>
+                      <p className="mt-1 text-sm font-medium text-gray-900 dark:text-white">
+                        {clients.find((client) => client.id === selectedClient)?.name}
                       </p>
                     </div>
                     {selectedInvoiceData && (
                       <div>
                         <p className="text-sm text-gray-600 dark:text-gray-400">Factura</p>
-                        <p className="text-sm font-medium text-gray-900 dark:text-white mt-1">
+                        <p className="mt-1 text-sm font-medium text-gray-900 dark:text-white">
                           {selectedInvoiceData.folio}
                         </p>
-                        <p className="text-lg font-bold text-blue-600 dark:text-blue-400 mt-1">
+                        <p className="mt-1 text-lg font-bold text-blue-600 dark:text-blue-400">
                           {formatCurrency(selectedInvoiceData.amount)}
                         </p>
                       </div>
                     )}
                   </>
                 ) : (
-                  <div className="text-center py-8">
-                    <Search className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+                  <div className="py-8 text-center">
+                    <Search className="mx-auto mb-3 h-12 w-12 text-gray-300 dark:text-gray-600" />
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       Selecciona un cliente para continuar
                     </p>
@@ -724,7 +659,7 @@ export default function RegisterPayment() {
 
           <Card className="mt-4">
             <CardHeader>
-              <CardTitle className="text-base">Métodos de Pago</CardTitle>
+              <CardTitle className="text-base">Metodos de pago</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2 text-sm">

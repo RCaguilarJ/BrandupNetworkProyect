@@ -7,8 +7,6 @@ import {
 import {
   ArrowUpDown,
   Bell,
-  Building2,
-  Calendar,
   CheckCircle,
   ChevronDown,
   ChevronRight,
@@ -75,12 +73,6 @@ const navigationItems: NavItem[] = [
     ],
   },
   {
-    name: "Empresas",
-    path: "/companies",
-    icon: <Building2 className="h-5 w-5" />,
-    roles: ["super_admin"],
-  },
-  {
     name: "Clientes",
     path: "/clients",
     icon: <Users className="h-5 w-5" />,
@@ -119,6 +111,12 @@ const navigationItems: NavItem[] = [
         roles: ["super_admin", "isp_admin", "cobranza"],
       },
       {
+        name: "Facturacion electronica",
+        path: "/billing/electronic-billing",
+        icon: <FileText className="h-4 w-4" />,
+        roles: ["super_admin", "isp_admin", "cobranza"],
+      },
+      {
         name: "Facturas Pendientes",
         path: "/billing/pending-invoices",
         icon: <Clock className="h-4 w-4" />,
@@ -128,6 +126,18 @@ const navigationItems: NavItem[] = [
         name: "Registrar Pago",
         path: "/billing/register-payment",
         icon: <CreditCard className="h-4 w-4" />,
+        roles: ["super_admin", "isp_admin", "cobranza"],
+      },
+      {
+        name: "Registrar pagos masivos",
+        path: "/billing/register-bulk-payments",
+        icon: <CreditCard className="h-4 w-4" />,
+        roles: ["super_admin", "isp_admin", "cobranza"],
+      },
+      {
+        name: "Transacciones",
+        path: "/billing/transactions",
+        icon: <ArrowUpDown className="h-4 w-4" />,
         roles: ["super_admin", "isp_admin", "cobranza"],
       },
       {
@@ -148,12 +158,6 @@ const navigationItems: NavItem[] = [
         icon: <ArrowUpDown className="h-4 w-4" />,
         roles: ["super_admin", "isp_admin", "cobranza"],
       },
-      {
-        name: "Promesas",
-        path: "/billing/promises",
-        icon: <Calendar className="h-4 w-4" />,
-        roles: ["super_admin", "isp_admin", "cobranza"],
-      },
     ],
   },
   {
@@ -161,6 +165,12 @@ const navigationItems: NavItem[] = [
     path: "/payment-methods",
     icon: <Wallet className="h-5 w-5" />,
     roles: ["super_admin", "isp_admin"],
+  },
+  {
+    name: "Tareas",
+    path: "/tasks",
+    icon: <List className="h-5 w-5" />,
+    roles: ["super_admin", "isp_admin", "soporte", "tecnico"],
   },
   {
     name: "Tickets",
