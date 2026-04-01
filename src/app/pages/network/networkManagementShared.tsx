@@ -78,6 +78,7 @@ export function NetworkPageShell({
   isWispHub,
   breadcrumb,
   children,
+  eyebrow,
   showHeaderActions = true,
   showMikrosystemHeader = true,
 }: {
@@ -85,6 +86,7 @@ export function NetworkPageShell({
   isWispHub: boolean;
   breadcrumb: string;
   children: ReactNode;
+  eyebrow?: string;
   showHeaderActions?: boolean;
   showMikrosystemHeader?: boolean;
 }) {
@@ -94,9 +96,11 @@ export function NetworkPageShell({
         <header className="border-b border-[#d7dde5] px-3 py-6">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#45bf63]">
-                Gestion de red
-              </p>
+              {eyebrow ? (
+                <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#45bf63]">
+                  {eyebrow}
+                </p>
+              ) : null}
               <h1 className="mt-2 text-[30px] font-semibold text-[#15263b]">
                 {title}
               </h1>

@@ -8,11 +8,17 @@
   --view-primary-hover: #2563eb;
   --view-sidebar-bg: #2D353C;
   --view-header-bg: #1e40af;
+  --view-page-bg: #D9E7F3;
 }
 
 .dark.view-mikrosystem {
   --view-sidebar-bg: #2D353C;
   --view-header-bg: #1e3a8a;
+}
+
+html.view-mikrosystem,
+html.view-mikrosystem body {
+  background: var(--view-page-bg) !important;
 }
 
 /* Sidebar Mikrosystem */

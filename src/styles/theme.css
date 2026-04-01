@@ -145,6 +145,20 @@
   }
 }
 
+/**
+ * Hides native scrollbars while preserving scroll behavior.
+ * Used in the side navigation to avoid visual rails in the dark menu.
+ */
+.scrollbar-hidden {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

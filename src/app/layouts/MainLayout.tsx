@@ -7,6 +7,8 @@ import {
 import {
   ArrowUpDown,
   Bell,
+  Boxes,
+  CalendarDays,
   CheckCircle,
   Circle,
   ChevronDown,
@@ -16,6 +18,7 @@ import {
   Globe,
   DollarSign,
   FileText,
+  HandCoins,
   Headset,
   Home,
   KeyRound,
@@ -23,17 +26,17 @@ import {
   LogOut,
   MapPin,
   Menu,
+  MessageCircleMore,
   Monitor,
   Network,
-  Package,
   Search,
   Send,
   Settings,
+  Star,
   Ticket,
   TrendingUp,
   User,
   Users,
-  Wallet,
   Wifi,
   X,
 } from "lucide-react";
@@ -49,6 +52,7 @@ import {
   DropdownMenuTrigger,
 } from "../components/ui/dropdown-menu";
 import { useAuth } from "../context/AuthContext";
+import { useViewTheme } from "../context/ViewThemeContext";
 import { useConfiguredLoginBackground } from "../lib/login-background";
 import { toast } from "sonner";
 import logo from "../../assets/logo_admin.png";
@@ -63,7 +67,7 @@ interface NavItem {
 
 const navigationItems: NavItem[] = [
   {
-    name: "Dashboard",
+    name: "Inicio",
     path: "/dashboard",
     icon: <Home className="h-5 w-5" />,
     roles: [
@@ -73,138 +77,6 @@ const navigationItems: NavItem[] = [
       "soporte",
       "tecnico",
       "cliente",
-    ],
-  },
-  {
-    name: "Clientes",
-    path: "/clients",
-    icon: <Users className="h-5 w-5" />,
-    roles: ["super_admin", "isp_admin", "cobranza", "soporte"],
-    subItems: [
-      {
-        name: "Lista de Clientes",
-        path: "/clients",
-        icon: <List className="h-4 w-4" />,
-        roles: ["super_admin", "isp_admin", "cobranza", "soporte"],
-      },
-      {
-        name: "Mapa de Clientes",
-        path: "/clients/map",
-        icon: <MapPin className="h-4 w-4" />,
-        roles: ["super_admin", "isp_admin", "cobranza", "soporte"],
-      },
-    ],
-  },
-  {
-    name: "Planes y Servicios",
-    path: "/plans",
-    icon: <Package className="h-5 w-5" />,
-    roles: ["super_admin", "isp_admin"],
-  },
-  {
-    name: "Facturacion",
-    path: "/billing",
-    icon: <CreditCard className="h-5 w-5" />,
-    roles: ["super_admin", "isp_admin", "cobranza"],
-    subItems: [
-      {
-        name: "Lista de Facturas",
-        path: "/billing/invoices",
-        icon: <FileText className="h-4 w-4" />,
-        roles: ["super_admin", "isp_admin", "cobranza"],
-      },
-      {
-        name: "Facturacion electronica",
-        path: "/billing/electronic-billing",
-        icon: <FileText className="h-4 w-4" />,
-        roles: ["super_admin", "isp_admin", "cobranza"],
-      },
-      {
-        name: "Facturas Pendientes",
-        path: "/billing/pending-invoices",
-        icon: <Clock className="h-4 w-4" />,
-        roles: ["super_admin", "isp_admin", "cobranza"],
-      },
-      {
-        name: "Registrar Pago",
-        path: "/billing/register-payment",
-        icon: <CreditCard className="h-4 w-4" />,
-        roles: ["super_admin", "isp_admin", "cobranza"],
-      },
-      {
-        name: "Registrar pagos masivos",
-        path: "/billing/register-bulk-payments",
-        icon: <CreditCard className="h-4 w-4" />,
-        roles: ["super_admin", "isp_admin", "cobranza"],
-      },
-      {
-        name: "Transacciones",
-        path: "/billing/transactions",
-        icon: <ArrowUpDown className="h-4 w-4" />,
-        roles: ["super_admin", "isp_admin", "cobranza"],
-      },
-      {
-        name: "Cobranzas Realizadas",
-        path: "/billing/completed-payments",
-        icon: <CheckCircle className="h-4 w-4" />,
-        roles: ["super_admin", "isp_admin", "cobranza"],
-      },
-      {
-        name: "Estadisticas",
-        path: "/billing/stats",
-        icon: <TrendingUp className="h-4 w-4" />,
-        roles: ["super_admin", "isp_admin", "cobranza"],
-      },
-      {
-        name: "Otros Ingresos y Egresos",
-        path: "/billing/other-income-expenses",
-        icon: <ArrowUpDown className="h-4 w-4" />,
-        roles: ["super_admin", "isp_admin", "cobranza"],
-      },
-    ],
-  },
-  {
-    name: "Metodos de Pago",
-    path: "/payment-methods",
-    icon: <Wallet className="h-5 w-5" />,
-    roles: ["super_admin", "isp_admin"],
-  },
-  {
-    name: "Tareas",
-    path: "/tasks",
-    icon: <List className="h-5 w-5" />,
-    roles: ["super_admin", "isp_admin", "soporte", "tecnico"],
-  },
-  {
-    name: "Tickets",
-    path: "/tickets",
-    icon: <Ticket className="h-5 w-5" />,
-    roles: ["super_admin", "isp_admin", "soporte", "cliente"],
-    subItems: [
-      {
-        name: "Todos los Tickets",
-        path: "/tickets",
-        icon: <List className="h-4 w-4" />,
-        roles: ["super_admin", "isp_admin", "soporte", "cliente"],
-      },
-      {
-        name: "Tickets de Hoy",
-        path: "/tickets/today",
-        icon: <Clock className="h-4 w-4" />,
-        roles: ["super_admin", "isp_admin", "soporte"],
-      },
-      {
-        name: "Tickets en Proceso",
-        path: "/tickets/in-progress",
-        icon: <Clock className="h-4 w-4" />,
-        roles: ["super_admin", "isp_admin", "soporte"],
-      },
-      {
-        name: "Tickets Finalizados",
-        path: "/tickets/completed",
-        icon: <CheckCircle className="h-4 w-4" />,
-        roles: ["super_admin", "isp_admin", "soporte"],
-      },
     ],
   },
   {
@@ -276,6 +148,32 @@ const navigationItems: NavItem[] = [
     ],
   },
   {
+    name: "Servicios",
+    path: "/plans",
+    icon: <Star className="h-5 w-5" />,
+    roles: ["super_admin", "isp_admin"],
+  },
+  {
+    name: "Clientes",
+    path: "/clients",
+    icon: <Users className="h-5 w-5" />,
+    roles: ["super_admin", "isp_admin", "cobranza", "soporte"],
+    subItems: [
+      {
+        name: "Lista de Clientes",
+        path: "/clients",
+        icon: <List className="h-4 w-4" />,
+        roles: ["super_admin", "isp_admin", "cobranza", "soporte"],
+      },
+      {
+        name: "Mapa de Clientes",
+        path: "/clients/map",
+        icon: <MapPin className="h-4 w-4" />,
+        roles: ["super_admin", "isp_admin", "cobranza", "soporte"],
+      },
+    ],
+  },
+  {
     name: "Fichas Hotspot",
     path: "/hotspot",
     icon: <Wifi className="h-5 w-5" />,
@@ -302,7 +200,159 @@ const navigationItems: NavItem[] = [
     ],
   },
   {
-    name: "Configuracion",
+    name: "Tareas",
+    path: "/tasks",
+    icon: <CalendarDays className="h-5 w-5" />,
+    roles: ["super_admin", "isp_admin", "soporte", "tecnico"],
+  },
+  {
+    name: "Finanzas",
+    path: "/billing",
+    icon: <HandCoins className="h-5 w-5" />,
+    roles: ["super_admin", "isp_admin", "cobranza"],
+    subItems: [
+      {
+        name: "Lista de Facturas",
+        path: "/billing/invoices",
+        icon: <FileText className="h-4 w-4" />,
+        roles: ["super_admin", "isp_admin", "cobranza"],
+      },
+      {
+        name: "Facturacion electronica",
+        path: "/billing/electronic-billing",
+        icon: <FileText className="h-4 w-4" />,
+        roles: ["super_admin", "isp_admin", "cobranza"],
+      },
+      {
+        name: "Facturas Pendientes",
+        path: "/billing/pending-invoices",
+        icon: <Clock className="h-4 w-4" />,
+        roles: ["super_admin", "isp_admin", "cobranza"],
+      },
+      {
+        name: "Registrar Pago",
+        path: "/billing/register-payment",
+        icon: <CreditCard className="h-4 w-4" />,
+        roles: ["super_admin", "isp_admin", "cobranza"],
+      },
+      {
+        name: "Registrar pagos masivos",
+        path: "/billing/register-bulk-payments",
+        icon: <CreditCard className="h-4 w-4" />,
+        roles: ["super_admin", "isp_admin", "cobranza"],
+      },
+      {
+        name: "Transacciones",
+        path: "/billing/transactions",
+        icon: <ArrowUpDown className="h-4 w-4" />,
+        roles: ["super_admin", "isp_admin", "cobranza"],
+      },
+      {
+        name: "Cobranzas Realizadas",
+        path: "/billing/completed-payments",
+        icon: <CheckCircle className="h-4 w-4" />,
+        roles: ["super_admin", "isp_admin", "cobranza"],
+      },
+      {
+        name: "Estadisticas",
+        path: "/billing/stats",
+        icon: <TrendingUp className="h-4 w-4" />,
+        roles: ["super_admin", "isp_admin", "cobranza"],
+      },
+      {
+        name: "Otros Ingresos y Egresos",
+        path: "/billing/other-income-expenses",
+        icon: <ArrowUpDown className="h-4 w-4" />,
+        roles: ["super_admin", "isp_admin", "cobranza"],
+      },
+    ],
+  },
+  {
+    name: "Almacen",
+    path: "/warehouse",
+    icon: <Boxes className="h-5 w-5" />,
+    roles: ["super_admin", "isp_admin"],
+    subItems: [
+      {
+        name: "Tipos de Productos",
+        path: "/warehouse/tipos-productos",
+        icon: <Circle className="h-3 w-3" />,
+        roles: ["super_admin", "isp_admin"],
+      },
+      {
+        name: "Proveedores",
+        path: "/warehouse/proveedores",
+        icon: <Circle className="h-3 w-3" />,
+        roles: ["super_admin", "isp_admin"],
+      },
+      {
+        name: "Productos",
+        path: "/warehouse/productos",
+        icon: <Circle className="h-3 w-3" />,
+        roles: ["super_admin", "isp_admin"],
+      },
+    ],
+  },
+  {
+    name: "Tickets",
+    path: "/tickets",
+    icon: <Ticket className="h-5 w-5" />,
+    roles: ["super_admin", "isp_admin", "soporte", "cliente"],
+    subItems: [
+      {
+        name: "Todos los Tickets",
+        path: "/tickets",
+        icon: <List className="h-4 w-4" />,
+        roles: ["super_admin", "isp_admin", "soporte", "cliente"],
+      },
+      {
+        name: "Tickets de Hoy",
+        path: "/tickets/today",
+        icon: <Clock className="h-4 w-4" />,
+        roles: ["super_admin", "isp_admin", "soporte"],
+      },
+      {
+        name: "Tickets en Proceso",
+        path: "/tickets/in-progress",
+        icon: <Clock className="h-4 w-4" />,
+        roles: ["super_admin", "isp_admin", "soporte"],
+      },
+      {
+        name: "Tickets Finalizados",
+        path: "/tickets/completed",
+        icon: <CheckCircle className="h-4 w-4" />,
+        roles: ["super_admin", "isp_admin", "soporte"],
+      },
+    ],
+  },
+  {
+    name: "Mensajeria",
+    path: "/messaging",
+    icon: <MessageCircleMore className="h-5 w-5" />,
+    roles: ["super_admin", "isp_admin", "soporte"],
+    subItems: [
+      {
+        name: "Chat whatsapp",
+        path: "/messaging/chat-whatsapp",
+        icon: <Circle className="h-3 w-3" />,
+        roles: ["super_admin", "isp_admin", "soporte"],
+      },
+      {
+        name: "Mensajes enviados",
+        path: "/messaging/mensajes-enviados",
+        icon: <Circle className="h-3 w-3" />,
+        roles: ["super_admin", "isp_admin", "soporte"],
+      },
+      {
+        name: "Mensajes recibidos",
+        path: "/messaging/mensajes-recibidos",
+        icon: <Circle className="h-3 w-3" />,
+        roles: ["super_admin", "isp_admin", "soporte"],
+      },
+    ],
+  },
+  {
+    name: "Ajustes",
     path: "/settings",
     icon: <Settings className="h-5 w-5" />,
     roles: ["super_admin", "isp_admin"],
@@ -322,6 +372,7 @@ function matchesPath(currentPath: string, itemPath: string) {
 
 export default function MainLayout() {
   const { user, logout } = useAuth();
+  const { viewTheme } = useViewTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const sidebarBackgroundUrl = useConfiguredLoginBackground(
@@ -552,7 +603,7 @@ export default function MainLayout() {
         Menu
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-3 py-3">
+      <nav className="scrollbar-hidden flex-1 overflow-y-auto px-3 py-3">
         {filteredNavigation.map((item) =>
           renderNavItem(item, isMobile),
         )}
@@ -561,8 +612,14 @@ export default function MainLayout() {
   );
 
   return (
-    <div className="min-h-screen bg-[#eef2f6] dark:bg-gray-900">
-      <aside className="sidebar fixed inset-y-0 left-0 hidden w-64 border-r border-[#1f2529] pt-28 lg:block">
+    <div
+      className={`min-h-screen dark:bg-gray-900 ${
+        viewTheme === "mikrosystem"
+          ? "bg-[#D9E7F3]"
+          : "bg-[#eef2f6]"
+      }`}
+    >
+      <aside className="sidebar fixed inset-y-0 left-0 hidden w-64 border-r border-[#1f2529] pt-16 lg:block">
         {renderSidebarContent()}
       </aside>
 
@@ -572,78 +629,78 @@ export default function MainLayout() {
             className="fixed inset-0 z-40 bg-black/50 lg:hidden"
             onClick={() => setSidebarOpen(false)}
           />
-          <aside className="sidebar fixed inset-y-0 left-0 z-50 w-64 border-r border-[#1f2529] pt-28 lg:hidden">
+          <aside className="sidebar fixed inset-y-0 left-0 z-50 w-64 border-r border-[#1f2529] pt-16 lg:hidden">
             {renderSidebarContent(true)}
           </aside>
         </>
       )}
 
       <header className="fixed left-0 right-0 top-0 z-40 w-full border-b border-gray-200 bg-white/95 shadow-sm backdrop-blur dark:border-gray-700 dark:bg-gray-900/95">
-        <div className="flex h-28 items-center justify-between gap-5 px-4 md:px-6">
-          <div className="flex items-center gap-4">
+        <div className="flex h-16 items-center justify-between gap-4 px-3 md:px-5">
+          <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="p-2.5 lg:hidden"
+              className="p-2 lg:hidden"
               title="Abrir menu"
               aria-label="Abrir menu de navegacion"
             >
-              <Menu className="h-7 w-7" />
+              <Menu className="h-5 w-5" />
             </button>
 
             <img
               src={logo}
               alt="BRANDUP Network"
-              className="h-24 w-auto object-contain md:h-28"
+              className="h-11 w-auto object-contain md:h-12"
             />
           </div>
 
-          <div className="flex flex-1 items-center justify-end gap-3 md:gap-4">
-            <div className="relative hidden w-full max-w-xs md:block lg:max-w-sm">
-              <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+          <div className="flex flex-1 items-center justify-end gap-2 md:gap-3">
+            <div className="relative hidden w-full max-w-xs md:block lg:max-w-[310px]">
+              <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
               <input
                 type="search"
                 placeholder="Buscar Cliente..."
-                className="h-11 w-full rounded-full border border-gray-200 bg-gray-50 pl-12 pr-4 text-sm text-gray-700 outline-none transition focus:border-cyan-300 focus:bg-white focus:ring-2 focus:ring-cyan-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:focus:border-cyan-500 dark:focus:bg-gray-900 dark:focus:ring-cyan-900/40"
+                className="h-9 w-full rounded-full border border-gray-200 bg-gray-50 pl-10 pr-4 text-sm text-gray-700 outline-none transition focus:border-cyan-300 focus:bg-white focus:ring-2 focus:ring-cyan-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:focus:border-cyan-500 dark:focus:bg-gray-900 dark:focus:ring-cyan-900/40"
               />
             </div>
 
-            <div className="hidden items-center gap-2 sm:flex md:gap-3">
+            <div className="hidden items-center gap-1.5 sm:flex md:gap-2">
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-11 w-11 rounded-full p-0 text-gray-600 hover:bg-gray-100 hover:text-cyan-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-cyan-400"
+                className="h-9 w-9 rounded-full p-0 text-gray-600 hover:bg-gray-100 hover:text-cyan-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-cyan-400"
                 title="Mensajes"
                 aria-label="Mensajes"
               >
-                <Send className="h-5 w-5" />
+                <Send className="h-4 w-4" />
               </Button>
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-11 w-11 rounded-full p-0 text-gray-600 hover:bg-gray-100 hover:text-cyan-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-cyan-400"
+                className="h-9 w-9 rounded-full p-0 text-gray-600 hover:bg-gray-100 hover:text-cyan-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-cyan-400"
                 title="Facturacion"
                 aria-label="Facturacion"
               >
-                <DollarSign className="h-5 w-5" />
+                <DollarSign className="h-4 w-4" />
               </Button>
               <Button
                 variant="ghost"
                 size="sm"
-                className="relative h-11 w-11 rounded-full p-0 text-gray-600 hover:bg-gray-100 hover:text-cyan-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-cyan-400"
+                className="relative h-9 w-9 rounded-full p-0 text-gray-600 hover:bg-gray-100 hover:text-cyan-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-cyan-400"
                 title="Notificaciones"
                 aria-label="Notificaciones"
               >
-                <Bell className="h-5 w-5" />
-                <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500" />
+                <Bell className="h-4 w-4" />
+                <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500" />
               </Button>
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-11 w-11 rounded-full p-0 text-gray-600 hover:bg-gray-100 hover:text-cyan-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-cyan-400"
+                className="h-9 w-9 rounded-full p-0 text-gray-600 hover:bg-gray-100 hover:text-cyan-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-cyan-400"
                 title="Soporte"
                 aria-label="Soporte"
               >
-                <Headset className="h-5 w-5" />
+                <Headset className="h-4 w-4" />
               </Button>
               <ViewThemeSelector />
             </div>
@@ -651,10 +708,10 @@ export default function MainLayout() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
-                  className="flex items-center gap-3 rounded-full border border-transparent px-2 py-1.5 transition hover:border-gray-200 hover:bg-gray-50 dark:hover:border-gray-700 dark:hover:bg-gray-800"
+                  className="flex items-center gap-2 rounded-full border border-transparent px-1.5 py-1 transition hover:border-gray-200 hover:bg-gray-50 dark:hover:border-gray-700 dark:hover:bg-gray-800"
                   aria-label="Abrir menu de usuario"
                 >
-                  <Avatar className="h-11 w-11 border border-cyan-100 bg-cyan-500 text-white">
+                  <Avatar className="h-9 w-9 border border-cyan-100 bg-cyan-500 text-white">
                     <AvatarFallback className="bg-cyan-500 text-sm font-semibold tracking-wide text-white">
                       {userInitials}
                     </AvatarFallback>
@@ -662,7 +719,7 @@ export default function MainLayout() {
                   <span className="hidden text-sm font-medium text-gray-700 md:inline dark:text-gray-200">
                     {roleLabel}
                   </span>
-                  <ChevronDown className="hidden h-5 w-5 text-gray-500 md:inline" />
+                  <ChevronDown className="hidden h-4 w-4 text-gray-500 md:inline" />
                 </button>
               </DropdownMenuTrigger>
 
@@ -702,7 +759,11 @@ export default function MainLayout() {
         </div>
       </header>
 
-      <div className="flex min-h-screen flex-col gap-0 pt-28 lg:pl-64">
+      <div
+        className={`flex min-h-screen flex-col gap-0 pt-16 lg:pl-64 ${
+          viewTheme === "mikrosystem" ? "bg-[#D9E7F3]" : ""
+        }`}
+      >
         <main className="m-0 flex-1 p-0">
           <Outlet />
         </main>

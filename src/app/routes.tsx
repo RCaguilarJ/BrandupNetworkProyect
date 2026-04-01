@@ -56,6 +56,12 @@ import NetworkSmartOlt from './pages/network/NetworkSmartOlt';
 import NetworkTraffic from './pages/network/NetworkTraffic';
 import NetworkTrapemn from './pages/network/NetworkTrapemn';
 import NetworkVisitedIps from './pages/network/NetworkVisitedIps';
+import MessagingChatWhatsapp from './pages/messaging/MessagingChatWhatsapp';
+import MessagingSent from './pages/messaging/MessagingSent';
+import MessagingReceived from './pages/messaging/MessagingReceived';
+import WarehouseProductTypes from './pages/warehouse/WarehouseProductTypes';
+import WarehouseSuppliers from './pages/warehouse/WarehouseSuppliers';
+import WarehouseProducts from './pages/warehouse/WarehouseProducts';
 
 // HOC para proteger rutas
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -126,6 +132,14 @@ export const router = createBrowserRouter([
       { path: 'hotspot/routers', element: <HotspotRouters /> },
       { path: 'hotspot/plantillas', element: <HotspotTemplates /> },
       { path: 'tasks', element: <Tasks /> },
+      { path: 'warehouse', element: <Navigate to="/warehouse/tipos-productos" replace /> },
+      { path: 'warehouse/tipos-productos', element: <WarehouseProductTypes /> },
+      { path: 'warehouse/proveedores', element: <WarehouseSuppliers /> },
+      { path: 'warehouse/productos', element: <WarehouseProducts /> },
+      { path: 'messaging', element: <Navigate to="/messaging/chat-whatsapp" replace /> },
+      { path: 'messaging/chat-whatsapp', element: <MessagingChatWhatsapp /> },
+      { path: 'messaging/mensajes-enviados', element: <MessagingSent /> },
+      { path: 'messaging/mensajes-recibidos', element: <MessagingReceived /> },
       { path: 'settings', element: <Settings /> },
       { path: 'settings/general', element: <GeneralSettings /> },
       { path: 'settings/users', element: <UsersManagement /> },
