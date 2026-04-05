@@ -3,6 +3,11 @@ import MainLayout from './layouts/MainLayout';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Clients from './pages/Clients';
+import ClientAnnouncements from './pages/ClientAnnouncements';
+import ClientContracts from './pages/ClientContracts';
+import ClientEmails from './pages/ClientEmails';
+import ClientInstallations from './pages/ClientInstallations';
+import ClientPushNotifications from './pages/ClientPushNotifications';
 import ClientForm from './pages/ClientForm';
 import ClientsMap from './pages/ClientsMap';
 import PlanForm from './pages/PlanForm';
@@ -94,6 +99,11 @@ export const router = createBrowserRouter([
     children: [
       { path: 'dashboard', element: <Dashboard /> },
       { path: 'clients', element: <Clients /> },
+      { path: 'clients/anuncios', element: <ClientAnnouncements /> },
+      { path: 'clients/contratos', element: <ClientContracts /> },
+      { path: 'clients/correos', element: <ClientEmails /> },
+      { path: 'clients/instalaciones', element: <ClientInstallations /> },
+      { path: 'clients/notificaciones-push', element: <ClientPushNotifications /> },
       { path: 'clients/new', element: <ClientForm /> },
       { path: 'clients/:id/edit', element: <ClientForm /> },
       { path: 'clients/map', element: <ClientsMap /> },

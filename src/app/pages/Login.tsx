@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { Loader2, Moon, Sun } from 'lucide-react';
+import { Eye, EyeOff, Loader2, Moon, Sun } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -10,6 +10,7 @@ import logo from '../../assets/logo_admin.png';
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { login } = useAuth();
@@ -116,7 +117,7 @@ export default function Login() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
+              <div className="relative">
                 <label
                   htmlFor="email"
                   className={`mb-1 block text-sm font-medium ${
@@ -138,6 +139,23 @@ export default function Login() {
                   placeholder="usuario@ejemplo.com"
                   required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((current) => !current)}
+                  className={`absolute right-3 top-[38px] rounded-md p-1 transition-colors ${
+                    hasCustomBackground
+                      ? 'text-slate-500 hover:bg-slate-200/70 hover:text-slate-700'
+                      : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white'
+                  }`}
+                  aria-label={showPassword ? 'Ocultar contrasena' : 'Mostrar contrasena'}
+                  title={showPassword ? 'Ocultar contrasena' : 'Mostrar contrasena'}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </button>
               </div>
 
               <div>
@@ -151,10 +169,10 @@ export default function Login() {
                 </label>
                 <input
                   id="password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className={`w-full rounded-xl border px-4 py-3 transition focus:border-transparent focus:ring-2 focus:ring-blue-500 ${
+                  className={`w-full rounded-xl border px-4 py-3 pr-12 transition focus:border-transparent focus:ring-2 focus:ring-blue-500 ${
                     hasCustomBackground
                       ? 'border-white/10 bg-white/90 text-slate-900 placeholder:text-slate-400'
                       : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-500'
