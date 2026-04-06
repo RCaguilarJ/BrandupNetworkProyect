@@ -1,0 +1,89 @@
+.register-bulk-payments {
+  min-height: 100%;
+}
+
+.register-bulk-payments__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.register-bulk-payments--wisphub {
+  background-color: #ffffff;
+  border-top: 4px solid #45bf63;
+  color: #17273d;
+  font-family: "Trebuchet MS", "Segoe UI", Tahoma, Geneva, sans-serif;
+  padding-bottom: 32px;
+}
+
+.register-bulk-payments__header--wisphub {
+  border-bottom: 1px solid #d7dde5;
+  margin-bottom: 20px;
+  padding: 22px 12px 18px;
+}
+
+.register-bulk-payments__card--wisphub {
+  margin: 0 12px 18px;
+  border: 1px solid #d7dde5;
+  background-color: #ffffff;
+}
+
+.register-bulk-payments__button--wisphub-primary,
+.register-bulk-payments__button--wisphub-secondary {
+  height: 36px;
+  padding: 0 16px;
+  font-family: "Trebuchet MS", "Segoe UI", Tahoma, Geneva, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.register-bulk-payments__button--wisphub-primary {
+  border: 1px solid #42b960;
+  background-color: #45bf63;
+  color: #ffffff;
+}
+
+.register-bulk-payments__button--wisphub-secondary {
+  border: 1px solid #cfd6df;
+  background-color: #ffffff;
+  color: #20324a;
+}
+
+.register-bulk-payments__select--wisphub {
+  height: 42px;
+  border: 1px solid #cfd6df;
+  background-color: #ffffff;
+  padding: 0 14px;
+  color: #20324a;
+  font-family: "Trebuchet MS", "Segoe UI", Tahoma, Geneva, sans-serif;
+  font-size: 13px;
+}
+
+.register-bulk-payments--mikrosystem {
+  background-color: #d3dce7;
+  color: #223448;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  padding: 18px 22px 26px;
+}
+
+.register-bulk-payments__card--mikrosystem {
+  width: 100%;
+  max-width: 980px;
+  border: 1px solid #d5dde7;
+  background-color: #ffffff;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04);
+}
+
+.register-bulk-payments__header--mikrosystem {
+  border-bottom: 1px solid #dfe6ee;
+  padding: 16px 20px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #3d556d;
+}

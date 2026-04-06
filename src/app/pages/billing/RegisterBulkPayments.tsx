@@ -1,5 +1,5 @@
-import type { ChangeEvent, CSSProperties } from 'react';
-import { useRef, useState } from 'react';
+import type { ChangeEvent } from 'react';
+import { useId, useRef, useState } from 'react';
 import {
   ChevronDown,
   Download,
@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useViewTheme } from '../../context/ViewThemeContext';
+import './RegisterBulkPayments.css';
 
 const searchOptions = [
   'CEDULA,DNI,RUC,CUIT,NIT,SAT,RUT,RTN,ETC.',
@@ -15,83 +16,6 @@ const searchOptions = [
   'NUMERO DE FACTURA',
   'CORREO ELECTRONICO',
 ] as const;
-
-const wisphubFont =
-  '"Trebuchet MS", "Segoe UI", Tahoma, Geneva, sans-serif';
-
-const wisphubStyles = {
-  page: {
-    minHeight: '100%',
-    backgroundColor: '#ffffff',
-    borderTop: '4px solid #45bf63',
-    color: '#17273d',
-    fontFamily: wisphubFont,
-    paddingBottom: '32px',
-  } satisfies CSSProperties,
-  header: {
-    borderBottom: '1px solid #d7dde5',
-    padding: '22px 12px 18px',
-    marginBottom: '20px',
-  } satisfies CSSProperties,
-  card: {
-    margin: '0 12px 18px',
-    border: '1px solid #d7dde5',
-    backgroundColor: '#ffffff',
-  } satisfies CSSProperties,
-  button: {
-    height: '36px',
-    border: '1px solid #42b960',
-    backgroundColor: '#45bf63',
-    color: '#ffffff',
-    padding: '0 16px',
-    fontFamily: wisphubFont,
-    fontSize: '12px',
-    fontWeight: 700,
-  } satisfies CSSProperties,
-  secondaryButton: {
-    height: '36px',
-    border: '1px solid #cfd6df',
-    backgroundColor: '#ffffff',
-    color: '#20324a',
-    padding: '0 16px',
-    fontFamily: wisphubFont,
-    fontSize: '12px',
-    fontWeight: 700,
-  } satisfies CSSProperties,
-  select: {
-    height: '42px',
-    border: '1px solid #cfd6df',
-    backgroundColor: '#ffffff',
-    padding: '0 14px',
-    color: '#20324a',
-    fontFamily: wisphubFont,
-    fontSize: '13px',
-  } satisfies CSSProperties,
-} as const;
-
-const mikrosystemStyles = {
-  page: {
-    minHeight: '100%',
-    backgroundColor: '#d3dce7',
-    padding: '18px 22px 26px',
-    color: '#223448',
-    fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
-  } satisfies CSSProperties,
-  card: {
-    width: '100%',
-    maxWidth: '980px',
-    border: '1px solid #d5dde7',
-    backgroundColor: '#ffffff',
-    boxShadow: '0 1px 0 rgba(15, 23, 42, 0.04)',
-  } satisfies CSSProperties,
-  header: {
-    borderBottom: '1px solid #dfe6ee',
-    padding: '16px 20px',
-    fontSize: '18px',
-    fontWeight: 700,
-    color: '#3d556d',
-  } satisfies CSSProperties,
-} as const;
 
 function StepMarker({
   step,
@@ -137,6 +61,8 @@ export default function RegisterBulkPayments() {
   const { viewTheme } = useViewTheme();
   const isWispHub = viewTheme === 'wisphub';
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const fileInputId = useId();
+  const searchTypeId = useId();
   const [searchType, setSearchType] = useState<string>(searchOptions[0]);
   const [selectedFileName, setSelectedFileName] = useState('');
 
@@ -171,14 +97,14 @@ export default function RegisterBulkPayments() {
 
   if (isWispHub) {
     return (
-      <div style={wisphubStyles.page}>
-        <header style={wisphubStyles.header}>
+      <div className="register-bulk-payments register-bulk-payments--wisphub">
+        <header className="register-bulk-payments__header register-bulk-payments__header--wisphub">
           <h1 className="text-[30px] font-semibold leading-none text-[#15263b]">
             Pagos masivos
           </h1>
         </header>
 
-        <section style={wisphubStyles.card} className="mx-auto max-w-[980px]">
+        <section className="register-bulk-payments__card register-bulk-payments__card--wisphub mx-auto max-w-[980px]">
           <div className="border-b border-[#dfe6ee] px-5 py-4">
             <h2 className="text-[18px] font-bold text-[#3d556d]">
               Registrar pagos Masivos
@@ -192,10 +118,12 @@ export default function RegisterBulkPayments() {
             </p>
 
             <input
+              id={fileInputId}
               ref={inputRef}
               type="file"
               accept=".xlsx"
-              className="hidden"
+              aria-label="Seleccionar archivo Excel para pagos masivos"
+              className="register-bulk-payments__sr-only"
               onChange={handleFileChange}
             />
 
@@ -207,8 +135,7 @@ export default function RegisterBulkPayments() {
                   <button
                     type="button"
                     onClick={handleTemplateDownload}
-                    style={wisphubStyles.secondaryButton}
-                    className="mt-3 inline-flex items-center gap-2 rounded-[4px]"
+                    className="register-bulk-payments__button register-bulk-payments__button--wisphub-secondary mt-3 inline-flex items-center gap-2 rounded-[4px]"
                   >
                     <Download className="h-4 w-4" />
                     Descargar Plantilla Excel
@@ -223,8 +150,8 @@ export default function RegisterBulkPayments() {
                   <button
                     type="button"
                     onClick={handleUploadClick}
-                    style={wisphubStyles.secondaryButton}
-                    className="mt-3 inline-flex items-center gap-2 rounded-[4px]"
+                    aria-controls={fileInputId}
+                    className="register-bulk-payments__button register-bulk-payments__button--wisphub-secondary mt-3 inline-flex items-center gap-2 rounded-[4px]"
                   >
                     <Upload className="h-4 w-4" />
                     Seleccionar plantilla y Subir
@@ -244,15 +171,18 @@ export default function RegisterBulkPayments() {
                 <StepMarker step={3} accentClassName="border-[#45bf63] text-[#45bf63]" />
                 <div className="flex-1 pb-7">
                   <StepTitle title="Buscar Cliente" accentClassName="text-[#45bf63]" />
-                  <label className="mt-3 block text-[15px] text-[#24364b]">
+                  <label
+                    htmlFor={searchTypeId}
+                    className="mt-3 block text-[15px] text-[#24364b]"
+                  >
                     Buscar por :
                   </label>
                   <div className="relative mt-3">
                     <select
+                      id={searchTypeId}
                       value={searchType}
                       onChange={(event) => setSearchType(event.target.value)}
-                      style={wisphubStyles.select}
-                      className="w-full appearance-none rounded-[4px] pr-11"
+                      className="register-bulk-payments__select register-bulk-payments__select--wisphub w-full appearance-none rounded-[4px] pr-11"
                     >
                       {searchOptions.map((option) => (
                         <option key={option} value={option}>
@@ -275,8 +205,7 @@ export default function RegisterBulkPayments() {
                   <button
                     type="button"
                     onClick={handleValidateFile}
-                    style={wisphubStyles.button}
-                    className="mt-3 inline-flex items-center gap-2 rounded-[4px]"
+                    className="register-bulk-payments__button register-bulk-payments__button--wisphub-primary mt-3 inline-flex items-center gap-2 rounded-[4px]"
                   >
                     <FileSpreadsheet className="h-4 w-4" />
                     Iniciar
@@ -291,13 +220,15 @@ export default function RegisterBulkPayments() {
   }
 
   return (
-    <div style={mikrosystemStyles.page}>
+    <div className="register-bulk-payments register-bulk-payments--mikrosystem">
       <h1 className="mb-7 text-[26px] font-normal leading-none text-[#1f2933]">
         Pagos masivos
       </h1>
 
-      <section style={mikrosystemStyles.card} className="mx-auto">
-        <div style={mikrosystemStyles.header}>Registrar pagos Masivos</div>
+      <section className="register-bulk-payments__card register-bulk-payments__card--mikrosystem mx-auto">
+        <div className="register-bulk-payments__header register-bulk-payments__header--mikrosystem">
+          Registrar pagos Masivos
+        </div>
 
         <div className="px-8 py-8">
           <p className="mb-7 text-[18px] text-[#11a7bd]">
@@ -306,10 +237,12 @@ export default function RegisterBulkPayments() {
           </p>
 
           <input
+            id={fileInputId}
             ref={inputRef}
             type="file"
             accept=".xlsx"
-            className="hidden"
+            aria-label="Seleccionar archivo Excel para pagos masivos"
+            className="register-bulk-payments__sr-only"
             onChange={handleFileChange}
           />
 
@@ -336,6 +269,7 @@ export default function RegisterBulkPayments() {
                 <button
                   type="button"
                   onClick={handleUploadClick}
+                  aria-controls={fileInputId}
                   className="mt-3 inline-flex h-[50px] items-center gap-2 rounded-[6px] border border-[#d7e0ea] bg-white px-5 text-[14px] font-semibold text-[#24364b]"
                 >
                   <Upload className="h-5 w-5" />
@@ -356,11 +290,15 @@ export default function RegisterBulkPayments() {
               <StepMarker step={3} accentClassName="border-[#4aa8ea] text-[#4aa8ea]" />
               <div className="flex-1 pb-7">
                 <StepTitle title="Buscar Cliente" accentClassName="text-[#4aa8ea]" />
-                <label className="mt-3 block text-[15px] text-[#24364b]">
+                <label
+                  htmlFor={searchTypeId}
+                  className="mt-3 block text-[15px] text-[#24364b]"
+                >
                   Buscar por :
                 </label>
                 <div className="relative mt-3">
                   <select
+                    id={searchTypeId}
                     value={searchType}
                     onChange={(event) => setSearchType(event.target.value)}
                     className="h-[50px] w-full appearance-none rounded-[6px] border border-[#d7e0ea] bg-white px-4 pr-12 text-[14px] font-semibold text-[#24364b] outline-none"

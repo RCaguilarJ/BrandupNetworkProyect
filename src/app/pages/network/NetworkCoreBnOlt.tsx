@@ -1,82 +1,168 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import {
+  ChevronDown,
+  CircleAlert,
+  CircleEllipsis,
   CirclePlus,
-  Network,
+  Info,
+  ListChecks,
   RefreshCw,
-  Server,
-  ShieldCheck,
-  Unplug,
+  Route,
+  ServerCog,
+  Tag,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
 import { useViewTheme } from '../../context/ViewThemeContext';
 import {
-  mikrosystemPageStyle,
-  wisphubPageStyle,
-} from './networkManagementData';
-import {
-  ActionButton,
   NetworkFormDialog,
-  NetworkPageShell,
-  NetworkPanel,
   NetworkTable,
-  PageSizeCluster,
   PaginationBar,
-  SearchField,
   type DataColumn,
   useNetworkDialog,
 } from './networkManagementShared';
+import './NetworkCoreBnOlt.css';
 
 type CoreBnOltRow = {
   id: string;
   companyId: string;
-  gestion: string;
-  acceso: string;
-  router: string;
-  scope: string;
+  olt: string;
+  method: string;
+  mikrotik: string;
+  vpnRoute: string;
   lastCheck: string;
+};
+
+type SummaryCard = {
+  key: string;
+  label: string;
+  value: string | number;
+  tone: 'blue' | 'green' | 'red' | 'amber';
+  footer: string[];
+  icon: ReactNode;
 };
 
 const initialRows: CoreBnOltRow[] = [];
 
-const summaryCards = [
+const summaryCards: SummaryCard[] = [
   {
-    key: 'new',
-    label: 'Waiting auth',
+    key: 'waiting',
+    label: 'Waiting authorization',
     value: 0,
-    helperLeft: 'New: 0',
-    helperRight: '',
-    colorClass: '#337ab7',
-    icon: <CirclePlus className="h-12 w-12" />,
+    tone: 'blue',
+    footer: ['D: 0', 'Resync: 0', 'New: 0'],
+    icon: <Tag className="h-11 w-11" />,
   },
   {
     key: 'online',
     label: 'Online',
-    value: 0,
-    helperLeft: 'Total authorized: 0',
-    helperRight: '',
-    colorClass: '#5cb85c',
-    icon: <ShieldCheck className="h-12 w-12" />,
+    value: '...',
+    tone: 'green',
+    footer: ['Total authorized: ...'],
+    icon: <ListChecks className="h-11 w-11" />,
   },
   {
     key: 'offline',
     label: 'Total offline',
-    value: 0,
-    helperLeft: 'PowerFail: 0',
-    helperRight: 'LoS: 0',
-    colorClass: '#d9534f',
-    icon: <Unplug className="h-12 w-12" />,
+    value: '...',
+    tone: 'red',
+    footer: ['PwrFail: ...', 'LoS: ...', 'N/A: ...'],
+    icon: <CircleEllipsis className="h-11 w-11" />,
   },
   {
-    key: 'inventory',
-    label: 'Registered OLTs',
-    value: 0,
-    helperLeft: 'Inventory: 0',
-    helperRight: '',
-    colorClass: '#f0ad4e',
-    icon: <Server className="h-12 w-12" />,
+    key: 'signals',
+    label: 'Low signals',
+    value: '...',
+    tone: 'amber',
+    footer: ['Warning: ...', 'Critical: ...'],
+    icon: <CircleAlert className="h-11 w-11" />,
   },
 ];
+
+const graphLegend = [
+  { label: 'Online ONUs', tone: 'green' },
+  { label: 'Power fail', tone: 'blue' },
+  { label: 'Signal loss', tone: 'amber' },
+  { label: 'N/A', tone: 'gray' },
+  { label: 'Maximum', tone: 'navy' },
+] as const;
+
+const oltFilterOptions = [
+  { value: 'all', label: 'All' },
+  { value: 'linked', label: 'Linked' },
+  { value: 'pending', label: 'Pending' },
+] as const;
+
+function SummaryMetricCard({
+  card,
+}: {
+  card: SummaryCard;
+}) {
+  return (
+    <article
+      className={`corebn-olt__metric-card corebn-olt__metric-card--${card.tone}`}
+    >
+      <div className="corebn-olt__metric-top">
+        <div className="corebn-olt__metric-icon">{card.icon}</div>
+        <div className="corebn-olt__metric-copy">
+          <div className="corebn-olt__metric-value">{card.value}</div>
+          <div className="corebn-olt__metric-label">{card.label}</div>
+        </div>
+      </div>
+      <div
+        className={`corebn-olt__metric-footer corebn-olt__metric-footer--${Math.max(card.footer.length, 1)}`}
+      >
+        {card.footer.map((item) => (
+          <span key={item}>{item}</span>
+        ))}
+      </div>
+    </article>
+  );
+}
+
+function PanelFrame({
+  title,
+  actions,
+  children,
+  icon,
+}: {
+  title: string;
+  actions?: ReactNode;
+  children: ReactNode;
+  icon?: ReactNode;
+}) {
+  return (
+    <section className="corebn-olt__panel">
+      <div className="corebn-olt__panel-header">
+        <div className="corebn-olt__panel-title">
+          {icon}
+          <span>{title}</span>
+        </div>
+        {actions}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function EmptyChart({
+  title,
+  description,
+  compact = false,
+}: {
+  title: string;
+  description: string;
+  compact?: boolean;
+}) {
+  return (
+    <div
+      className={`corebn-olt__empty-chart${compact ? ' corebn-olt__empty-chart--compact' : ''}`}
+    >
+      <h3>{title}</h3>
+      <p>{description}</p>
+    </div>
+  );
+}
 
 export default function NetworkCoreBnOlt() {
   const { user } = useAuth();
@@ -84,14 +170,15 @@ export default function NetworkCoreBnOlt() {
   const isWispHub = viewTheme === 'wisphub';
   const dialog = useNetworkDialog();
 
-  const [pageSize, setPageSize] = useState(15);
+  const [pageSize, setPageSize] = useState('15');
   const [searchTerm, setSearchTerm] = useState('');
-  const [rows, setRows] = useState(() => initialRows);
+  const [oltFilter, setOltFilter] = useState<string>(oltFilterOptions[0].value);
+  const [rows, setRows] = useState<CoreBnOltRow[]>(() => initialRows);
   const [form, setForm] = useState({
-    gestion: '',
-    acceso: '',
-    router: '',
-    scope: '',
+    olt: '',
+    method: '',
+    mikrotik: '',
+    vpnRoute: '',
     lastCheck: 'Sin validar',
   });
 
@@ -101,45 +188,46 @@ export default function NetworkCoreBnOlt() {
       return true;
     }
 
-    return [row.gestion, row.acceso, row.router, row.scope, row.lastCheck]
-      .some((value) => value.toLowerCase().includes(query));
+    return [row.olt, row.method, row.mikrotik, row.vpnRoute, row.lastCheck].some(
+      (value) => value.toLowerCase().includes(query),
+    );
   });
 
   const columns: DataColumn<CoreBnOltRow>[] = [
     {
-      key: 'gestion',
-      header: 'GESTION',
-      render: (row) => row.gestion,
+      key: 'olt',
+      header: 'OLT',
+      render: (row) => row.olt,
     },
     {
-      key: 'acceso',
-      header: 'ACCESO',
-      render: (row) => row.acceso,
+      key: 'method',
+      header: 'MÉTODO',
+      render: (row) => row.method,
     },
     {
-      key: 'router',
-      header: 'ROUTER',
-      render: (row) => row.router,
+      key: 'mikrotik',
+      header: 'MIKROTIK',
+      render: (row) => row.mikrotik,
     },
     {
-      key: 'scope',
-      header: 'SCOPE',
-      render: (row) => row.scope,
+      key: 'vpnRoute',
+      header: 'RUTA VPN',
+      render: (row) => row.vpnRoute,
     },
     {
       key: 'lastCheck',
-      header: 'ULTIMA REVISION',
+      header: 'ÚLTIMA PRUEBA',
       render: (row) => row.lastCheck,
     },
     {
       key: 'actions',
       header: 'ACCIONES',
       align: 'center',
-      width: '150px',
+      width: '120px',
       render: () => (
-        <div className="flex items-center justify-center gap-2 text-[#42566f]">
+        <div className="flex items-center justify-center gap-3 text-[#51657c]">
           <RefreshCw className="h-4 w-4" />
-          <Network className="h-4 w-4" />
+          <Route className="h-4 w-4" />
         </div>
       ),
     },
@@ -147,18 +235,18 @@ export default function NetworkCoreBnOlt() {
 
   const openDialog = () => {
     setForm({
-      gestion: '',
-      acceso: '',
-      router: '',
-      scope: '',
+      olt: '',
+      method: '',
+      mikrotik: '',
+      vpnRoute: '',
       lastCheck: 'Sin validar',
     });
     dialog.openDialog();
   };
 
   const saveRow = () => {
-    if (!form.gestion || !form.acceso || !form.router) {
-      toast.error('Completa gestion, acceso y router para registrar la OLT');
+    if (!form.olt || !form.method || !form.mikrotik) {
+      toast.error('Completa OLT, método y Mikrotik para registrar la OLT');
       return;
     }
 
@@ -166,141 +254,221 @@ export default function NetworkCoreBnOlt() {
       {
         id: `corebn-olt-${Date.now()}`,
         companyId: user?.companyId ?? 'comp1',
-        gestion: form.gestion,
-        acceso: form.acceso,
-        router: form.router,
-        scope: form.scope || 'General',
-        lastCheck: form.lastCheck,
+        olt: form.olt,
+        method: form.method,
+        mikrotik: form.mikrotik,
+        vpnRoute: form.vpnRoute || 'Sin ruta',
+        lastCheck: form.lastCheck || 'Sin validar',
       },
       ...current,
     ]);
+
     dialog.closeDialog();
     toast.success('OLT agregada en el frontend');
   };
 
   return (
-    <div style={isWispHub ? wisphubPageStyle : mikrosystemPageStyle}>
-      <NetworkPageShell
-        title="CoreBN_OLT"
-        breadcrumb="CoreBN_OLT"
-        isWispHub={isWispHub}
-        showHeaderActions={false}
-        showMikrosystemHeader={false}
-      >
-        <div className="mb-5 grid gap-4 xl:grid-cols-4">
-          {summaryCards.map((card) => (
-            <article
-              key={card.key}
-              className="overflow-hidden rounded-[4px] border border-[#d8dde6] bg-white"
-            >
-              <div
-                className="flex items-center justify-between gap-4 px-[18px] py-[18px] text-white"
-                style={{ backgroundColor: card.colorClass }}
-              >
-                <div className="opacity-95">{card.icon}</div>
-                <div className="text-right">
-                  <div className="text-[38px] font-bold leading-none">
-                    {card.value}
-                  </div>
-                  <div className="mt-2 text-[15px] font-semibold">
-                    {card.label}
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center justify-between gap-3 bg-[#f5f5f5] px-4 py-[10px] text-[12px] text-[#4b5d73]">
-                <span>{card.helperLeft}</span>
-                <span>{card.helperRight}</span>
-              </div>
-            </article>
-          ))}
-        </div>
+    <div
+      className={`corebn-olt${isWispHub ? ' corebn-olt--wisphub' : ' corebn-olt--mikrosystem'}`}
+    >
+      <div className="corebn-olt__metrics-grid">
+        {summaryCards.map((card) => (
+          <SummaryMetricCard key={card.key} card={card} />
+        ))}
+      </div>
 
-        <NetworkPanel isWispHub={isWispHub}>
-          <div className="border-b border-[#d7dde5] bg-[#4d4a48] px-4 py-3 text-[14px] font-bold text-white">
-            Inventario de OLTs
+      <div className="corebn-olt__status-note">Information valid at updating...</div>
+
+      <div className="corebn-olt__overview-grid">
+        <PanelFrame
+          title="Network status"
+          actions={
+            <button type="button" className="corebn-olt__ghost-button">
+              <span>Daily graph</span>
+              <ChevronDown className="h-4 w-4" />
+            </button>
+          }
+        >
+          <div className="corebn-olt__panel-body corebn-olt__panel-body--spacious">
+            <EmptyChart
+              title="Sin histórico ONU todavía"
+              description="CoreBN_OLT empezará a dibujar esta gráfica cuando existan snapshots válidos del estado de ONUs."
+            />
           </div>
 
-          <div className="px-5 py-5">
-            <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-              <div className="flex flex-wrap items-center gap-3">
-                <PageSizeCluster
-                  isWispHub={isWispHub}
-                  pageSize={pageSize}
-                  onChange={setPageSize}
-                />
-                <ActionButton
-                  isWispHub={isWispHub}
-                  icon={<CirclePlus className="h-4 w-4" />}
-                  label="Nueva OLT"
-                  onClick={openDialog}
-                />
-              </div>
-
-              <SearchField
-                isWispHub={isWispHub}
-                value={searchTerm}
-                onChange={setSearchTerm}
-              />
+          <div className="corebn-olt__legend-bar">
+            <div className="corebn-olt__legend-items">
+              {graphLegend.map((item) => (
+                <span key={item.label} className="corebn-olt__legend-item">
+                  <i className={`corebn-olt__legend-dot corebn-olt__legend-dot--${item.tone}`} />
+                  {item.label}: <strong>...</strong>
+                </span>
+              ))}
+            </div>
+            <div className="corebn-olt__snapshot-copy">
+              Snapshot: Sin snapshot | Sin snapshot disponible todavía.
             </div>
           </div>
+        </PanelFrame>
 
-          <div className="px-5 pb-5">
-            <NetworkTable
-              columns={columns}
-              rows={filteredRows.slice(0, pageSize)}
-              emptyMessage="Ningun registro disponible"
-            />
-            <PaginationBar
-              isWispHub={isWispHub}
-              summary={`Mostrando ${Math.min(filteredRows.length, pageSize)} registro(s)`}
-              showCurrentPage={false}
+        <div className="corebn-olt__stack">
+          <PanelFrame
+            title="OLTs"
+            actions={
+              <div className="corebn-olt__select-wrap">
+                <select
+                  value={oltFilter}
+                  onChange={(event) => setOltFilter(event.target.value)}
+                  className="corebn-olt__select"
+                  aria-label="Filtrar OLTs"
+                >
+                  {oltFilterOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="corebn-olt__select-icon h-4 w-4" />
+              </div>
+            }
+          >
+            <div className="corebn-olt__panel-body">
+              <EmptyChart
+                compact
+                title="Aún no hay OLTs vinculadas en esta subcuenta."
+                description=""
+              />
+            </div>
+          </PanelFrame>
+
+          <PanelFrame title="Info" icon={<Info className="h-4 w-4" />}>
+            <div className="corebn-olt__panel-body corebn-olt__panel-body--tight">
+              <EmptyChart
+                compact
+                title="Aún no hay actividad registrada para mostrar."
+                description=""
+              />
+              <button type="button" className="corebn-olt__secondary-button">
+                View All Info
+              </button>
+            </div>
+          </PanelFrame>
+        </div>
+      </div>
+
+      <PanelFrame title="Connection checks per day">
+        <div className="corebn-olt__panel-body corebn-olt__panel-body--spacious">
+          <EmptyChart
+            title="Aún no hay chequeos de conexión"
+            description="Esta gráfica se activará cuando CoreBN_OLT registre validaciones reales de conexión OLT por fecha."
+          />
+        </div>
+      </PanelFrame>
+
+      <PanelFrame
+        title="OLTs vinculadas"
+        icon={<ServerCog className="h-4 w-4" />}
+        actions={
+          <button type="button" className="corebn-olt__header-pill" onClick={openDialog}>
+            Nueva OLT
+          </button>
+        }
+      >
+        <div className="corebn-olt__table-toolbar">
+          <div className="corebn-olt__toolbar-group">
+            <div className="corebn-olt__compact-cluster">
+              <select
+                value={pageSize}
+                onChange={(event) => setPageSize(event.target.value)}
+                className="corebn-olt__compact-select"
+                aria-label="Cantidad de registros por página"
+              >
+                <option value="15">15</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+              </select>
+              <button type="button" className="corebn-olt__compact-icon-button" aria-label="Vista de lista">
+                <ListChecks className="h-4 w-4" />
+              </button>
+              <button type="button" className="corebn-olt__compact-icon-button" aria-label="Actualizar registros">
+                <RefreshCw className="h-4 w-4" />
+              </button>
+            </div>
+
+            <button type="button" className="corebn-olt__toolbar-add-button" onClick={openDialog}>
+              <CirclePlus className="h-4 w-4" />
+              Nueva OLT
+            </button>
+          </div>
+
+          <div className="corebn-olt__search-wrap">
+            <input
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+              className="corebn-olt__search-input"
+              placeholder="Buscar..."
+              aria-label="Buscar OLT vinculada"
             />
           </div>
-        </NetworkPanel>
+        </div>
 
-        <NetworkFormDialog
-          open={dialog.open}
-          loading={dialog.loading}
-          title="Nueva OLT CoreBN"
-          submitLabel="Guardar OLT"
-          values={form}
-          fields={[
-            {
-              name: 'gestion',
-              label: 'Gestion',
-              required: true,
-              placeholder: 'Administracion principal',
-            },
-            {
-              name: 'acceso',
-              label: 'Acceso',
-              required: true,
-              placeholder: 'Acceso remoto / local',
-            },
-            {
-              name: 'router',
-              label: 'Router',
-              required: true,
-              placeholder: 'Router asignado',
-            },
-            {
-              name: 'scope',
-              label: 'Scope',
-              placeholder: 'General',
-            },
-            {
-              name: 'lastCheck',
-              label: 'Ultima revision',
-              placeholder: 'Sin validar',
-            },
-          ]}
-          onOpenChange={dialog.setOpen}
-          onFieldChange={(field, value) =>
-            setForm((current) => ({ ...current, [field]: value }))
-          }
-          onSubmit={saveRow}
-        />
-      </NetworkPageShell>
+        <div className="corebn-olt__table-wrap">
+          <NetworkTable
+            columns={columns}
+            rows={filteredRows.slice(0, Number(pageSize))}
+            emptyMessage="Ningún registro disponible"
+          />
+
+          <PaginationBar
+            isWispHub={isWispHub}
+            summary={`Mostrando ${Math.min(filteredRows.length, Number(pageSize))} registros`}
+            showCurrentPage={false}
+          />
+        </div>
+      </PanelFrame>
+
+      <NetworkFormDialog
+        open={dialog.open}
+        loading={dialog.loading}
+        title="Nueva OLT CoreBN"
+        submitLabel="Guardar OLT"
+        values={form}
+        fields={[
+          {
+            name: 'olt',
+            label: 'OLT',
+            required: true,
+            placeholder: 'CoreBN_OLT_01',
+          },
+          {
+            name: 'method',
+            label: 'Método',
+            required: true,
+            placeholder: 'API / SSH',
+          },
+          {
+            name: 'mikrotik',
+            label: 'Mikrotik',
+            required: true,
+            placeholder: 'MK Principal',
+          },
+          {
+            name: 'vpnRoute',
+            label: 'Ruta VPN',
+            placeholder: 'vpn/corebn',
+          },
+          {
+            name: 'lastCheck',
+            label: 'Última prueba',
+            placeholder: 'Sin validar',
+          },
+        ]}
+        onOpenChange={dialog.setOpen}
+        onFieldChange={(field, value) =>
+          setForm((current) => ({ ...current, [field]: value }))
+        }
+        onSubmit={saveRow}
+      />
     </div>
   );
 }
