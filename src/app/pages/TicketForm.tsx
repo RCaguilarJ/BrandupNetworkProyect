@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
 import { Button } from '../components/ui/button';
@@ -16,36 +16,21 @@ export default function TicketForm() {
   const { id } = useParams();
   const { user } = useAuth();
   const isEditing = Boolean(id);
+  const selectedTicket = isEditing && id ? MOCK_TICKETS.find((ticket) => ticket.id === id) : null;
 
   const [formData, setFormData] = useState({
-    clientId: '',
-    subject: '',
-    description: '',
-    type: 'no_service',
-    priority: 'medium',
-    status: 'open',
+    clientId: selectedTicket?.clientId ?? '',
+    subject: selectedTicket?.subject ?? '',
+    description: selectedTicket?.description ?? '',
+    type: selectedTicket?.type ?? 'no_service',
+    priority: selectedTicket?.priority ?? 'medium',
+    status: selectedTicket?.status ?? 'open',
   });
 
   // Filtrar clientes según el usuario
   const availableClients = user?.role === 'super_admin'
     ? MOCK_CLIENTS
     : MOCK_CLIENTS.filter(c => c.companyId === user?.companyId);
-
-  useEffect(() => {
-    if (isEditing && id) {
-      const ticket = MOCK_TICKETS.find(t => t.id === id);
-      if (ticket) {
-        setFormData({
-          clientId: ticket.clientId,
-          subject: ticket.subject,
-          description: ticket.description,
-          type: ticket.type,
-          priority: ticket.priority,
-          status: ticket.status,
-        });
-      }
-    }
-  }, [id, isEditing]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,7 +39,7 @@ export default function TicketForm() {
     navigate('/tickets');
   };
 
-  const handleChange = (field: string, value: any) => {
+  const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 

@@ -8,7 +8,9 @@
   },
   "scripts": {
     "build": "node ./node_modules/vite/bin/vite.js build",
-    "dev": "vite"
+    "dev": "vite",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src --ext .ts,.tsx"
   },
   "dependencies": {
     "@emotion/react": "11.14.0",
@@ -71,10 +73,20 @@
     "vaul": "1.1.2"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.4",
     "@tailwindcss/vite": "4.1.12",
     "@types/axios": "^0.9.36",
+    "@types/leaflet": "^1.9.21",
+    "@types/node": "^25.5.2",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "4.7.0",
+    "eslint": "^9.39.4",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
     "tailwindcss": "4.1.12",
+    "typescript": "^6.0.2",
+    "typescript-eslint": "^8.58.0",
     "vite": "6.3.5"
   },
   "pnpm": {

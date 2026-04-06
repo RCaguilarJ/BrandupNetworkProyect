@@ -71,6 +71,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string, role?: UserRole) => {
     // Simulación de login
     await new Promise((resolve) => setTimeout(resolve, 500));
+    void password;
+    void role;
 
     const mockUser = MOCK_USERS[email];
     if (mockUser) {

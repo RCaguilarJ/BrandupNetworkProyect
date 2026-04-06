@@ -1,22 +1,12 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
-import { Button } from '../components/ui/button';
 import { 
-  MapPin,
   Users,
   Search,
   Filter,
   CheckCircle2,
   XCircle,
   Clock,
-  Phone,
-  Mail,
-  Wifi,
-  List,
-  Map as MapIcon,
-  ChevronRight,
-  Settings
 } from 'lucide-react';
-import { useTheme } from '../context/ThemeContext';
 import { useViewTheme } from '../context/ViewThemeContext';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -260,7 +250,7 @@ export default function ClientsMap() {
   }, [searchTerm, statusFilter]);
 
   // Calcular centro del mapa
-  const mapCenter: [number, number] = [19.4326, -99.1332]; // CDMX
+  const mapCenter = useMemo<[number, number]>(() => [19.4326, -99.1332], []);
 
   const stats = {
     total: mockClientLocations.length,
@@ -289,7 +279,7 @@ export default function ClientsMap() {
         mapRef.current = null;
       }
     };
-  }, []);
+  }, [mapCenter]);
 
   // Actualizar marcadores cuando cambian los clientes filtrados
   useEffect(() => {

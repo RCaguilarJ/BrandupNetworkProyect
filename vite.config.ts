@@ -16,6 +16,47 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes('node_modules')) {
+            return undefined;
+          }
+
+          if (
+            id.includes('react') ||
+            id.includes('react-dom') ||
+            id.includes('react-router')
+          ) {
+            return 'react-vendor';
+          }
+
+          if (id.includes('@radix-ui')) {
+            return 'radix-vendor';
+          }
+
+          if (id.includes('@mui') || id.includes('@emotion')) {
+            return 'mui-vendor';
+          }
+
+          if (id.includes('recharts')) {
+            return 'charts-vendor';
+          }
+
+          if (id.includes('leaflet')) {
+            return 'maps-vendor';
+          }
+
+          if (id.includes('lucide-react')) {
+            return 'icons-vendor';
+          }
+
+          return undefined;
+        },
+      },
+    },
+  },
 
   // File types to support raw imports. Never add .css, .tsx, or .ts files to this.
   assetsInclude: ['**/*.svg', '**/*.csv'],

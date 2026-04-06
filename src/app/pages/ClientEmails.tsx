@@ -1,12 +1,5 @@
 import { useMemo, useState } from 'react';
-import {
-  Mail,
-  SearchCheck,
-  Settings2,
-  List,
-  Save,
-  Wrench,
-} from 'lucide-react';
+import { SearchCheck, Settings2, List, Save, Wrench } from 'lucide-react';
 import { toast } from 'sonner';
 import { useViewTheme } from '../context/ViewThemeContext';
 import {

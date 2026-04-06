@@ -27,7 +27,7 @@ export function formatDate(date: string | undefined | null): string {
       month: 'long',
       day: 'numeric',
     }).format(parsedDate);
-  } catch (error) {
+  } catch {
     return '-';
   }
 }
@@ -49,7 +49,7 @@ export function formatDateTime(date: string | undefined | null): string {
       hour: '2-digit',
       minute: '2-digit',
     }).format(parsedDate);
-  } catch (error) {
+  } catch {
     return '-';
   }
 }

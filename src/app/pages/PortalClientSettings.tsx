@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import SettingsBreadcrumb from '../components/SettingsBreadcrumb';
 import { Button } from '../components/ui/button';
-import { Bell, FileText, ImagePlus, Mail, Palette, Plus, Save, Settings2, type LucideIcon } from 'lucide-react';
+import { FileText, ImagePlus, Mail, Palette, Plus, Save, Settings2, type LucideIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import logo from '../../assets/logo_admin.png';
 

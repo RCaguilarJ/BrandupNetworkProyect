@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
 import { Button } from '../components/ui/button';
@@ -16,15 +16,16 @@ export default function ClientForm() {
   const { id } = useParams();
   const { user } = useAuth();
   const isEditing = Boolean(id);
+  const selectedClient = isEditing && id ? MOCK_CLIENTS.find((client) => client.id === id) : null;
 
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    address: '',
-    planId: '',
-    fiscalId: '',
-    status: 'active',
+    name: selectedClient?.name ?? '',
+    email: selectedClient?.email ?? '',
+    phone: selectedClient?.phone ?? '',
+    address: selectedClient?.address ?? '',
+    planId: selectedClient?.planId ?? '',
+    fiscalId: selectedClient?.fiscalId ?? '',
+    status: selectedClient?.status ?? 'active',
   });
 
   // Filtrar planes según el usuario
@@ -32,39 +33,22 @@ export default function ClientForm() {
     ? MOCK_PLANS
     : MOCK_PLANS.filter(p => p.companyId === user?.companyId);
 
-  useEffect(() => {
-    if (isEditing && id) {
-      const client = MOCK_CLIENTS.find(c => c.id === id);
-      if (client) {
-        setFormData({
-          name: client.name,
-          email: client.email,
-          phone: client.phone,
-          address: client.address,
-          planId: client.planId,
-          fiscalId: client.fiscalId ?? '',
-          status: client.status,
-        });
-      }
-    }
-  }, [id, isEditing]);
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    const clientData = {
+    const clientPayload = {
       ...formData,
       companyId: user?.companyId || 'comp1',
       balance: 0,
       lastPayment: null,
       createdAt: new Date().toISOString(),
     };
+    void clientPayload;
 
     toast.success(isEditing ? 'Cliente actualizado exitosamente' : 'Cliente creado exitosamente');
     navigate('/clients');
   };
 
-  const handleChange = (field: string, value: any) => {
+  const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 

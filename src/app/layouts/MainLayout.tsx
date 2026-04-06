@@ -43,7 +43,7 @@ import {
   Wifi,
   X,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Avatar, AvatarFallback } from "../components/ui/avatar";
 import { Button } from "../components/ui/button";
 import { ViewThemeSelector } from "../components/ViewThemeSelector";
@@ -59,13 +59,30 @@ import { useViewTheme } from "../context/ViewThemeContext";
 import { useConfiguredLoginBackground } from "../lib/login-background";
 import { toast } from "sonner";
 import logo from "../../assets/logo_admin.png";
+import type { UserRole } from "../types";
 
 interface NavItem {
   name: string;
   path: string;
   icon: React.ReactNode;
-  roles: string[];
+  roles: UserRole[];
   subItems?: NavItem[];
+}
+
+function getActiveParentPaths(pathname: string, role?: UserRole) {
+  if (!role) {
+    return [];
+  }
+
+  return navigationItems
+    .filter(
+      (item) =>
+        item.roles.includes(role) &&
+        item.subItems?.some((subItem) =>
+          matchesPath(pathname, subItem.path),
+        ),
+    )
+    .map((item) => item.path);
 }
 
 const navigationItems: NavItem[] = [
@@ -435,6 +452,12 @@ export default function MainLayout() {
   const [expandedItems, setExpandedItems] = useState<string[]>(
     [],
   );
+  const expandedPaths = [
+    ...new Set([
+      ...expandedItems,
+      ...getActiveParentPaths(location.pathname, user?.role),
+    ]),
+  ];
 
   const handleLogout = () => {
     logout();
@@ -448,25 +471,28 @@ export default function MainLayout() {
     .map((part) => part[0]?.toUpperCase() || "")
     .join("");
 
-  const roleLabel =
-    {
-      super_admin: "ADMIN",
-      isp_admin: "ADMIN",
-      cobranza: "COBRANZA",
-      soporte: "SOPORTE",
-      tecnico: "TECNICO",
-      cliente: "CLIENTE",
-    }[user?.role ?? ""] ?? "USUARIO";
+  const roleLabels: Record<UserRole, string> = {
+    super_admin: "ADMIN",
+    isp_admin: "ADMIN",
+    cobranza: "COBRANZA",
+    soporte: "SOPORTE",
+    tecnico: "TECNICO",
+    cliente: "CLIENTE",
+  };
 
-  const roleDescription =
-    {
-      super_admin: "Administrador",
-      isp_admin: "Administrador",
-      cobranza: "Cobranza",
-      soporte: "Soporte",
-      tecnico: "Tecnico",
-      cliente: "Cliente",
-    }[user?.role ?? ""] ?? "Usuario";
+  const roleDescriptions: Record<UserRole, string> = {
+    super_admin: "Administrador",
+    isp_admin: "Administrador",
+    cobranza: "Cobranza",
+    soporte: "Soporte",
+    tecnico: "Tecnico",
+    cliente: "Cliente",
+  };
+
+  const roleLabel = user ? roleLabels[user.role] : "USUARIO";
+  const roleDescription = user
+    ? roleDescriptions[user.role]
+    : "Usuario";
 
   const sidebarHeroStyle = sidebarBackgroundUrl
     ? {
@@ -479,28 +505,6 @@ export default function MainLayout() {
   const filteredNavigation = navigationItems.filter(
     (item) => user && item.roles.includes(user.role),
   );
-
-  useEffect(() => {
-    const activeParentPaths = navigationItems
-      .filter(
-        (item) =>
-          user &&
-          item.roles.includes(user.role) &&
-          item.subItems?.some((subItem) =>
-            matchesPath(location.pathname, subItem.path),
-          ),
-      )
-      .map((item) => item.path);
-
-    if (activeParentPaths.length === 0) {
-      return;
-    }
-
-    setExpandedItems((prev) => {
-      const next = [...new Set([...prev, ...activeParentPaths])];
-      return next.length === prev.length ? prev : next;
-    });
-  }, [location.pathname, user]);
 
   const toggleExpand = (path: string) => {
     setExpandedItems((prev) =>
@@ -519,9 +523,9 @@ export default function MainLayout() {
       item.subItems?.some((subItem) =>
         matchesPath(location.pathname, subItem.path),
       );
-    const isExpanded = expandedItems.includes(item.path);
-    const hasSubItems =
-      Boolean(item.subItems) && item.subItems.length > 0;
+    const isExpanded = expandedPaths.includes(item.path);
+    const subItems = item.subItems ?? [];
+    const hasSubItems = subItems.length > 0;
 
     if (hasSubItems) {
       return (
@@ -554,9 +558,9 @@ export default function MainLayout() {
             )}
           </button>
 
-          {isExpanded && item.subItems && (
+          {isExpanded && hasSubItems && (
             <div className="mb-2 ml-5 space-y-1 border-l border-white/10 pl-3">
-              {item.subItems.map((subItem) => {
+              {subItems.map((subItem) => {
                 const subItemActive = matchesPath(
                   location.pathname,
                   subItem.path,

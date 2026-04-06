@@ -2,10 +2,6 @@ import { useState } from 'react';
 import { Globe } from 'lucide-react';
 import { useViewTheme } from '../../context/ViewThemeContext';
 import {
-  mikrosystemPageStyle,
-  wisphubPageStyle,
-} from './networkManagementData';
-import {
   MetricCards,
   NetworkPageShell,
   NetworkPanel,
@@ -21,6 +17,11 @@ import {
 type SmartTab = 'onus' | 'vlans' | 'zonas' | 'profiles' | 'odb' | 'api';
 
 type EmptyRow = Record<string, never>;
+
+const wisphubPageClassName =
+  'min-h-full border-t-4 border-[#45bf63] bg-[radial-gradient(circle_at_top_right,rgba(69,191,99,0.08),transparent_28%),#ffffff] pb-8 text-[#17273d] [font-family:Trebuchet_MS,Segoe_UI,Tahoma,Geneva,Verdana,sans-serif]';
+const mikrosystemPageClassName =
+  'min-h-full bg-[#d9e7f3] px-[22px] pt-[18px] pb-[26px] text-[#223448] [font-family:Segoe_UI,Tahoma,Geneva,Verdana,sans-serif]';
 
 const columns: DataColumn<EmptyRow>[] = [
   { key: 'cliente', header: 'CLIENTE', render: () => '' },
@@ -59,7 +60,7 @@ export default function NetworkSmartOlt() {
   ];
 
   return (
-    <div style={isWispHub ? wisphubPageStyle : mikrosystemPageStyle}>
+    <div className={isWispHub ? wisphubPageClassName : mikrosystemPageClassName}>
       <NetworkPageShell
         title="Smart Olt"
         breadcrumb="Smart Olt"

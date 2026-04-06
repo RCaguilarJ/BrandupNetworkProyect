@@ -5,7 +5,6 @@ import { Badge } from '../../components/ui/badge';
 import { 
   Copy,
   DollarSign,
-  Send, 
   CreditCard, 
   Download, 
   Filter, 
@@ -120,8 +119,6 @@ export default function PendingInvoices() {
   const [pageSize, setPageSize] = useState(
     viewTheme === 'wisphub' ? 10 : 25,
   );
-  const [sortField, setSortField] = useState<string>('dueDate');
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [currentPage, setCurrentPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [startDate, setStartDate] = useState('01/03/2026');
@@ -136,10 +133,8 @@ export default function PendingInvoices() {
 
   const pendingInvoices = allInvoices.filter(i => i.status === 'pending' || i.status === 'overdue');
   const overdueInvoices = allInvoices.filter(i => i.status === 'overdue');
+  void overdueInvoices;
   
-  const totalPending = pendingInvoices.reduce((sum, i) => sum + i.amount, 0);
-  const totalOverdue = overdueInvoices.reduce((sum, i) => sum + i.amount, 0);
-
   const filteredInvoices = pendingInvoices.filter(invoice => {
     const matchesSearch = invoice.folio.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          getClientName(invoice.clientId).toLowerCase().includes(searchTerm.toLowerCase());
@@ -183,15 +178,6 @@ export default function PendingInvoices() {
     const today = new Date();
     const diff = Math.floor((today.getTime() - due.getTime()) / (1000 * 60 * 60 * 24));
     return diff;
-  };
-
-  const handleSort = (field: string) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortDirection('asc');
-    }
   };
 
   // Calcular resumen por categorías para Mikrosystem
@@ -242,6 +228,14 @@ export default function PendingInvoices() {
       color: '#EF4444',
     },
   ];
+
+  const getDerivedReference = (invoiceId: string) =>
+    invoiceId
+      .split('')
+      .reduce((sum, character) => sum + character.charCodeAt(0), 0)
+      .toString()
+      .padStart(4, '0')
+      .slice(-4);
 
   const totalCurrentMonth = currentMonthInvoices.reduce((sum, i) => sum + i.amount, 0);
   const totalPreviousMonths = previousMonthsInvoices.reduce((sum, i) => sum + i.amount, 0);
@@ -605,7 +599,7 @@ export default function PendingInvoices() {
                         {invoice.folio}
                       </td>
                       <td className="px-3 py-2.5 border-r border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400">
-                        {Math.floor(Math.random() * 9000) + 1000}
+                        {getDerivedReference(invoice.id)}
                       </td>
                       <td className="px-3 py-2.5 border-r border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white">
                         {getClientName(invoice.clientId)}

@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { Button } from '../components/ui/button';
 import SettingsBreadcrumb from '../components/SettingsBreadcrumb';
 import { useAuth } from '../context/AuthContext';
-import { CircleHelp, Mail, Save, Send } from 'lucide-react';
+import { CircleHelp, Save, Send } from 'lucide-react';
 import { toast } from 'sonner';
 
 type MailServerSettingsState = {

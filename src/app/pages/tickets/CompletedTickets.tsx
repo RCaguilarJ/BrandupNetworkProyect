@@ -1,4 +1,3 @@
-import type { CSSProperties } from 'react';
 import { useState } from 'react';
 import {
   CalendarDays,
@@ -31,74 +30,30 @@ import type {
 const fuenteWispHubClasica =
   '"Trebuchet MS", "Segoe UI", Tahoma, Geneva, sans-serif';
 
-const estilosWispHub = {
-  pagina: {
-    minHeight: '100%',
-    backgroundColor: '#ffffff',
-    borderTop: '1px solid #d7dde5',
-    color: '#17273d',
-    fontFamily: fuenteWispHubClasica,
-    paddingTop: '24px',
-    paddingBottom: '28px',
-  } satisfies CSSProperties,
-  panel: {
-    border: '1px solid #d7dde5',
-    backgroundColor: '#ffffff',
-    margin: '0 8px 20px',
-    padding: '12px',
-  } satisfies CSSProperties,
-  input: {
-    height: '34px',
-    border: '1px solid #cfd6df',
-    backgroundColor: '#ffffff',
-    padding: '0 12px',
-    color: '#20324a',
-    fontFamily: fuenteWispHubClasica,
-    fontSize: '12px',
-  } satisfies CSSProperties,
-  botonAzul: {
-    height: '34px',
-    border: '1px solid #1399da',
-    backgroundColor: '#1fa9e6',
-    color: '#ffffff',
-    padding: '0 16px',
-    fontFamily: fuenteWispHubClasica,
-    fontSize: '12px',
-  } satisfies CSSProperties,
-  botonVerde: {
-    height: '34px',
-    border: '1px solid #42b960',
-    backgroundColor: '#45bf63',
-    color: '#ffffff',
-    padding: '0 16px',
-    fontFamily: fuenteWispHubClasica,
-    fontSize: '12px',
-  } satisfies CSSProperties,
-} as const;
+const wispHubPageClassName = [
+  'min-h-full border-t border-[#d7dde5] bg-white px-0 pt-6 pb-7 text-[#17273d]',
+  `[font-family:${fuenteWispHubClasica}]`,
+].join(' ');
+const wispHubPanelClassName = 'mx-[8px] mb-5 border border-[#d7dde5] bg-white p-3';
+const wispHubInputClassName = [
+  'h-[34px] border border-[#cfd6df] bg-white px-3 text-[12px] text-[#20324a] outline-none',
+  `[font-family:${fuenteWispHubClasica}]`,
+].join(' ');
+const wispHubPrimaryButtonClassName = [
+  'inline-flex h-[34px] items-center gap-1.5 border border-[#1399da] bg-[#1fa9e6] px-4 text-[12px] text-white',
+  `[font-family:${fuenteWispHubClasica}]`,
+].join(' ');
+const wispHubSuccessButtonClassName = [
+  'inline-flex h-[34px] items-center gap-1.5 border border-[#42b960] bg-[#45bf63] px-4 text-[12px] text-white',
+  `[font-family:${fuenteWispHubClasica}]`,
+].join(' ');
 
-const estilosMikrosystem = {
-  pagina: {
-    minHeight: '100%',
-    backgroundColor: '#dbe6f2',
-    padding: '18px 24px 28px',
-    color: '#25364b',
-    fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
-  } satisfies CSSProperties,
-  panel: {
-    border: '1px solid #d6dee8',
-    backgroundColor: '#ffffff',
-    borderRadius: '4px',
-    overflow: 'hidden',
-    boxShadow: '0 1px 0 rgba(15, 23, 42, 0.04)',
-  } satisfies CSSProperties,
-  encabezado: {
-    backgroundColor: '#ff3131',
-    color: '#ffffff',
-    padding: '10px 16px',
-    fontSize: '14px',
-    fontWeight: 600,
-  } satisfies CSSProperties,
-} as const;
+const mikrosystemPageClassName =
+  'min-h-full bg-[#dbe6f2] px-6 pt-[18px] pb-7 text-[#25364b] [font-family:Segoe_UI,Tahoma,Geneva,Verdana,sans-serif]';
+const mikrosystemPanelClassName =
+  'overflow-hidden rounded-[4px] border border-[#d6dee8] bg-white shadow-[0_1px_0_rgba(15,23,42,0.04)]';
+const mikrosystemHeaderClassName =
+  'flex items-center justify-between gap-3 bg-[#ff3131] px-4 py-[10px] text-[14px] font-semibold text-white';
 
 function obtenerIconoBotonWispHub(
   icono: WispHubListaTicketsBoton['icono'],
@@ -264,19 +219,25 @@ export default function CompletedTickets() {
 
   if (isWispHub) {
     return (
-      <div style={estilosWispHub.pagina}>
-        <section style={estilosWispHub.panel}>
+      <div className={wispHubPageClassName}>
+        <section className={wispHubPanelClassName}>
           <div className="flex flex-wrap items-end gap-7">
             <div>
               <label className="mb-2 block text-[12px] font-semibold">Desde</label>
               <div className="flex">
                 <input
+                  aria-label="Fecha inicial"
+                  title="Fecha inicial"
                   value={startDate}
                   onChange={(event) => setStartDate(event.target.value)}
-                  style={estilosWispHub.input}
-                  className="w-[340px]"
+                  className={`${wispHubInputClassName} w-[340px]`}
                 />
-                <button type="button" className="h-[34px] w-[40px] border border-l-0 border-[#cfd6df] bg-[#f4f6f8] text-[#53657a]">
+                <button
+                  type="button"
+                  aria-label="Abrir selector de fecha inicial"
+                  title="Abrir selector de fecha inicial"
+                  className="h-[34px] w-[40px] border border-l-0 border-[#cfd6df] bg-[#f4f6f8] text-[#53657a]"
+                >
                   <CalendarDays className="mx-auto h-4 w-4" />
                 </button>
               </div>
@@ -286,12 +247,18 @@ export default function CompletedTickets() {
               <label className="mb-2 block text-[12px] font-semibold">Hasta</label>
               <div className="flex">
                 <input
+                  aria-label="Fecha final"
+                  title="Fecha final"
                   value={endDate}
                   onChange={(event) => setEndDate(event.target.value)}
-                  style={estilosWispHub.input}
-                  className="w-[340px]"
+                  className={`${wispHubInputClassName} w-[340px]`}
                 />
-                <button type="button" className="h-[34px] w-[40px] border border-l-0 border-[#cfd6df] bg-[#f4f6f8] text-[#53657a]">
+                <button
+                  type="button"
+                  aria-label="Abrir selector de fecha final"
+                  title="Abrir selector de fecha final"
+                  className="h-[34px] w-[40px] border border-l-0 border-[#cfd6df] bg-[#f4f6f8] text-[#53657a]"
+                >
                   <CalendarDays className="mx-auto h-4 w-4" />
                 </button>
               </div>
@@ -300,10 +267,11 @@ export default function CompletedTickets() {
             <div>
               <label className="mb-2 block text-[12px] font-semibold">Ver</label>
               <select
+                aria-label="Tipo de vista"
+                title="Tipo de vista"
                 value={ticketView}
                 onChange={(event) => setTicketView(event.target.value)}
-                style={estilosWispHub.input}
-                className="w-[160px]"
+                className={`${wispHubInputClassName} w-[160px]`}
               >
                 {datosWispHub.filtros.opcionesVista.map((option) => (
                   <option key={option.valor} value={option.valor}>
@@ -313,7 +281,12 @@ export default function CompletedTickets() {
               </select>
             </div>
 
-            <button type="button" style={estilosWispHub.botonAzul} className="inline-flex items-center gap-1.5">
+            <button
+              type="button"
+              aria-label={datosWispHub.filtros.botonTexto}
+              title={datosWispHub.filtros.botonTexto}
+              className={wispHubPrimaryButtonClassName}
+            >
               <FileText className="h-4 w-4" />
               {datosWispHub.filtros.botonTexto}
             </button>
@@ -323,18 +296,19 @@ export default function CompletedTickets() {
             <div className="flex flex-wrap items-center gap-7">
               <input
                 type="text"
+                aria-label="Buscar servicio o IP del cliente"
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
                 placeholder={datosWispHub.buscadorCliente.placeholder}
-                style={estilosWispHub.input}
-                className="min-w-[420px] flex-1"
+                className={`${wispHubInputClassName} min-w-[420px] flex-1`}
               />
 
               <Link to="/tickets/new">
                 <button
                   type="button"
-                  style={estilosWispHub.botonVerde}
-                  className="inline-flex items-center gap-1.5"
+                  aria-label={datosWispHub.buscadorCliente.botonTexto}
+                  title={datosWispHub.buscadorCliente.botonTexto}
+                  className={wispHubSuccessButtonClassName}
                 >
                   <Plus className="h-4 w-4" />
                   {datosWispHub.buscadorCliente.botonTexto}
@@ -344,18 +318,24 @@ export default function CompletedTickets() {
           </div>
         </section>
 
-        <section style={estilosWispHub.panel}>
+        <section className={wispHubPanelClassName}>
           <div className="flex flex-wrap items-center gap-6">
             <span className="min-w-[95px] text-[12px] text-[#20324a]">Acción:</span>
             <select
+              aria-label="Acción masiva"
+              title="Acción masiva"
               value={bulkAction}
               onChange={(event) => setBulkAction(event.target.value)}
-              style={estilosWispHub.input}
-              className="min-w-[520px] flex-1"
+              className={`${wispHubInputClassName} min-w-[520px] flex-1`}
             >
               <option value="">{datosWispHub.accionMasiva.placeholder}</option>
             </select>
-            <button type="button" style={estilosWispHub.botonAzul} className="inline-flex items-center gap-1.5">
+            <button
+              type="button"
+              aria-label={datosWispHub.accionMasiva.botonTexto}
+              title={datosWispHub.accionMasiva.botonTexto}
+              className={wispHubPrimaryButtonClassName}
+            >
               <ChevronRight className="h-4 w-4" />
               {datosWispHub.accionMasiva.botonTexto}
             </button>
@@ -370,6 +350,8 @@ export default function CompletedTickets() {
             <div className="flex flex-wrap items-center gap-1.5">
               <button
                 type="button"
+                aria-label={`Mostrar ${pageSize} registros por página`}
+                title={`Mostrar ${pageSize} registros por página`}
                 className="inline-flex h-[33px] items-center gap-2 border border-[#42b960] bg-[#45bf63] px-3 text-[12px] font-medium text-white"
               >
                 {datosWispHub.tabla.selectorRegistrosLabel} {pageSize} registros
@@ -380,6 +362,8 @@ export default function CompletedTickets() {
                 <button
                   key={button.id}
                   type="button"
+                  aria-label={button.etiqueta || `Acción ${button.id}`}
+                  title={button.etiqueta || `Acción ${button.id}`}
                   className={`inline-flex h-[33px] items-center justify-center gap-1.5 border px-3 text-[12px] ${obtenerClasesBotonWispHub(button.color)}`}
                 >
                   {obtenerIconoBotonWispHub(button.icono)}
@@ -394,6 +378,8 @@ export default function CompletedTickets() {
                 <button
                   key={button.id}
                   type="button"
+                  aria-label={button.etiqueta || `Acción ${button.id}`}
+                  title={button.etiqueta || `Acción ${button.id}`}
                   className={`inline-flex ${button.variante === 'menu' ? 'h-[33px] items-center gap-1.5 px-3' : 'h-[33px] w-[36px] items-center justify-center'} border text-[12px] ${obtenerClasesBotonWispHub(button.color)}`}
                 >
                   {obtenerIconoBotonWispHub(button.icono)}
@@ -407,6 +393,7 @@ export default function CompletedTickets() {
               Buscar:
               <input
                 type="text"
+                aria-label="Buscar tickets"
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
                 className="h-[30px] w-[165px] border border-[#cfd6df] bg-white px-3 text-[12px] text-[#20324a] outline-none"
@@ -420,7 +407,12 @@ export default function CompletedTickets() {
                 <thead>
                   <tr className="bg-white">
                     <th className="w-[42px] border border-[#d7dde5] px-2 py-2 text-center">
-                      <input type="checkbox" disabled className="h-4 w-4" />
+                      <input
+                        type="checkbox"
+                        disabled
+                        aria-label="Seleccionar todos los tickets"
+                        className="h-4 w-4"
+                      />
                     </th>
                     {datosWispHub.tabla.columnas.map((column) => (
                       <th
@@ -438,6 +430,8 @@ export default function CompletedTickets() {
                     <th className="border border-[#d7dde5] px-2 py-2 text-center">
                       <button
                         type="button"
+                        aria-label="Acciones de filtro"
+                        title="Acciones de filtro"
                         className="inline-flex h-[28px] w-[28px] items-center justify-center border border-[#cfd6df] bg-white text-[12px] text-[#6c7a8d]"
                       >
                         B
@@ -450,6 +444,8 @@ export default function CompletedTickets() {
                       >
                         <input
                           type="text"
+                          aria-label={`Filtrar por ${column.titulo}`}
+                          title={`Filtrar por ${column.titulo}`}
                           placeholder={column.placeholderFiltro}
                           className="h-[30px] w-full border border-[#cfd6df] bg-white px-3 text-[12px] text-[#20324a] outline-none"
                         />
@@ -477,6 +473,8 @@ export default function CompletedTickets() {
               <button
                 type="button"
                 disabled
+                aria-label="Página anterior"
+                title="Página anterior"
                 className="h-[34px] border border-[#d7dde5] bg-white px-4 text-[12px] text-[#6d7a8e] opacity-60"
               >
                 Anterior
@@ -484,6 +482,8 @@ export default function CompletedTickets() {
               <button
                 type="button"
                 disabled
+                aria-label="Página siguiente"
+                title="Página siguiente"
                 className="h-[34px] border border-l-0 border-[#d7dde5] bg-white px-4 text-[12px] text-[#6d7a8e] opacity-60"
               >
                 Siguiente
@@ -496,7 +496,7 @@ export default function CompletedTickets() {
   }
 
   return (
-    <div style={estilosMikrosystem.pagina}>
+    <div className={mikrosystemPageClassName}>
       <div className="mb-4 flex items-start justify-between gap-4">
         <h1 className="text-[21px] font-normal text-[#24364b]">
           {datosMikrosystem.tituloPagina}
@@ -508,27 +508,30 @@ export default function CompletedTickets() {
         </div>
       </div>
 
-      <section style={estilosMikrosystem.panel}>
-        <header
-          style={estilosMikrosystem.encabezado}
-          className="flex items-center justify-between gap-3"
-        >
+      <section className={mikrosystemPanelClassName}>
+        <header className={mikrosystemHeaderClassName}>
           <span>{datosMikrosystem.tituloPanel}</span>
           <div className="flex items-center gap-2">
             <button
               type="button"
+              aria-label="Actualizar panel"
+              title="Actualizar panel"
               className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/10 text-white"
             >
               <RefreshCw className="h-3.5 w-3.5" />
             </button>
             <button
               type="button"
+              aria-label="Contraer panel"
+              title="Contraer panel"
               className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/10 text-white"
             >
               <ChevronRight className="h-3.5 w-3.5 rotate-180" />
             </button>
             <button
               type="button"
+              aria-label="Expandir panel"
+              title="Expandir panel"
               className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/10 text-white"
             >
               <ChevronDown className="h-3.5 w-3.5 -rotate-90" />
@@ -540,6 +543,8 @@ export default function CompletedTickets() {
           <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
             <div className="flex flex-wrap items-center gap-2">
               <select
+                aria-label="Cantidad de registros"
+                title="Cantidad de registros"
                 value={pageSize}
                 onChange={(event) => setPageSize(Number(event.target.value))}
                 className="h-8 rounded border border-[#cfd7e2] bg-white px-3 text-[12px] text-[#24364b] outline-none"
@@ -553,6 +558,8 @@ export default function CompletedTickets() {
                 <Link
                   key={action.id}
                   to={action.icono === 'nuevo' ? '/tickets/new' : '#'}
+                  aria-label={action.etiqueta || `Acción ${action.id}`}
+                  title={action.etiqueta || `Acción ${action.id}`}
                   className={`inline-flex h-8 items-center justify-center gap-1.5 rounded border border-[#cfd7e2] bg-white px-3 text-[12px] text-[#24364b] ${
                     action.variante === 'icono' ? 'w-10 px-0' : ''
                   }`}
@@ -563,6 +570,8 @@ export default function CompletedTickets() {
               ))}
 
               <select
+                aria-label="Filtrar por estado"
+                title="Filtrar por estado"
                 value={statusFilter}
                 onChange={(event) => setStatusFilter(event.target.value)}
                 className="h-8 min-w-[112px] rounded border border-[#cfd7e2] bg-white px-3 text-[12px] text-[#24364b] outline-none"
@@ -575,6 +584,8 @@ export default function CompletedTickets() {
               </select>
 
               <select
+                aria-label="Filtrar por departamento"
+                title="Filtrar por departamento"
                 value={departmentFilter}
                 onChange={(event) => setDepartmentFilter(event.target.value)}
                 className="h-8 min-w-[160px] rounded border border-[#cfd7e2] bg-white px-3 text-[12px] text-[#24364b] outline-none"
@@ -590,6 +601,7 @@ export default function CompletedTickets() {
             <div className="relative">
               <input
                 type="text"
+                aria-label="Buscar tickets cerrados"
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
                 placeholder={datosMikrosystem.tabla.placeholderBusquedaGeneral}
@@ -625,6 +637,8 @@ export default function CompletedTickets() {
                       {column.placeholderFiltro ? (
                         <input
                           type="text"
+                          aria-label={`Filtrar por ${column.titulo}`}
+                          title={`Filtrar por ${column.titulo}`}
                           placeholder={column.placeholderFiltro}
                           className="h-8 w-full rounded border border-[#d7e0ea] bg-white px-3 text-[12px] text-[#24364b] outline-none placeholder:text-[#c3ccd6]"
                         />
@@ -653,12 +667,16 @@ export default function CompletedTickets() {
               <button
                 type="button"
                 disabled
+                aria-label="Página anterior"
+                title="Página anterior"
                 className="inline-flex h-8 w-8 items-center justify-center rounded border border-[#d7e0ea] bg-white text-[#9aa8b7]"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
               <button
                 type="button"
+                aria-label="Página actual 1"
+                title="Página actual 1"
                 className="inline-flex h-8 w-8 items-center justify-center rounded bg-[#2f93e4] text-[12px] font-semibold text-white"
               >
                 1
@@ -666,6 +684,8 @@ export default function CompletedTickets() {
               <button
                 type="button"
                 disabled
+                aria-label="Página siguiente"
+                title="Página siguiente"
                 className="inline-flex h-8 w-8 items-center justify-center rounded border border-[#d7e0ea] bg-white text-[#9aa8b7]"
               >
                 <ChevronRight className="h-4 w-4" />

@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import {
   CalendarDays,
   ChevronDown,
@@ -293,12 +293,14 @@ export function SelectField({
   onChange,
   options,
   className = '',
+  ariaLabel = 'Seleccionar opcion',
 }: {
   isWispHub: boolean;
   value: string;
   onChange: (value: string) => void;
   options: Array<{ value: string; label: string }>;
   className?: string;
+  ariaLabel?: string;
 }) {
   const controlClass = isWispHub
     ? 'h-[42px] rounded-[6px] border border-[#d7dde5] bg-white px-4 text-[14px] text-[#20324a] outline-none'
@@ -310,6 +312,8 @@ export function SelectField({
         value={value}
         onChange={(event) => onChange(event.target.value)}
         className={`${controlClass} w-full appearance-none pr-11`}
+        aria-label={ariaLabel}
+        title={ariaLabel}
       >
         {options.map((option) => (
           <option key={option.value} value={option.value}>
@@ -394,8 +398,7 @@ export function NetworkTable<T>({
               {columns.map((column) => (
                 <th
                   key={column.key}
-                  className={`border-b border-r border-[#d7dde5] px-4 py-3 text-[13px] font-semibold uppercase text-[#24364b] last:border-r-0 ${getAlignClass(column.align)}`}
-                  style={column.width ? { width: column.width } : undefined}
+                  className={`border-b border-r border-[#d7dde5] px-4 py-3 text-[13px] font-semibold uppercase text-[#24364b] last:border-r-0 ${getAlignClass(column.align)} ${column.width ? `[width:${column.width}]` : ''}`}
                 >
                   <div
                     className={`flex items-center gap-2 ${
@@ -601,6 +604,14 @@ export function SummaryCard({
 }
 
 export function TrafficChartPlaceholder() {
+  const gridTopClasses = [
+    'top-[20%]',
+    'top-[40%]',
+    'top-[60%]',
+    'top-[80%]',
+    'top-[100%]',
+  ];
+
   return (
     <div className="overflow-hidden rounded-[4px] border border-[#d7dde5] bg-white">
       <div className="border-b border-[#d7dde5] bg-[#f3f6f9] px-5 py-5 text-[18px] font-semibold text-[#425b74]">
@@ -611,8 +622,7 @@ export function TrafficChartPlaceholder() {
           {[0, 1, 2, 3, 4].map((index) => (
             <div
               key={index}
-              className="absolute left-[7%] right-[2%] border-t border-[#d2d7dd]"
-              style={{ top: `${20 + index * 20}%` }}
+              className={`absolute left-[7%] right-[2%] border-t border-[#d2d7dd] ${gridTopClasses[index]}`}
             />
           ))}
           <div className="absolute inset-x-[10%] bottom-9 flex justify-between text-[16px] text-[#7f8fa0]">
@@ -647,25 +657,42 @@ export function TrafficChartPlaceholder() {
 export function useNetworkDialog() {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const timerRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (!open) {
+    return () => {
+      if (timerRef.current) {
+        window.clearTimeout(timerRef.current);
+      }
+    };
+  }, []);
+
+  const updateOpen = (nextOpen: boolean) => {
+    setOpen(nextOpen);
+
+    if (timerRef.current) {
+      window.clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+
+    if (!nextOpen) {
       setLoading(false);
       return;
     }
 
     setLoading(true);
-    const timerId = window.setTimeout(() => setLoading(false), 450);
-
-    return () => window.clearTimeout(timerId);
-  }, [open]);
+    timerRef.current = window.setTimeout(() => {
+      setLoading(false);
+      timerRef.current = null;
+    }, 450);
+  };
 
   return {
     open,
     loading,
-    setOpen,
-    openDialog: () => setOpen(true),
-    closeDialog: () => setOpen(false),
+    setOpen: updateOpen,
+    openDialog: () => updateOpen(true),
+    closeDialog: () => updateOpen(false),
   };
 }
 
@@ -721,13 +748,17 @@ export function NetworkFormDialog({
 
                 return (
                   <div key={field.name} className={colSpanClass}>
-                    <label className="mb-2 block text-[14px] font-medium text-[#5b6470]">
+                    <label
+                      htmlFor={`network-form-${field.name}`}
+                      className="mb-2 block text-[14px] font-medium text-[#5b6470]"
+                    >
                       {field.label}
                       {field.required ? ' *' : ''}
                     </label>
 
                     {field.type === 'textarea' ? (
                       <textarea
+                        id={`network-form-${field.name}`}
                         value={values[field.name] ?? ''}
                         onChange={(event) =>
                           onFieldChange(field.name, event.target.value)
@@ -739,12 +770,15 @@ export function NetworkFormDialog({
                     ) : field.type === 'select' ? (
                       <div className="relative">
                         <select
+                          id={`network-form-${field.name}`}
                           value={values[field.name] ?? ''}
                           onChange={(event) =>
                             onFieldChange(field.name, event.target.value)
                           }
                           required={field.required}
                           className={`${fieldClass} w-full appearance-none pr-10`}
+                          aria-label={field.label}
+                          title={field.label}
                         >
                           {(field.options ?? []).map((option) => (
                             <option key={option.value} value={option.value}>
@@ -756,6 +790,7 @@ export function NetworkFormDialog({
                       </div>
                     ) : (
                       <input
+                        id={`network-form-${field.name}`}
                         type={field.type === 'date' ? 'date' : field.type ?? 'text'}
                         value={values[field.name] ?? ''}
                         onChange={(event) =>

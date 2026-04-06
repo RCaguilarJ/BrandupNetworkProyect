@@ -12,7 +12,6 @@ import {
   Globe,
   HandCoins,
   LifeBuoy,
-  ListChecks,
   Logs,
   Mail,
   MapPinned,

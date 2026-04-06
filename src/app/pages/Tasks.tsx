@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   CalendarDays,
   ChevronDown,
@@ -169,16 +169,35 @@ export default function Tasks() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogLoading, setDialogLoading] = useState(false);
   const [form, setForm] = useState<TaskForm>(defaultForm(defaultOperator));
+  const loadingTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (!dialogOpen) {
+    return () => {
+      if (loadingTimeoutRef.current) {
+        window.clearTimeout(loadingTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const handleDialogOpenChange = (open: boolean) => {
+    setDialogOpen(open);
+
+    if (loadingTimeoutRef.current) {
+      window.clearTimeout(loadingTimeoutRef.current);
+      loadingTimeoutRef.current = null;
+    }
+
+    if (!open) {
       setDialogLoading(false);
       return;
     }
+
     setDialogLoading(true);
-    const id = window.setTimeout(() => setDialogLoading(false), 650);
-    return () => window.clearTimeout(id);
-  }, [dialogOpen]);
+    loadingTimeoutRef.current = window.setTimeout(() => {
+      setDialogLoading(false);
+      loadingTimeoutRef.current = null;
+    }, 650);
+  };
 
   const filteredTasks = useMemo(
     () =>
@@ -218,7 +237,7 @@ export default function Tasks() {
 
   const openNewTask = () => {
     setForm(defaultForm(defaultOperator));
-    setDialogOpen(true);
+    handleDialogOpenChange(true);
   };
 
   const updateForm = (field: keyof TaskForm, value: string) =>
@@ -235,7 +254,7 @@ export default function Tasks() {
     setTasks((current) => [...current, task]);
     setTimelineDate(new Date(task.startAt));
     setActiveTab('timeline');
-    setDialogOpen(false);
+    handleDialogOpenChange(false);
   };
 
   const renderHeader = () => (
@@ -526,7 +545,7 @@ export default function Tasks() {
       {renderHeader()}
       {activeTab === 'timeline' ? renderTimeline() : renderTable()}
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={handleDialogOpenChange}>
         <DialogContent className="max-h-[92vh] max-w-[calc(100%-1rem)] overflow-y-auto border border-[#d7dfe8] bg-white p-0 sm:max-w-[980px]">
           <DialogHeader className="border-b border-[#d7dfe8] bg-[#f5f5f5] px-6 py-3">
             <DialogTitle className="text-[18px] font-semibold text-[#303030]">
@@ -559,7 +578,7 @@ export default function Tasks() {
               </div>
 
               <DialogFooter className="border-t border-[#d7dfe8] px-6 py-4 sm:justify-end">
-                <button type="button" onClick={() => setDialogOpen(false)} className="inline-flex h-[44px] items-center rounded-[6px] border border-[#d7dfe8] bg-white px-5 text-[14px] font-semibold text-[#4b5563]">
+                <button type="button" onClick={() => handleDialogOpenChange(false)} className="inline-flex h-[44px] items-center rounded-[6px] border border-[#d7dfe8] bg-white px-5 text-[14px] font-semibold text-[#4b5563]">
                   Cancelar
                 </button>
                 <button type="button" onClick={saveTask} className="inline-flex h-[44px] items-center rounded-[6px] bg-[#2f7ee8] px-5 text-[14px] font-semibold text-white">

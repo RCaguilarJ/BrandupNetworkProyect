@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button } from '../components/ui/button';
-import { FileText, Download, Send, CreditCard, Filter, Eye, Mail } from 'lucide-react';
+import { FileText, Download, Send, Filter, Eye, Mail } from 'lucide-react';
 import { MOCK_INVOICES, MOCK_PAYMENTS, MOCK_CLIENTS } from '../data/mockData';
 import { useAuth } from '../context/AuthContext';
 import { formatCurrency, formatDate, formatDateTime } from '../lib/utils';

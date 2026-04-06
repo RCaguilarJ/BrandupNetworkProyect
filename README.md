@@ -31,6 +31,10 @@ La aplicacion no consume backend real todavia de forma transversal. Hoy conviven
 - contratos visuales ya documentados en este `README`
 - pantallas que ya fueron preparadas para recibir datos reales sin redisenar el layout
 
+Documentacion especifica para backend:
+
+- `docs/backend-integration.md`
+
 ### Estado actual detectado
 
 - El punto de entrada es `src/main.tsx`, que monta `src/app/App.tsx`.
@@ -2643,4 +2647,3 @@ interface MikrosystemTicketsHoyDatos {
 - Si cambia una clave del contrato `MikrosystemTicketsHoyDatos`, actualizar `src/app/types/index.ts`, `src/app/pages/tickets/TodayTickets.tsx` y este README en el mismo cambio.
 - No se deben reintroducir arreglos mock en `TodayTickets`.
 - La línea gráfica y el set de acciones deben mantenerse consistentes con `Tickets`, `Tickets en Proceso` y `Tickets Finalizados`.
-

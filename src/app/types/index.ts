@@ -818,23 +818,23 @@ export interface MikrosystemListaTicketsDatos {
   };
 }
 
-export interface WispHubTicketsFinalizadosDatos
-  extends WispHubListaTicketsDatos {}
+export type WispHubTicketsFinalizadosDatos =
+  WispHubListaTicketsDatos;
 
-export interface MikrosystemTicketsFinalizadosDatos
-  extends MikrosystemListaTicketsDatos {}
+export type MikrosystemTicketsFinalizadosDatos =
+  MikrosystemListaTicketsDatos;
 
-export interface WispHubTicketsEnProcesoDatos
-  extends WispHubListaTicketsDatos {}
+export type WispHubTicketsEnProcesoDatos =
+  WispHubListaTicketsDatos;
 
-export interface MikrosystemTicketsEnProcesoDatos
-  extends MikrosystemListaTicketsDatos {}
+export type MikrosystemTicketsEnProcesoDatos =
+  MikrosystemListaTicketsDatos;
 
-export interface WispHubTicketsHoyDatos
-  extends WispHubListaTicketsDatos {}
+export type WispHubTicketsHoyDatos =
+  WispHubListaTicketsDatos;
 
-export interface MikrosystemTicketsHoyDatos
-  extends MikrosystemListaTicketsDatos {}
+export type MikrosystemTicketsHoyDatos =
+  MikrosystemListaTicketsDatos;
 
 export interface ServerManagementMysqlVariable {
   key: string;

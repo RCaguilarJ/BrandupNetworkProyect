@@ -12,11 +12,7 @@ import {
   Ticket, 
   Activity,
   DollarSign,
-  TrendingUp,
-  WifiOff,
-  Server,
-  Wifi,
-  Clock
+  TrendingUp
 } from 'lucide-react';
 import {
   MOCK_COMPANIES,
@@ -26,6 +22,7 @@ import {
   MOCK_NETWORK_DEVICES,
   MOCK_AUDIT_LOGS,
 } from '../data/mockData';
+import { THEME_DASHBOARD_ROLES } from '../lib/view-theme';
 import { formatCurrency, formatDateTime } from '../lib/utils';
 import { 
   LineChart, 
@@ -45,9 +42,11 @@ export default function Dashboard() {
   const { viewTheme } = useViewTheme();
 
   // Roles que ven dashboards específicos por tema
-  const rolesWithThemeDashboards = ['super_admin', 'isp_admin', 'tecnico'];
+  const usesThemeDashboard = THEME_DASHBOARD_ROLES.includes(
+    (user?.role || '') as (typeof THEME_DASHBOARD_ROLES)[number],
+  );
   
-  if (rolesWithThemeDashboards.includes(user?.role || '')) {
+  if (usesThemeDashboard) {
     if (viewTheme === 'wisphub') {
       return <DashboardWispHub />;
     } else {

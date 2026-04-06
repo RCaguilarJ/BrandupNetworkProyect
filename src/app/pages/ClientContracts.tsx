@@ -4,7 +4,6 @@ import {
   Gauge,
   List,
   Save,
-  SquareChartGantt,
 } from 'lucide-react';
 import { useViewTheme } from '../context/ViewThemeContext';
 import { HorizontalScrollRail } from './network/networkManagementShared';

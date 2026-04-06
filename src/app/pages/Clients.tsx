@@ -15,7 +15,6 @@ import {
   FileText,
   List,
   Mail,
-  MapPin,
   Phone,
   Play,
   Plus,
@@ -31,19 +30,10 @@ import {
   Wrench,
 } from 'lucide-react';
 import { useNavigate } from 'react-router';
-import { Button } from '../components/ui/button';
-import {
-  CompactTable,
-  CompactTableColumn,
-  CompactTableFooter,
-  CompactTableToolbar,
-} from '../components/CompactTable';
 import { useAuth } from '../context/AuthContext';
 import { useViewTheme } from '../context/ViewThemeContext';
-import { formatCurrency, formatDate } from '../lib/utils';
 import type {
   MikrosystemListaClientesAccion,
-  MikrosystemListaClientesColumna,
   MikrosystemListaClientesDatos,
   WispHubListaClientesBoton,
   WispHubListaClientesColumna,
@@ -144,46 +134,6 @@ const estilosMikrosystem = {
   } satisfies CSSProperties,
 } as const;
 
-const serviciosWispHub = [
-  'Internet Residencial',
-  'Internet Empresarial',
-  'Fibra Optica',
-  'Radio Enlace',
-];
-
-const routersWispHub = [
-  'Mikrotik CCR1009',
-  'Mikrotik RB4011',
-  'Huawei NE8000',
-  'Cisco ASR 1001',
-];
-
-function extraerZonaDesdeDireccion(direccion: string) {
-  const segmentoColonia = direccion.split('Col.')[1];
-  if (segmentoColonia) {
-    return segmentoColonia.split(',')[0].trim();
-  }
-
-  return 'Zona Centro';
-}
-
-function traducirEstadoWispHub(
-  estado: string,
-): WispHubListaClientesFila['estado'] {
-  const mapaEstados = {
-    active: 'activo',
-    suspended: 'suspendido',
-    overdue: 'moroso',
-    cancelled: 'cancelado',
-  } satisfies Record<string, WispHubListaClientesFila['estado']>;
-
-  return mapaEstados[estado] ?? 'activo';
-}
-
-function construirIpWispHub(indice: number) {
-  return `10.0.${Math.floor(indice / 8) + 1}.${110 + indice}`;
-}
-
 function obtenerMetaEstadoWispHub(
   estado: WispHubListaClientesFila['estado'],
 ) {
@@ -281,7 +231,7 @@ function obtenerIconoAccionMikrosystem(
 }
 
 export default function Clients() {
-  const { user } = useAuth();
+  useAuth();
   const navigate = useNavigate();
   const { viewTheme } = useViewTheme();
   const isWispHub = viewTheme === 'wisphub';
@@ -294,10 +244,6 @@ export default function Clients() {
     isWispHub ? 10 : 15,
   );
   const [currentPage, setCurrentPage] = useState(1);
-  const [sortField, setSortField] = useState<string>('name');
-  const [sortDirection, setSortDirection] = useState<
-    'asc' | 'desc'
-  >('asc');
   const [zonaSeleccionada, setZonaSeleccionada] =
     useState('all');
   const [accionMasivaSeleccionada, setAccionMasivaSeleccionada] =
@@ -321,262 +267,6 @@ export default function Clients() {
     direccion: '',
     accion: '',
   });
-
-  const userClients: Array<{
-    id: string;
-    name: string;
-    email: string;
-    phone: string;
-    address: string;
-    status: 'active' | 'suspended' | 'overdue' | 'cancelled';
-    planId: string;
-    balance: number;
-    lastPayment?: string;
-  }> = [];
-
-  const filteredClients = userClients.filter((client) => {
-    const matchesSearch =
-      client.name
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      client.email
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      client.phone.includes(searchTerm);
-    const matchesStatus =
-      statusFilter === 'all' || client.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
-
-  const getStatusBadge = (status: string) => {
-    const badges = {
-      active: {
-        text: 'Activo',
-        class:
-          'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-      },
-      suspended: {
-        text: 'Suspendido',
-        class:
-          'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-      },
-      overdue: {
-        text: 'Moroso',
-        class:
-          'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-      },
-      cancelled: {
-        text: 'Cancelado',
-        class:
-          'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
-      },
-    };
-    const badge =
-      badges[status as keyof typeof badges] || {
-        text: status,
-        class: 'bg-gray-100 text-gray-800',
-      };
-
-    return (
-      <span
-        className={`inline-flex items-center rounded px-2 py-0.5 text-xs font-medium ${badge.class}`}
-      >
-        {badge.text}
-      </span>
-    );
-  };
-
-  const getPlanName = (planId: string) => {
-    void planId;
-    return '';
-  };
-
-  const getClientSortValue = (
-    client: (typeof MOCK_CLIENTS)[number],
-    field: string,
-  ) => {
-    switch (field) {
-      case 'balance':
-        return client.balance;
-      case 'lastPayment':
-        return client.lastPayment
-          ? new Date(client.lastPayment).getTime()
-          : 0;
-      case 'planId':
-        return getPlanName(client.planId);
-      default:
-        return String(
-          client[field as keyof typeof client] ?? '',
-        ).toLowerCase();
-    }
-  };
-
-  const handleSort = (field: string) => {
-    if (sortField === field) {
-      setSortDirection(
-        sortDirection === 'asc' ? 'desc' : 'asc',
-      );
-      return;
-    }
-
-    setSortField(field);
-    setSortDirection('asc');
-  };
-
-  const sortedClients = [...filteredClients].sort(
-    (firstClient, secondClient) => {
-      const firstValue = getClientSortValue(
-        firstClient,
-        sortField,
-      );
-      const secondValue = getClientSortValue(
-        secondClient,
-        sortField,
-      );
-
-      if (firstValue < secondValue) {
-        return sortDirection === 'asc' ? -1 : 1;
-      }
-
-      if (firstValue > secondValue) {
-        return sortDirection === 'asc' ? 1 : -1;
-      }
-
-      return 0;
-    },
-  );
-
-  const stats = {
-    activos: userClients.filter(
-      (client) => client.status === 'active',
-    ).length,
-    suspendidos: userClients.filter(
-      (client) => client.status === 'suspended',
-    ).length,
-    morosos: userClients.filter(
-      (client) => client.status === 'overdue',
-    ).length,
-    total: formatCurrency(
-      userClients.reduce(
-        (sum, client) => sum + client.balance,
-        0,
-      ),
-    ),
-  };
-
-  const columns: CompactTableColumn<(typeof userClients)[number]>[] =
-    [
-      {
-        key: 'name',
-        header: 'Cliente',
-        sortable: true,
-        render: (client) => (
-          <div>
-            <div className="leading-tight font-medium text-gray-900 dark:text-white">
-              {client.name}
-            </div>
-            <div className="mt-0.5 flex items-center gap-1 leading-tight text-gray-500 dark:text-gray-400">
-              <MapPin className="h-3 w-3" />
-              <span className="max-w-xs truncate">
-                {client.address}
-              </span>
-            </div>
-          </div>
-        ),
-      },
-      {
-        key: 'email',
-        header: 'Contacto',
-        render: (client) => (
-          <div>
-            <div className="flex items-center gap-1 leading-tight text-gray-700 dark:text-gray-300">
-              <Mail className="h-3 w-3 text-gray-400" />
-              {client.email}
-            </div>
-            <div className="mt-0.5 flex items-center gap-1 leading-tight text-gray-500 dark:text-gray-400">
-              <Phone className="h-3 w-3 text-gray-400" />
-              {client.phone}
-            </div>
-          </div>
-        ),
-      },
-      {
-        key: 'planId',
-        header: 'Plan',
-        sortable: true,
-        render: (client) => (
-          <span className="text-gray-700 dark:text-gray-300">
-            {getPlanName(client.planId)}
-          </span>
-        ),
-      },
-      {
-        key: 'status',
-        header: 'Estado',
-        align: 'center',
-        sortable: true,
-        render: (client) => getStatusBadge(client.status),
-      },
-      {
-        key: 'balance',
-        header: 'Saldo',
-        align: 'right',
-        sortable: true,
-        render: (client) => (
-          <span
-            className={`font-medium ${
-              client.balance > 0
-                ? 'text-red-600 dark:text-red-400'
-                : 'text-green-600 dark:text-green-400'
-            }`}
-          >
-            {formatCurrency(client.balance)}
-          </span>
-        ),
-      },
-      {
-        key: 'lastPayment',
-        header: 'Ultimo Pago',
-        sortable: true,
-        render: (client) => (
-          <span className="text-gray-600 dark:text-gray-400">
-            {client.lastPayment
-              ? formatDate(client.lastPayment)
-              : 'Sin pagos'}
-          </span>
-        ),
-      },
-      {
-        key: 'actions',
-        header: 'Acciones',
-        align: 'center',
-        render: (client) => (
-          <div className="flex items-center justify-center gap-1">
-            <button
-              className="rounded p-1 hover:bg-gray-100 dark:hover:bg-gray-700"
-              title="Ver detalle"
-            >
-              <Eye className="h-3.5 w-3.5 text-gray-600 dark:text-gray-400" />
-            </button>
-            <button
-              className="rounded p-1 hover:bg-gray-100 dark:hover:bg-gray-700"
-              title="Editar"
-              onClick={() =>
-                navigate(`/clients/${client.id}/edit`)
-              }
-            >
-              <Edit className="h-3.5 w-3.5 text-gray-600 dark:text-gray-400" />
-            </button>
-            <button
-              className="rounded p-1 hover:bg-red-50 dark:hover:bg-red-900/20"
-              title="Eliminar"
-            >
-              <Trash2 className="h-3.5 w-3.5 text-red-600 dark:text-red-400" />
-            </button>
-          </div>
-        ),
-      },
-    ];
 
   const filasWispHubBase: WispHubListaClientesFila[] = [];
 
@@ -841,25 +531,13 @@ export default function Clients() {
     },
   );
 
-  const totalPages = Math.max(
-    1,
-    Math.ceil(sortedClients.length / pageSize),
-  );
   const totalPagesWispHub = Math.max(
     1,
     Math.ceil(filasWispHubOrdenadas.length / pageSize),
   );
-  const currentPageNormalizada = Math.min(
-    currentPage,
-    totalPages,
-  );
   const currentPageWispHub = Math.min(
     currentPage,
     totalPagesWispHub,
-  );
-  const clientesPaginaActual = sortedClients.slice(
-    (currentPageNormalizada - 1) * pageSize,
-    currentPageNormalizada * pageSize,
   );
   const filasWispHubPaginaActual =
     filasWispHubOrdenadas.slice(

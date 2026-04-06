@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { Button } from '../../components/ui/button';
 import { Download, Filter, Eye, FileText } from 'lucide-react';
 import { MOCK_PAYMENTS, MOCK_CLIENTS } from '../../data/mockData';
@@ -73,14 +73,12 @@ export default function CompletedPayments() {
   };
 
   // Filtrado de pagos - ahora getClientName ya está definido
-  const filteredPayments = useMemo(() => {
-    return completedPayments.filter(payment => {
-      const matchesSearch = getClientName(payment.clientId).toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           (payment.reference || '').toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesMethod = methodFilter === 'all' || payment.method === methodFilter;
-      return matchesSearch && matchesMethod;
-    });
-  }, [completedPayments, searchTerm, methodFilter]);
+  const filteredPayments = completedPayments.filter(payment => {
+    const matchesSearch = getClientName(payment.clientId).toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (payment.reference || '').toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesMethod = methodFilter === 'all' || payment.method === methodFilter;
+    return matchesSearch && matchesMethod;
+  });
 
   const handleSort = (field: string) => {
     if (sortField === field) {

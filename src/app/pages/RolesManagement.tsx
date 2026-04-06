@@ -2,18 +2,7 @@ import { useMemo, useState } from 'react';
 import { Button } from '../components/ui/button';
 import { useAuth } from '../context/AuthContext';
 import { type RoleManagementRecord, type UserRole } from '../types';
-import {
-  BadgeCheck,
-  ChevronLeft,
-  ChevronRight,
-  Ellipsis,
-  Expand,
-  List,
-  Pencil,
-  Plus,
-  RefreshCw,
-  TableProperties,
-} from 'lucide-react';
+import { ChevronLeft, ChevronRight, Ellipsis, Expand, List, Pencil, Plus, RefreshCw, TableProperties } from 'lucide-react';
 import { toast } from 'sonner';
 
 type SystemProfile = {

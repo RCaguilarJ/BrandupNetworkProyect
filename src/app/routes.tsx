@@ -1,100 +1,118 @@
+import { lazy, Suspense, type ComponentType, type ReactNode } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router';
-import MainLayout from './layouts/MainLayout';
-import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
-import Clients from './pages/Clients';
-import ClientAnnouncements from './pages/ClientAnnouncements';
-import ClientContracts from './pages/ClientContracts';
-import ClientEmails from './pages/ClientEmails';
-import ClientInstallations from './pages/ClientInstallations';
-import ClientPushNotifications from './pages/ClientPushNotifications';
-import ClientForm from './pages/ClientForm';
-import ClientsMap from './pages/ClientsMap';
-import PlanForm from './pages/PlanForm';
-import Billing from './pages/Billing';
-import Tickets from './pages/Tickets';
-import TicketForm from './pages/TicketForm';
-import Settings from './pages/Settings';
-import Tasks from './pages/Tasks';
-import PortalClientSettings from './pages/PortalClientSettings';
-import TemplateEditor from './pages/TemplateEditor';
-import ConfigurationTemplates from './pages/ConfigurationTemplates';
-import InvoiceMessages from './pages/InvoiceMessages';
-import ImportClients from './pages/ImportClients';
-import LocationsManagement from './pages/LocationsManagement';
-import MigrateCompany from './pages/MigrateCompany';
-import GeneralSettings from './pages/GeneralSettings';
-import CustomDomainsSettings from './pages/CustomDomainsSettings';
-import MailServerSettings from './pages/MailServerSettings';
-import ServerManagement from './pages/ServerManagement';
-import PaymentMethods from './pages/PaymentMethods';
-import StaffManagement from './pages/StaffManagement';
-import UsersManagement from './pages/UsersManagement';
-import RolesManagement from './pages/RolesManagement';
-import CurrenciesManagement from './pages/CurrenciesManagement';
-import ReceiptsManagement from './pages/ReceiptsManagement';
-import UnitsManagement from './pages/UnitsManagement';
-import IncidentsManagement from './pages/IncidentsManagement';
-import CronJobsManagement from './pages/CronJobsManagement';
-import ZonesManagement from './pages/ZonesManagement';
-import CustomFieldsManagement from './pages/CustomFieldsManagement';
-import WspTemplatesManagement from './pages/WspTemplatesManagement';
 
-// Billing subpages
-import Invoices from './pages/billing/Invoices';
-import ElectronicBilling from './pages/billing/ElectronicBilling';
-import PendingInvoices from './pages/billing/PendingInvoices';
-import RegisterPayment from './pages/billing/RegisterPayment';
-import RegisterBulkPayments from './pages/billing/RegisterBulkPayments';
-import Transactions from './pages/billing/Transactions';
-import CompletedPayments from './pages/billing/CompletedPayments';
-import BillingStats from './pages/billing/BillingStats';
-import OtherIncomeExpenses from './pages/billing/OtherIncomeExpenses';
+const MainLayout = lazy(() => import('./layouts/MainLayout'));
+const Login = lazy(() => import('./pages/Login'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Clients = lazy(() => import('./pages/Clients'));
+const ClientAnnouncements = lazy(() => import('./pages/ClientAnnouncements'));
+const ClientContracts = lazy(() => import('./pages/ClientContracts'));
+const ClientEmails = lazy(() => import('./pages/ClientEmails'));
+const ClientInstallations = lazy(() => import('./pages/ClientInstallations'));
+const ClientPushNotifications = lazy(() => import('./pages/ClientPushNotifications'));
+const ClientForm = lazy(() => import('./pages/ClientForm'));
+const ClientsMap = lazy(() => import('./pages/ClientsMap'));
+const PlanForm = lazy(() => import('./pages/PlanForm'));
+const Billing = lazy(() => import('./pages/Billing'));
+const Tickets = lazy(() => import('./pages/Tickets'));
+const TicketForm = lazy(() => import('./pages/TicketForm'));
+const Settings = lazy(() => import('./pages/Settings'));
+const Tasks = lazy(() => import('./pages/Tasks'));
+const PortalClientSettings = lazy(() => import('./pages/PortalClientSettings'));
+const TemplateEditor = lazy(() => import('./pages/TemplateEditor'));
+const ConfigurationTemplates = lazy(() => import('./pages/ConfigurationTemplates'));
+const InvoiceMessages = lazy(() => import('./pages/InvoiceMessages'));
+const ImportClients = lazy(() => import('./pages/ImportClients'));
+const LocationsManagement = lazy(() => import('./pages/LocationsManagement'));
+const MigrateCompany = lazy(() => import('./pages/MigrateCompany'));
+const GeneralSettings = lazy(() => import('./pages/GeneralSettings'));
+const CustomDomainsSettings = lazy(() => import('./pages/CustomDomainsSettings'));
+const MailServerSettings = lazy(() => import('./pages/MailServerSettings'));
+const ServerManagement = lazy(() => import('./pages/ServerManagement'));
+const PaymentMethods = lazy(() => import('./pages/PaymentMethods'));
+const StaffManagement = lazy(() => import('./pages/StaffManagement'));
+const UsersManagement = lazy(() => import('./pages/UsersManagement'));
+const RolesManagement = lazy(() => import('./pages/RolesManagement'));
+const CurrenciesManagement = lazy(() => import('./pages/CurrenciesManagement'));
+const ReceiptsManagement = lazy(() => import('./pages/ReceiptsManagement'));
+const UnitsManagement = lazy(() => import('./pages/UnitsManagement'));
+const IncidentsManagement = lazy(() => import('./pages/IncidentsManagement'));
+const CronJobsManagement = lazy(() => import('./pages/CronJobsManagement'));
+const ZonesManagement = lazy(() => import('./pages/ZonesManagement'));
+const CustomFieldsManagement = lazy(() => import('./pages/CustomFieldsManagement'));
+const WspTemplatesManagement = lazy(() => import('./pages/WspTemplatesManagement'));
 
-// Tickets subpages
-import TodayTickets from './pages/tickets/TodayTickets';
-import OverdueTickets from './pages/tickets/OverdueTickets';
-import CompletedTickets from './pages/tickets/CompletedTickets';
+const Invoices = lazy(() => import('./pages/billing/Invoices'));
+const ElectronicBilling = lazy(() => import('./pages/billing/ElectronicBilling'));
+const PendingInvoices = lazy(() => import('./pages/billing/PendingInvoices'));
+const RegisterPayment = lazy(() => import('./pages/billing/RegisterPayment'));
+const RegisterBulkPayments = lazy(() => import('./pages/billing/RegisterBulkPayments'));
+const Transactions = lazy(() => import('./pages/billing/Transactions'));
+const CompletedPayments = lazy(() => import('./pages/billing/CompletedPayments'));
+const BillingStats = lazy(() => import('./pages/billing/BillingStats'));
+const OtherIncomeExpenses = lazy(() => import('./pages/billing/OtherIncomeExpenses'));
 
-import BookAppointment from './pages/calendar/BookAppointment';
-import FichasHotspot from './pages/hotspot/FichasHotspot';
-import HotspotRouters from './pages/hotspot/HotspotRouters';
-import HotspotTemplates from './pages/hotspot/HotspotTemplates';
-import NetworkAdminOlt from './pages/network/NetworkAdminOlt';
-import NetworkBlacklist from './pages/network/NetworkBlacklist';
-import NetworkIpv4 from './pages/network/NetworkIpv4';
-import NetworkMonitoring from './pages/network/NetworkMonitoring';
-import NetworkNapBoxes from './pages/network/NetworkNapBoxes';
-import NetworkRouters from './pages/network/NetworkRouters';
-import NetworkSmartOlt from './pages/network/NetworkSmartOlt';
-import NetworkTraffic from './pages/network/NetworkTraffic';
-import NetworkTrapemn from './pages/network/NetworkTrapemn';
-import NetworkVisitedIps from './pages/network/NetworkVisitedIps';
-import MessagingChatWhatsapp from './pages/messaging/MessagingChatWhatsapp';
-import MessagingSent from './pages/messaging/MessagingSent';
-import MessagingReceived from './pages/messaging/MessagingReceived';
-import WarehouseProductTypes from './pages/warehouse/WarehouseProductTypes';
-import WarehouseSuppliers from './pages/warehouse/WarehouseSuppliers';
-import WarehouseProducts from './pages/warehouse/WarehouseProducts';
-import ServicesInternet from './pages/services/ServicesInternet';
-import ServicesVoice from './pages/services/ServicesVoice';
-import ServicesCustom from './pages/services/ServicesCustom';
+const TodayTickets = lazy(() => import('./pages/tickets/TodayTickets'));
+const OverdueTickets = lazy(() => import('./pages/tickets/OverdueTickets'));
+const CompletedTickets = lazy(() => import('./pages/tickets/CompletedTickets'));
 
-// HOC para proteger rutas
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
+const BookAppointment = lazy(() => import('./pages/calendar/BookAppointment'));
+const FichasHotspot = lazy(() => import('./pages/hotspot/FichasHotspot'));
+const HotspotRouters = lazy(() => import('./pages/hotspot/HotspotRouters'));
+const HotspotTemplates = lazy(() => import('./pages/hotspot/HotspotTemplates'));
+const NetworkAdminOlt = lazy(() => import('./pages/network/NetworkAdminOlt'));
+const NetworkBlacklist = lazy(() => import('./pages/network/NetworkBlacklist'));
+const NetworkIpv4 = lazy(() => import('./pages/network/NetworkIpv4'));
+const NetworkMonitoring = lazy(() => import('./pages/network/NetworkMonitoring'));
+const NetworkNapBoxes = lazy(() => import('./pages/network/NetworkNapBoxes'));
+const NetworkRouters = lazy(() => import('./pages/network/NetworkRouters'));
+const NetworkSmartOlt = lazy(() => import('./pages/network/NetworkSmartOlt'));
+const NetworkTraffic = lazy(() => import('./pages/network/NetworkTraffic'));
+const NetworkTrapemn = lazy(() => import('./pages/network/NetworkTrapemn'));
+const NetworkVisitedIps = lazy(() => import('./pages/network/NetworkVisitedIps'));
+const MessagingChatWhatsapp = lazy(() => import('./pages/messaging/MessagingChatWhatsapp'));
+const MessagingSent = lazy(() => import('./pages/messaging/MessagingSent'));
+const MessagingReceived = lazy(() => import('./pages/messaging/MessagingReceived'));
+const WarehouseProductTypes = lazy(() => import('./pages/warehouse/WarehouseProductTypes'));
+const WarehouseSuppliers = lazy(() => import('./pages/warehouse/WarehouseSuppliers'));
+const WarehouseProducts = lazy(() => import('./pages/warehouse/WarehouseProducts'));
+const ServicesInternet = lazy(() => import('./pages/services/ServicesInternet'));
+const ServicesVoice = lazy(() => import('./pages/services/ServicesVoice'));
+const ServicesCustom = lazy(() => import('./pages/services/ServicesCustom'));
+
+function RouteLoader() {
+  return (
+    <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center bg-[#d9e7f3] text-sm font-medium text-[#47617c]">
+      Cargando vista...
+    </div>
+  );
+}
+
+function withSuspense(
+  PageComponent: ComponentType,
+  fallback?: ReactNode,
+) {
+  return (
+    <Suspense fallback={fallback ?? <RouteLoader />}>
+      <PageComponent />
+    </Suspense>
+  );
+}
+
+function ProtectedRoute({ children }: { children: ReactNode }) {
   const user = localStorage.getItem('brandup_user');
-  
+
   if (!user) {
     return <Navigate to="/" replace />;
   }
-  
+
   return <>{children}</>;
 }
 
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: <Login />,
+    element: withSuspense(Login, <RouteLoader />),
   },
   {
     path: '/login',
@@ -103,97 +121,96 @@ export const router = createBrowserRouter([
   {
     element: (
       <ProtectedRoute>
-        <MainLayout />
+        {withSuspense(MainLayout)}
       </ProtectedRoute>
     ),
     children: [
-      { path: 'dashboard', element: <Dashboard /> },
-      { path: 'clients', element: <Clients /> },
-      { path: 'clients/anuncios', element: <ClientAnnouncements /> },
-      { path: 'clients/contratos', element: <ClientContracts /> },
-      { path: 'clients/correos', element: <ClientEmails /> },
-      { path: 'clients/instalaciones', element: <ClientInstallations /> },
-      { path: 'clients/notificaciones-push', element: <ClientPushNotifications /> },
-      { path: 'clients/new', element: <ClientForm /> },
-      { path: 'clients/:id/edit', element: <ClientForm /> },
-      { path: 'clients/map', element: <ClientsMap /> },
+      { path: 'dashboard', element: withSuspense(Dashboard) },
+      { path: 'clients', element: withSuspense(Clients) },
+      { path: 'clients/anuncios', element: withSuspense(ClientAnnouncements) },
+      { path: 'clients/contratos', element: withSuspense(ClientContracts) },
+      { path: 'clients/correos', element: withSuspense(ClientEmails) },
+      { path: 'clients/instalaciones', element: withSuspense(ClientInstallations) },
+      { path: 'clients/notificaciones-push', element: withSuspense(ClientPushNotifications) },
+      { path: 'clients/new', element: withSuspense(ClientForm) },
+      { path: 'clients/:id/edit', element: withSuspense(ClientForm) },
+      { path: 'clients/map', element: withSuspense(ClientsMap) },
       { path: 'plans', element: <Navigate to="/plans/internet" replace /> },
-      { path: 'plans/internet', element: <ServicesInternet /> },
-      { path: 'plans/voz', element: <ServicesVoice /> },
-      { path: 'plans/personalizado', element: <ServicesCustom /> },
-      { path: 'plans/new', element: <PlanForm /> },
-      { path: 'plans/:id/edit', element: <PlanForm /> },
-      { path: 'billing', element: <Billing /> },
-      { path: 'billing/invoices', element: <Invoices /> },
-      { path: 'billing/electronic-billing', element: <ElectronicBilling /> },
-      { path: 'billing/pending-invoices', element: <PendingInvoices /> },
-      { path: 'billing/register-payment', element: <RegisterPayment /> },
-      { path: 'billing/register-bulk-payments', element: <RegisterBulkPayments /> },
-      { path: 'billing/transactions', element: <Transactions /> },
-      { path: 'billing/completed-payments', element: <CompletedPayments /> },
-      { path: 'billing/stats', element: <BillingStats /> },
-      { path: 'billing/other-income-expenses', element: <OtherIncomeExpenses /> },
-      { path: 'tickets', element: <Tickets /> },
-      { path: 'tickets/new', element: <TicketForm /> },
-      { path: 'tickets/:id/edit', element: <TicketForm /> },
-      { path: 'tickets/today', element: <TodayTickets /> },
-      { path: 'tickets/in-progress', element: <OverdueTickets /> },
+      { path: 'plans/internet', element: withSuspense(ServicesInternet) },
+      { path: 'plans/voz', element: withSuspense(ServicesVoice) },
+      { path: 'plans/personalizado', element: withSuspense(ServicesCustom) },
+      { path: 'plans/new', element: withSuspense(PlanForm) },
+      { path: 'plans/:id/edit', element: withSuspense(PlanForm) },
+      { path: 'billing', element: withSuspense(Billing) },
+      { path: 'billing/invoices', element: withSuspense(Invoices) },
+      { path: 'billing/electronic-billing', element: withSuspense(ElectronicBilling) },
+      { path: 'billing/pending-invoices', element: withSuspense(PendingInvoices) },
+      { path: 'billing/register-payment', element: withSuspense(RegisterPayment) },
+      { path: 'billing/register-bulk-payments', element: withSuspense(RegisterBulkPayments) },
+      { path: 'billing/transactions', element: withSuspense(Transactions) },
+      { path: 'billing/completed-payments', element: withSuspense(CompletedPayments) },
+      { path: 'billing/stats', element: withSuspense(BillingStats) },
+      { path: 'billing/other-income-expenses', element: withSuspense(OtherIncomeExpenses) },
+      { path: 'tickets', element: withSuspense(Tickets) },
+      { path: 'tickets/new', element: withSuspense(TicketForm) },
+      { path: 'tickets/:id/edit', element: withSuspense(TicketForm) },
+      { path: 'tickets/today', element: withSuspense(TodayTickets) },
+      { path: 'tickets/in-progress', element: withSuspense(OverdueTickets) },
       { path: 'tickets/overdue', element: <Navigate to="/tickets/in-progress" replace /> },
-      { path: 'tickets/completed', element: <CompletedTickets /> },
+      { path: 'tickets/completed', element: withSuspense(CompletedTickets) },
       { path: 'monitoring', element: <Navigate to="/network-management/routers" replace /> },
       { path: 'network-management', element: <Navigate to="/network-management/routers" replace /> },
-      { path: 'network-management/routers', element: <NetworkRouters /> },
-      { path: 'network-management/smart-olt', element: <NetworkSmartOlt /> },
-      { path: 'network-management/admin-olt', element: <NetworkAdminOlt /> },
-      { path: 'network-management/redes-ipv4', element: <NetworkIpv4 /> },
-      { path: 'network-management/monitoreo', element: <NetworkMonitoring /> },
-      { path: 'network-management/cajas-nap', element: <NetworkNapBoxes /> },
-      { path: 'network-management/trafico', element: <NetworkTraffic /> },
-      { path: 'network-management/ips-visitadas', element: <NetworkVisitedIps /> },
-      { path: 'network-management/monitor-blacklist', element: <NetworkBlacklist /> },
-      { path: 'network-management/trapemn', element: <NetworkTrapemn /> },
+      { path: 'network-management/routers', element: withSuspense(NetworkRouters) },
+      { path: 'network-management/smart-olt', element: withSuspense(NetworkSmartOlt) },
+      { path: 'network-management/admin-olt', element: withSuspense(NetworkAdminOlt) },
+      { path: 'network-management/redes-ipv4', element: withSuspense(NetworkIpv4) },
+      { path: 'network-management/monitoreo', element: withSuspense(NetworkMonitoring) },
+      { path: 'network-management/cajas-nap', element: withSuspense(NetworkNapBoxes) },
+      { path: 'network-management/trafico', element: withSuspense(NetworkTraffic) },
+      { path: 'network-management/ips-visitadas', element: withSuspense(NetworkVisitedIps) },
+      { path: 'network-management/monitor-blacklist', element: withSuspense(NetworkBlacklist) },
+      { path: 'network-management/trapemn', element: withSuspense(NetworkTrapemn) },
       { path: 'hotspot', element: <Navigate to="/hotspot/fichas" replace /> },
-      { path: 'hotspot/fichas', element: <FichasHotspot /> },
-      { path: 'hotspot/routers', element: <HotspotRouters /> },
-      { path: 'hotspot/plantillas', element: <HotspotTemplates /> },
-      { path: 'tasks', element: <Tasks /> },
+      { path: 'hotspot/fichas', element: withSuspense(FichasHotspot) },
+      { path: 'hotspot/routers', element: withSuspense(HotspotRouters) },
+      { path: 'hotspot/plantillas', element: withSuspense(HotspotTemplates) },
+      { path: 'tasks', element: withSuspense(Tasks) },
       { path: 'warehouse', element: <Navigate to="/warehouse/tipos-productos" replace /> },
-      { path: 'warehouse/tipos-productos', element: <WarehouseProductTypes /> },
-      { path: 'warehouse/proveedores', element: <WarehouseSuppliers /> },
-      { path: 'warehouse/productos', element: <WarehouseProducts /> },
+      { path: 'warehouse/tipos-productos', element: withSuspense(WarehouseProductTypes) },
+      { path: 'warehouse/proveedores', element: withSuspense(WarehouseSuppliers) },
+      { path: 'warehouse/productos', element: withSuspense(WarehouseProducts) },
       { path: 'messaging', element: <Navigate to="/messaging/chat-whatsapp" replace /> },
-      { path: 'messaging/chat-whatsapp', element: <MessagingChatWhatsapp /> },
-      { path: 'messaging/mensajes-enviados', element: <MessagingSent /> },
-      { path: 'messaging/mensajes-recibidos', element: <MessagingReceived /> },
-      { path: 'settings', element: <Settings /> },
-      { path: 'settings/general', element: <GeneralSettings /> },
-      { path: 'settings/configuration-templates', element: <ConfigurationTemplates /> },
-      { path: 'settings/invoice-messages', element: <InvoiceMessages /> },
-      { path: 'settings/import-clients', element: <ImportClients /> },
-      { path: 'settings/locations', element: <LocationsManagement /> },
-      { path: 'settings/migrate', element: <MigrateCompany /> },
-      { path: 'settings/client-portal', element: <PortalClientSettings /> },
-      { path: 'settings/template-editor', element: <TemplateEditor /> },
-      { path: 'settings/custom-domains', element: <CustomDomainsSettings /> },
-      { path: 'settings/mail-server', element: <MailServerSettings /> },
-      { path: 'settings/staff-management', element: <StaffManagement /> },
-      { path: 'settings/users', element: <UsersManagement /> },
-      { path: 'settings/roles', element: <RolesManagement /> },
-      { path: 'settings/currencies', element: <CurrenciesManagement /> },
-      { path: 'settings/receipts', element: <ReceiptsManagement /> },
-      { path: 'settings/units', element: <UnitsManagement /> },
-      { path: 'settings/incidents', element: <IncidentsManagement /> },
-      { path: 'settings/cron-jobs', element: <CronJobsManagement /> },
-      { path: 'settings/zones', element: <ZonesManagement /> },
-      { path: 'settings/custom-fields', element: <CustomFieldsManagement /> },
-      { path: 'settings/wsp-templates', element: <WspTemplatesManagement /> },
-      { path: 'settings/server', element: <ServerManagement /> },
-      { path: 'payment-methods', element: <PaymentMethods /> },
+      { path: 'messaging/chat-whatsapp', element: withSuspense(MessagingChatWhatsapp) },
+      { path: 'messaging/mensajes-enviados', element: withSuspense(MessagingSent) },
+      { path: 'messaging/mensajes-recibidos', element: withSuspense(MessagingReceived) },
+      { path: 'settings', element: withSuspense(Settings) },
+      { path: 'settings/general', element: withSuspense(GeneralSettings) },
+      { path: 'settings/configuration-templates', element: withSuspense(ConfigurationTemplates) },
+      { path: 'settings/invoice-messages', element: withSuspense(InvoiceMessages) },
+      { path: 'settings/import-clients', element: withSuspense(ImportClients) },
+      { path: 'settings/locations', element: withSuspense(LocationsManagement) },
+      { path: 'settings/migrate', element: withSuspense(MigrateCompany) },
+      { path: 'settings/client-portal', element: withSuspense(PortalClientSettings) },
+      { path: 'settings/template-editor', element: withSuspense(TemplateEditor) },
+      { path: 'settings/custom-domains', element: withSuspense(CustomDomainsSettings) },
+      { path: 'settings/mail-server', element: withSuspense(MailServerSettings) },
+      { path: 'settings/staff-management', element: withSuspense(StaffManagement) },
+      { path: 'settings/users', element: withSuspense(UsersManagement) },
+      { path: 'settings/roles', element: withSuspense(RolesManagement) },
+      { path: 'settings/currencies', element: withSuspense(CurrenciesManagement) },
+      { path: 'settings/receipts', element: withSuspense(ReceiptsManagement) },
+      { path: 'settings/units', element: withSuspense(UnitsManagement) },
+      { path: 'settings/incidents', element: withSuspense(IncidentsManagement) },
+      { path: 'settings/cron-jobs', element: withSuspense(CronJobsManagement) },
+      { path: 'settings/zones', element: withSuspense(ZonesManagement) },
+      { path: 'settings/custom-fields', element: withSuspense(CustomFieldsManagement) },
+      { path: 'settings/wsp-templates', element: withSuspense(WspTemplatesManagement) },
+      { path: 'settings/server', element: withSuspense(ServerManagement) },
+      { path: 'payment-methods', element: withSuspense(PaymentMethods) },
     ],
   },
-  // Ruta pública para reservas de clientes
   {
     path: '/book-appointment/:companyId',
-    element: <BookAppointment />
-  }
+    element: withSuspense(BookAppointment),
+  },
 ]);

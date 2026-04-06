@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
 import { Button } from '../components/ui/button';
@@ -16,46 +16,31 @@ export default function PlanForm() {
   const { id } = useParams();
   const { user } = useAuth();
   const isEditing = Boolean(id);
+  const selectedPlan = isEditing && id ? MOCK_PLANS.find((plan) => plan.id === id) : null;
 
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    speed: '',
-    price: '',
-    currency: 'MXN',
-    billingCycle: 'monthly',
+    name: selectedPlan?.name ?? '',
+    description: selectedPlan?.description ?? '',
+    speed: selectedPlan?.speed ?? '',
+    price: selectedPlan ? selectedPlan.price.toString() : '',
+    currency: selectedPlan?.currency ?? 'MXN',
+    billingCycle: selectedPlan?.billingCycle ?? 'monthly',
   });
-
-  useEffect(() => {
-    if (isEditing && id) {
-      const plan = MOCK_PLANS.find(p => p.id === id);
-      if (plan) {
-        setFormData({
-          name: plan.name,
-          description: plan.description,
-          speed: plan.speed,
-          price: plan.price.toString(),
-          currency: plan.currency,
-          billingCycle: plan.billingCycle,
-        });
-      }
-    }
-  }, [id, isEditing]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    const planData = {
+    const planPayload = {
       ...formData,
       price: parseFloat(formData.price),
       companyId: user?.companyId || 'comp1',
     };
+    void planPayload;
 
     toast.success(isEditing ? 'Plan actualizado exitosamente' : 'Plan creado exitosamente');
     navigate('/plans');
   };
 
-  const handleChange = (field: string, value: any) => {
+  const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 

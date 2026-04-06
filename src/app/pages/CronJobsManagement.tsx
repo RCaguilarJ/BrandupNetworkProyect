@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { CalendarDays, Clock3, Play, Save, Search } from 'lucide-react';
 import { toast } from 'sonner';
 import SettingsBreadcrumb from '../components/SettingsBreadcrumb';
+import { usePersistentState } from '../hooks/usePersistentState';
 
 type NotificationSchedule = {
   reminderOne: string;
@@ -78,8 +79,10 @@ function readStoredConfig() {
     };
   }
 
-  const rawConfig = window.localStorage.getItem(STORAGE_KEY);
-  if (!rawConfig) {
+  const rawNotifications = window.localStorage.getItem(`${STORAGE_KEY}:notifications`);
+  const rawBilling = window.localStorage.getItem(`${STORAGE_KEY}:billing`);
+
+  if (!rawNotifications && !rawBilling) {
     return {
       notifications: defaultNotifications,
       billing: defaultBilling,
@@ -87,14 +90,16 @@ function readStoredConfig() {
   }
 
   try {
-    const parsed = JSON.parse(rawConfig) as {
-      notifications?: Partial<NotificationSchedule>;
-      billing?: Partial<BillingSchedule>;
-    };
+    const parsedNotifications = rawNotifications
+      ? (JSON.parse(rawNotifications) as Partial<NotificationSchedule>)
+      : {};
+    const parsedBilling = rawBilling
+      ? (JSON.parse(rawBilling) as Partial<BillingSchedule>)
+      : {};
 
     return {
-      notifications: { ...defaultNotifications, ...parsed.notifications },
-      billing: { ...defaultBilling, ...parsed.billing },
+      notifications: { ...defaultNotifications, ...parsedNotifications },
+      billing: { ...defaultBilling, ...parsedBilling },
     };
   } catch {
     return {
@@ -191,29 +196,25 @@ function CrontabPanel({
 
 export default function CronJobsManagement() {
   const storedConfig = useMemo(() => readStoredConfig(), []);
-  const [notifications, setNotifications] = useState<NotificationSchedule>(storedConfig.notifications);
-  const [billing, setBilling] = useState<BillingSchedule>(storedConfig.billing);
-  const [localTime, setLocalTime] = useState(() => formatDateTimeInTimezone(storedConfig.billing.timezone));
+  const [notifications, setNotifications] = usePersistentState<NotificationSchedule>(
+    `${STORAGE_KEY}:notifications`,
+    storedConfig.notifications,
+  );
+  const [billing, setBilling] = usePersistentState<BillingSchedule>(
+    `${STORAGE_KEY}:billing`,
+    storedConfig.billing,
+  );
+  const [clockTick, setClockTick] = useState(0);
+  const localTime = formatDateTimeInTimezone(billing.timezone);
+  void clockTick;
 
   useEffect(() => {
-    window.localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({
-        notifications,
-        billing,
-      }),
-    );
-  }, [billing, notifications]);
-
-  useEffect(() => {
-    setLocalTime(formatDateTimeInTimezone(billing.timezone));
-
     const intervalId = window.setInterval(() => {
-      setLocalTime(formatDateTimeInTimezone(billing.timezone));
+      setClockTick((currentTick) => currentTick + 1);
     }, 1000);
 
     return () => window.clearInterval(intervalId);
-  }, [billing.timezone]);
+  }, []);
 
   function updateNotification<K extends keyof NotificationSchedule>(key: K, value: NotificationSchedule[K]) {
     setNotifications((current) => ({ ...current, [key]: value }));

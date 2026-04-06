@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
-import { Plus, Edit, Trash2, Zap, Wifi, DollarSign, Calendar, Users, CheckCircle, TrendingUp } from 'lucide-react';
+import { Plus, Edit, Trash2, Zap, Wifi, DollarSign, Users, CheckCircle, TrendingUp } from 'lucide-react';
 import { MOCK_PLANS } from '../data/mockData';
 import { useAuth } from '../context/AuthContext';
 import { useViewTheme } from '../context/ViewThemeContext';
@@ -27,6 +27,11 @@ export default function Plans() {
       toast.success('Plan eliminado exitosamente');
     }
   };
+
+  const getSubscriberCount = (planId: string) =>
+    planId
+      .split('')
+      .reduce((sum, character) => sum + character.charCodeAt(0), 0) % 50 + 10;
 
   // Renderizar versión Mikrosystem
   if (viewTheme === 'mikrosystem') {
@@ -173,7 +178,7 @@ export default function Plans() {
                         <div className="flex items-center justify-center gap-1">
                           <Users className="w-3.5 h-3.5 text-gray-400" />
                           <span className="font-medium text-gray-900 dark:text-white">
-                            {Math.floor(Math.random() * 50) + 10}
+                            {getSubscriberCount(plan.id)}
                           </span>
                         </div>
                       </td>

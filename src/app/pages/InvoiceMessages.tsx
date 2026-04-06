@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import SettingsBreadcrumb from '../components/SettingsBreadcrumb';
-import { Button } from '../components/ui/button';
 import {
   ChevronLeft,
   ChevronRight,
@@ -12,7 +11,6 @@ import {
 export default function InvoiceMessages() {
   const [searchTerm, setSearchTerm] = useState('');
   const [pageSize] = useState(15);
-  const [currentPage] = useState(1);
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-[#d3dce7] px-[30px] pb-8 pt-[18px]">

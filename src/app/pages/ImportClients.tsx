@@ -1,7 +1,8 @@
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { Download, Plus, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 import SettingsBreadcrumb from '../components/SettingsBreadcrumb';
+import { usePersistentState } from '../hooks/usePersistentState';
 
 type ImportTemplateConfig = {
   router: string;
@@ -24,23 +25,6 @@ const defaultConfig: ImportTemplateConfig = {
   presetTemplate: '',
   uploadedFileName: '',
 };
-
-function readStoredConfig(): ImportTemplateConfig {
-  if (typeof window === 'undefined') {
-    return defaultConfig;
-  }
-
-  const rawValue = window.localStorage.getItem(STORAGE_KEY);
-  if (!rawValue) {
-    return defaultConfig;
-  }
-
-  try {
-    return { ...defaultConfig, ...(JSON.parse(rawValue) as Partial<ImportTemplateConfig>) };
-  } catch {
-    return defaultConfig;
-  }
-}
 
 function Panel({
   title,
@@ -73,14 +57,18 @@ function Step({
   return (
     <div className="relative flex gap-5 pl-1">
       <div className="relative flex w-[46px] shrink-0 justify-center">
-        {connect ? <div className="absolute top-[54px] h-[calc(100%-28px)] w-[2px] bg-[#4aa5e8]" /> : null}
+        {connect ? (
+          <div className="absolute top-[54px] h-[calc(100%-28px)] w-[2px] bg-[#4aa5e8]" />
+        ) : null}
         <div className="relative z-10 flex h-[48px] w-[48px] items-center justify-center rounded-full border-[4px] border-[#4aa5e8] bg-white text-[20px] font-semibold text-[#4aa5e8]">
           {number}
         </div>
       </div>
 
       <div className="min-w-0 flex-1 pb-8">
-        <h3 className="mb-3 text-[18px] font-semibold text-[#4aa5e8]">{title}</h3>
+        <h3 className="mb-3 text-[18px] font-semibold text-[#4aa5e8]">
+          {title}
+        </h3>
         {children}
       </div>
     </div>
@@ -115,19 +103,22 @@ function PrimarySelect({
 }
 
 export default function ImportClients() {
-  const initialConfig = readStoredConfig();
-  const [config, setConfig] = useState<ImportTemplateConfig>(initialConfig);
+  const [config, setConfig] = usePersistentState<ImportTemplateConfig>(
+    STORAGE_KEY,
+    defaultConfig,
+  );
   const templateInputRef = useRef<HTMLInputElement | null>(null);
 
-  function updateConfig<K extends keyof ImportTemplateConfig>(key: K, value: ImportTemplateConfig[K]) {
-    setConfig((current) => {
-      const next = { ...current, [key]: value };
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-      return next;
-    });
+  function updateConfig<K extends keyof ImportTemplateConfig>(
+    key: K,
+    value: ImportTemplateConfig[K],
+  ) {
+    setConfig((current) => ({ ...current, [key]: value }));
   }
 
-  function handleTemplateSelection(event: React.ChangeEvent<HTMLInputElement>) {
+  function handleTemplateSelection(
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) {
     const file = event.target.files?.[0];
     if (!file) {
       return;
@@ -153,7 +144,9 @@ export default function ImportClients() {
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-[#d3dce7] px-[26px] pb-8 pt-[18px]">
       <div className="mb-6 flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
-        <h1 className="text-[24px] font-normal leading-none text-[#1f2933]">Importar</h1>
+        <h1 className="text-[24px] font-normal leading-none text-[#1f2933]">
+          Importar
+        </h1>
 
         <SettingsBreadcrumb currentLabel="Importar" />
       </div>
@@ -161,7 +154,9 @@ export default function ImportClients() {
       <div className="grid gap-7 2xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <Panel title="Generar formato">
           <p className="mb-7 max-w-[760px] text-[20px] leading-[1.45] text-[#00a4c7]">
-            Antes de iniciar la importación necesita Registrar su router y crear los perfiles de velocidad en el menú servicios-&gt;Internet
+            Antes de iniciar la importacion necesitas registrar tu router y
+            crear los perfiles de velocidad en el menu
+            servicios-&gt;Internet.
           </p>
 
           <Step number={1} title="Router">
@@ -169,7 +164,11 @@ export default function ImportClients() {
               <PrimarySelect
                 value={config.router}
                 onChange={(value) => updateConfig('router', value)}
-                options={['Router Principal', 'Router Norte', 'Router Sur']}
+                options={[
+                  'Router Principal',
+                  'Router Norte',
+                  'Router Sur',
+                ]}
                 ariaLabel="Router"
               />
             </div>
@@ -186,7 +185,7 @@ export default function ImportClients() {
             </div>
           </Step>
 
-          <Step number={3} title="Control deVelocidad">
+          <Step number={3} title="Control de velocidad">
             <div className="max-w-[376px]">
               <PrimarySelect
                 value={config.speedControl}
@@ -197,10 +196,12 @@ export default function ImportClients() {
             </div>
           </Step>
 
-          <Step number={4} title="Facturación">
+          <Step number={4} title="Facturacion">
             <button
               type="button"
-              onClick={() => updateConfig('includeBilling', !config.includeBilling)}
+              onClick={() =>
+                updateConfig('includeBilling', !config.includeBilling)
+              }
               className="inline-flex h-[52px] w-[84px] items-center justify-center rounded-[6px] border border-[#d2dae3] bg-white text-[#1f2933] transition hover:bg-[#f8fafc]"
               aria-pressed={config.includeBilling}
             >
@@ -211,7 +212,12 @@ export default function ImportClients() {
           <Step number={5} title="Notificaciones">
             <button
               type="button"
-              onClick={() => updateConfig('includeNotifications', !config.includeNotifications)}
+              onClick={() =>
+                updateConfig(
+                  'includeNotifications',
+                  !config.includeNotifications,
+                )
+              }
               className="inline-flex h-[52px] w-[84px] items-center justify-center rounded-[6px] border border-[#d2dae3] bg-white text-[#1f2933] transition hover:bg-[#f8fafc]"
               aria-pressed={config.includeNotifications}
             >
@@ -233,7 +239,8 @@ export default function ImportClients() {
 
         <Panel title="Importar clientes">
           <p className="mb-7 max-w-[680px] text-[20px] leading-[1.45] text-[#00a4c7]">
-            Antes de iniciar la importación generar un backup de base de datos y su mikrotik para para poder revertir algún cambio no deseado
+            Antes de iniciar la importacion genera un backup de base de datos y
+            de tu Mikrotik para poder revertir cualquier cambio no deseado.
           </p>
 
           <Step number={2} title="Plantilla predeterminada">
@@ -241,7 +248,12 @@ export default function ImportClients() {
               <PrimarySelect
                 value={config.presetTemplate}
                 onChange={(value) => updateConfig('presetTemplate', value)}
-                options={['', 'Prepago Base', 'Postpago Base', 'Residencial Basica']}
+                options={[
+                  '',
+                  'Prepago Base',
+                  'Postpago Base',
+                  'Residencial Basica',
+                ]}
                 ariaLabel="Plantilla predeterminada"
               />
             </div>
@@ -269,7 +281,9 @@ export default function ImportClients() {
             </button>
 
             {config.uploadedFileName ? (
-              <p className="mt-3 text-[15px] text-[#5f7487]">{config.uploadedFileName}</p>
+              <p className="mt-3 text-[15px] text-[#5f7487]">
+                {config.uploadedFileName}
+              </p>
             ) : null}
           </Step>
 
@@ -280,7 +294,7 @@ export default function ImportClients() {
               className="inline-flex h-[52px] items-center gap-3 rounded-[6px] border border-[#d2dae3] bg-white px-6 text-[17px] font-semibold text-[#1f2933] transition hover:bg-[#f8fafc]"
             >
               <Upload className="h-5 w-5" />
-              Iniciar importación
+              Iniciar importacion
             </button>
             <p className="mt-4 text-[16px] text-[#3d4f63]">
               Este proceso puede tardar algunos minutos.

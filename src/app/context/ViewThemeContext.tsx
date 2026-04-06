@@ -1,31 +1,34 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-
-type ViewThemeType = 'mikrosystem' | 'wisphub';
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import {
+  applyViewThemeClass,
+  isViewTheme,
+  VIEW_THEME_STORAGE_KEY,
+  type ViewThemeId,
+} from '../lib/view-theme';
 
 interface ViewThemeContextType {
-  viewTheme: ViewThemeType;
-  setViewTheme: (theme: ViewThemeType) => void;
+  viewTheme: ViewThemeId;
+  setViewTheme: (theme: ViewThemeId) => void;
 }
 
 const ViewThemeContext = createContext<ViewThemeContextType | undefined>(undefined);
 
 export function ViewThemeProvider({ children }: { children: ReactNode }) {
-  const [viewTheme, setViewThemeState] = useState<ViewThemeType>(() => {
-    const stored = localStorage.getItem('viewTheme');
-    return (stored as ViewThemeType) || 'mikrosystem';
+  const [viewTheme, setViewThemeState] = useState<ViewThemeId>(() => {
+    if (typeof window === 'undefined') {
+      return 'mikrosystem';
+    }
+
+    const storedTheme = window.localStorage.getItem(VIEW_THEME_STORAGE_KEY);
+    return isViewTheme(storedTheme) ? storedTheme : 'mikrosystem';
   });
 
   useEffect(() => {
-    localStorage.setItem('viewTheme', viewTheme);
-    
-    // Remover todas las clases de tema de vista
-    document.documentElement.classList.remove('view-mikrosystem', 'view-wisphub');
-    
-    // Agregar la clase correspondiente
-    document.documentElement.classList.add(`view-${viewTheme}`);
+    window.localStorage.setItem(VIEW_THEME_STORAGE_KEY, viewTheme);
+    applyViewThemeClass(viewTheme);
   }, [viewTheme]);
 
-  const setViewTheme = (theme: ViewThemeType) => {
+  const setViewTheme = (theme: ViewThemeId) => {
     setViewThemeState(theme);
   };
 

@@ -1,15 +1,5 @@
 import { useMemo, useState } from 'react';
-import {
-  Bell,
-  BellRing,
-  Expand,
-  Laptop,
-  List,
-  Plus,
-  RefreshCw,
-  Save,
-  Trash2,
-} from 'lucide-react';
+import { BellRing, Expand, Laptop, List, Plus, RefreshCw, Save, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useViewTheme } from '../context/ViewThemeContext';
 import {
