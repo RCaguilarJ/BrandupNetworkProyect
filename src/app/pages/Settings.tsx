@@ -1,17 +1,28 @@
-﻿import { Link } from 'react-router';
+import { Link } from 'react-router';
+import SettingsBreadcrumb from '../components/SettingsBreadcrumb';
 import {
-  Banknote,
-  Box,
+  BadgeDollarSign,
+  BellRing,
+  Clock3,
+  CodeXml,
   Cog,
+  FileCode2,
+  FileSpreadsheet,
   FileText,
+  Globe,
   HandCoins,
+  LifeBuoy,
   ListChecks,
-  LockKeyhole,
-  Map,
-  Send,
-  ListFilter,
+  Logs,
+  Mail,
+  MapPinned,
+  MessageCircleMore,
+  RefreshCw,
+  Settings2,
+  ShieldAlert,
+  Upload,
+  UserRound,
   UsersRound,
-  Wrench,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -22,24 +33,51 @@ type ShortcutItem = {
   path?: string;
 };
 
-// Cada boton solo se habilita cuando existe ruta real y contrato documentado.
-// Los modulos pendientes siguen visibles como catalogo hasta tener integracion completa.
+// El tablero replica el catalogo del diseno oficial.
+// Solo se habilita navegacion cuando ya existe una vista real o reutilizable.
 const shortcutItems: ShortcutItem[] = [
   { id: 'general', label: 'General', icon: Cog, path: '/settings/general' },
-  { id: 'users', label: 'Usuarios', icon: UsersRound, path: '/settings/users' },
-  { id: 'roles', label: 'Roles', icon: LockKeyhole, path: '/settings/roles' },
-  { id: 'currencies', label: 'Divisas', icon: Banknote, path: '/settings/currencies' },
-  { id: 'payment-methods', label: 'Formas de pago', icon: HandCoins, path: '/payment-methods' },
-  { id: 'receipts', label: 'Comprobantes', icon: FileText, path: '/settings/receipts' },
-  { id: 'units', label: 'Unidades de medida', icon: Box, path: '/settings/units' },
-  { id: 'incidents', label: 'Incidencias', icon: Wrench, path: '/settings/incidents' },
-  { id: 'cron-jobs', label: 'Cron Jobs', icon: ListChecks, path: '/settings/cron-jobs' },
-  { id: 'zones', label: 'Zonas', icon: Map, path: '/settings/zones' },
-  { id: 'custom-fields', label: 'Campo Personalizados', icon: ListFilter, path: '/settings/custom-fields' },
-  { id: 'wsp-templates', label: 'Plantillas de WSP', icon: Send, path: '/settings/wsp-templates' },
+  { id: 'staff-management', label: 'Gestion personal', icon: UsersRound, path: '/settings/staff-management' },
+  { id: 'mail-server', label: 'Servidor de correo', icon: Mail, path: '/settings/mail-server' },
+  { id: 'custom-domains', label: 'Dominios personalizados', icon: Globe, path: '/settings/custom-domains' },
+  { id: 'billing', label: 'Facturacion', icon: FileText, path: '/billing' },
+  {
+    id: 'electronic-billing',
+    label: 'Facturacion Electronica',
+    icon: FileSpreadsheet,
+    path: '/billing/electronic-billing',
+  },
+  { id: 'payment-gateways', label: 'Pasarelas de pago', icon: HandCoins, path: '/payment-methods' },
+  { id: 'template-editor', label: 'Editor plantillas', icon: CodeXml, path: '/settings/template-editor' },
+  { id: 'client-portal', label: 'Portal cliente', icon: UserRound, path: '/settings/client-portal' },
+  { id: 'push-notifications', label: 'Notificaciones Push', icon: BellRing },
+  { id: 'tickets', label: 'Tickets', icon: LifeBuoy, path: '/tickets' },
+  { id: 'zendesk-support', label: 'Zendesk Support', icon: BadgeDollarSign },
+  {
+    id: 'blacklist-monitor',
+    label: 'Monitor Blacklist',
+    icon: ShieldAlert,
+    path: '/network-management/monitor-blacklist',
+  },
+  { id: 'import-clients', label: 'Importar clientes', icon: Upload, path: '/settings/import-clients' },
+  { id: 'bulk-changes', label: 'Cambios Masivos', icon: RefreshCw },
+  { id: 'settings-templates', label: 'Plantillas Configuracion', icon: Settings2, path: '/settings/configuration-templates' },
+  { id: 'invoice-messages', label: 'Mensajes Facturas', icon: FileCode2, path: '/settings/invoice-messages' },
+  { id: 'locations', label: 'Ubicaciones', icon: MapPinned, path: '/settings/locations' },
+  { id: 'custom-fields', label: 'Campos personalizados', icon: UsersRound, path: '/settings/custom-fields' },
+  { id: 'messaging', label: 'Mensajeria', icon: MessageCircleMore, path: '/messaging' },
+  { id: 'crontab', label: 'Crontab', icon: Clock3, path: '/settings/cron-jobs' },
+  { id: 'logs', label: 'Logs', icon: Logs },
+  { id: 'migrate', label: 'Migrar', icon: RefreshCw, path: '/settings/migrate' },
 ];
 
-const shortcutRows = [shortcutItems.slice(0, 8), shortcutItems.slice(8)];
+const desktopRows = [
+  shortcutItems.slice(0, 5),
+  shortcutItems.slice(5, 10),
+  shortcutItems.slice(10, 15),
+  shortcutItems.slice(15, 20),
+  shortcutItems.slice(20, 23),
+];
 
 function ShortcutButton({
   icon: Icon,
@@ -53,17 +91,17 @@ function ShortcutButton({
   const content = (
     <>
       <Icon
-        className="h-9 w-9 text-[#5e5c63] sm:h-10 sm:w-10 xl:h-11 xl:w-11"
-        strokeWidth={2.2}
+        className="h-11 w-11 text-[#66636d] sm:h-12 sm:w-12 xl:h-[54px] xl:w-[54px]"
+        strokeWidth={2.1}
       />
-      <span className="mt-4 max-w-[136px] px-2 text-center text-[12px] font-semibold leading-[1.2] text-black sm:mt-5 xl:mt-6">
+      <span className="mt-5 max-w-[148px] px-3 text-center text-[13px] font-medium leading-[1.25] text-black sm:mt-6 xl:text-[14px]">
         {label}
       </span>
     </>
   );
 
   const className =
-    'flex aspect-square w-full max-w-[184px] flex-col items-center rounded-full border border-white bg-white px-0 pb-0 pt-10 text-[12px] shadow-[0_2px_5px_rgba(0,0,0,0.16),0_2px_10px_rgba(0,0,0,0.12)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_6px_14px_rgba(0,0,0,0.16),0_4px_12px_rgba(0,0,0,0.12)] sm:pt-11 xl:pt-[54px]';
+    'flex aspect-square w-full max-w-[188px] flex-col items-center justify-center rounded-full border border-white bg-white px-4 py-0 shadow-[0_4px_14px_rgba(15,23,42,0.08)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_10px_24px_rgba(15,23,42,0.14)]';
 
   if (path) {
     return (
@@ -76,22 +114,34 @@ function ShortcutButton({
   return <div className={className}>{content}</div>;
 }
 
+function DesktopRow({
+  items,
+  columns,
+  maxWidthClass,
+}: {
+  items: ShortcutItem[];
+  columns: string;
+  maxWidthClass: string;
+}) {
+  return (
+    <div className={`mx-auto hidden ${maxWidthClass} ${columns} min-[1700px]:grid min-[1700px]:justify-items-center min-[1700px]:gap-x-[34px] min-[1700px]:gap-y-7`}>
+      {items.map((item) => (
+        <ShortcutButton key={item.id} icon={item.icon} label={item.label} path={item.path} />
+      ))}
+    </div>
+  );
+}
+
 function ShortcutGrid() {
   return (
-    <div className="mt-5 space-y-[20px]">
-      <div className="hidden min-[1700px]:grid min-[1700px]:grid-cols-8 min-[1700px]:justify-items-center min-[1700px]:gap-x-[24px] min-[1700px]:gap-y-6">
-        {shortcutRows[0].map((item) => (
-          <ShortcutButton key={item.id} icon={item.icon} label={item.label} path={item.path} />
-        ))}
-      </div>
+    <div className="mt-6 space-y-[28px]">
+      <DesktopRow items={desktopRows[0]} columns="min-[1700px]:grid-cols-5" maxWidthClass="min-[1700px]:max-w-[1260px]" />
+      <DesktopRow items={desktopRows[1]} columns="min-[1700px]:grid-cols-5" maxWidthClass="min-[1700px]:max-w-[1260px]" />
+      <DesktopRow items={desktopRows[2]} columns="min-[1700px]:grid-cols-5" maxWidthClass="min-[1700px]:max-w-[1260px]" />
+      <DesktopRow items={desktopRows[3]} columns="min-[1700px]:grid-cols-5" maxWidthClass="min-[1700px]:max-w-[1260px]" />
+      <DesktopRow items={desktopRows[4]} columns="min-[1700px]:grid-cols-3" maxWidthClass="min-[1700px]:max-w-[760px]" />
 
-      <div className="hidden min-[1700px]:mx-auto min-[1700px]:grid min-[1700px]:max-w-[1240px] min-[1700px]:grid-cols-5 min-[1700px]:justify-items-center min-[1700px]:gap-x-[32px] min-[1700px]:gap-y-6">
-        {shortcutRows[1].map((item) => (
-          <ShortcutButton key={item.id} icon={item.icon} label={item.label} path={item.path} />
-        ))}
-      </div>
-
-      <div className="grid grid-cols-2 justify-items-center gap-x-4 gap-y-6 min-[1700px]:hidden sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5">
+      <div className="grid grid-cols-2 justify-items-center gap-x-4 gap-y-6 min-[1700px]:hidden sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
         {shortcutItems.map((item) => (
           <ShortcutButton key={item.id} icon={item.icon} label={item.label} path={item.path} />
         ))}
@@ -100,22 +150,13 @@ function ShortcutGrid() {
   );
 }
 
-/**
- * La pantalla replica la matriz 8+5 en escritorio amplio.
- * En anchos intermedios y moviles, los botones refluyeÌn a una grilla fluida
- * para evitar desbordes entre navegadores y despliegues como Vercel.
- */
 function SettingsCanvas() {
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-[#d3dce7] px-[30px] pb-10 pt-[18px]">
       <div className="mb-1 flex flex-col gap-2 xl:flex-row xl:items-start xl:justify-between">
         <h1 className="text-[26px] font-normal leading-none text-[#1f2933]">Ajustes del Sistema</h1>
 
-        <div className="flex items-center gap-2 pt-[3px] text-[12px] text-[#1f2933]">
-          <span>Dashboard</span>
-          <span>/</span>
-          <span className="text-[#1bc3dc]">Ajustes</span>
-        </div>
+        <SettingsBreadcrumb currentLabel="Ajustes" />
       </div>
 
       <ShortcutGrid />
@@ -126,4 +167,3 @@ function SettingsCanvas() {
 export default function Settings() {
   return <SettingsCanvas />;
 }
-

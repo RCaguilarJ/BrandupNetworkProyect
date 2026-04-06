@@ -111,13 +111,17 @@ export default function Login() {
                 alt="BRANDUP Network"
                 className="mx-auto h-16 w-auto object-contain md:h-20"
               />
-              <p className={`mt-4 text-sm ${hasCustomBackground ? 'text-white/80' : 'text-gray-600 dark:text-gray-400'}`}>
+              <p
+                className={`mt-4 text-sm ${
+                  hasCustomBackground ? 'text-white/80' : 'text-gray-600 dark:text-gray-400'
+                }`}
+              >
                 Plataforma de gestion ISP multi-tenant
               </p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="relative">
+              <div>
                 <label
                   htmlFor="email"
                   className={`mb-1 block text-sm font-medium ${
@@ -139,26 +143,9 @@ export default function Login() {
                   placeholder="usuario@ejemplo.com"
                   required
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((current) => !current)}
-                  className={`absolute right-3 top-[38px] rounded-md p-1 transition-colors ${
-                    hasCustomBackground
-                      ? 'text-slate-500 hover:bg-slate-200/70 hover:text-slate-700'
-                      : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white'
-                  }`}
-                  aria-label={showPassword ? 'Ocultar contrasena' : 'Mostrar contrasena'}
-                  title={showPassword ? 'Ocultar contrasena' : 'Mostrar contrasena'}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5" />
-                  ) : (
-                    <Eye className="h-5 w-5" />
-                  )}
-                </button>
               </div>
 
-              <div>
+              <div className="relative">
                 <label
                   htmlFor="password"
                   className={`mb-1 block text-sm font-medium ${
@@ -177,9 +164,26 @@ export default function Login() {
                       ? 'border-white/10 bg-white/90 text-slate-900 placeholder:text-slate-400'
                       : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-500'
                   }`}
-                  placeholder="••••••••"
+                  placeholder="********"
                   required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((current) => !current)}
+                  className={`absolute right-3 top-[38px] rounded-md p-1 transition-colors ${
+                    hasCustomBackground
+                      ? 'text-slate-500 hover:bg-slate-200/70 hover:text-slate-700'
+                      : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white'
+                  }`}
+                  aria-label={showPassword ? 'Ocultar contrasena' : 'Mostrar contrasena'}
+                  title={showPassword ? 'Ocultar contrasena' : 'Mostrar contrasena'}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </button>
               </div>
 
               {error && (
@@ -215,7 +219,11 @@ export default function Login() {
                 hasCustomBackground ? 'border-white/10' : 'border-gray-200 dark:border-gray-700'
               }`}
             >
-              <p className={`mb-4 text-center text-sm ${hasCustomBackground ? 'text-white/70' : 'text-gray-600 dark:text-gray-400'}`}>
+              <p
+                className={`mb-4 text-center text-sm ${
+                  hasCustomBackground ? 'text-white/70' : 'text-gray-600 dark:text-gray-400'
+                }`}
+              >
                 Accesos rapidos de demostracion:
               </p>
               <div className="space-y-2">
@@ -230,10 +238,18 @@ export default function Login() {
                     }`}
                     disabled={loading}
                   >
-                    <span className={`font-medium ${hasCustomBackground ? 'text-white' : 'text-gray-900 dark:text-white'}`}>
+                    <span
+                      className={`font-medium ${
+                        hasCustomBackground ? 'text-white' : 'text-gray-900 dark:text-white'
+                      }`}
+                    >
                       {label}
                     </span>
-                    <span className={`ml-2 ${hasCustomBackground ? 'text-white/60' : 'text-gray-500 dark:text-gray-400'}`}>
+                    <span
+                      className={`ml-2 ${
+                        hasCustomBackground ? 'text-white/60' : 'text-gray-500 dark:text-gray-400'
+                      }`}
+                    >
                       · {detail}
                     </span>
                   </button>

@@ -16,9 +16,19 @@ import Tickets from './pages/Tickets';
 import TicketForm from './pages/TicketForm';
 import Settings from './pages/Settings';
 import Tasks from './pages/Tasks';
+import PortalClientSettings from './pages/PortalClientSettings';
+import TemplateEditor from './pages/TemplateEditor';
+import ConfigurationTemplates from './pages/ConfigurationTemplates';
+import InvoiceMessages from './pages/InvoiceMessages';
+import ImportClients from './pages/ImportClients';
+import LocationsManagement from './pages/LocationsManagement';
+import MigrateCompany from './pages/MigrateCompany';
 import GeneralSettings from './pages/GeneralSettings';
+import CustomDomainsSettings from './pages/CustomDomainsSettings';
+import MailServerSettings from './pages/MailServerSettings';
 import ServerManagement from './pages/ServerManagement';
 import PaymentMethods from './pages/PaymentMethods';
+import StaffManagement from './pages/StaffManagement';
 import UsersManagement from './pages/UsersManagement';
 import RolesManagement from './pages/RolesManagement';
 import CurrenciesManagement from './pages/CurrenciesManagement';
@@ -157,6 +167,16 @@ export const router = createBrowserRouter([
       { path: 'messaging/mensajes-recibidos', element: <MessagingReceived /> },
       { path: 'settings', element: <Settings /> },
       { path: 'settings/general', element: <GeneralSettings /> },
+      { path: 'settings/configuration-templates', element: <ConfigurationTemplates /> },
+      { path: 'settings/invoice-messages', element: <InvoiceMessages /> },
+      { path: 'settings/import-clients', element: <ImportClients /> },
+      { path: 'settings/locations', element: <LocationsManagement /> },
+      { path: 'settings/migrate', element: <MigrateCompany /> },
+      { path: 'settings/client-portal', element: <PortalClientSettings /> },
+      { path: 'settings/template-editor', element: <TemplateEditor /> },
+      { path: 'settings/custom-domains', element: <CustomDomainsSettings /> },
+      { path: 'settings/mail-server', element: <MailServerSettings /> },
+      { path: 'settings/staff-management', element: <StaffManagement /> },
       { path: 'settings/users', element: <UsersManagement /> },
       { path: 'settings/roles', element: <RolesManagement /> },
       { path: 'settings/currencies', element: <CurrenciesManagement /> },

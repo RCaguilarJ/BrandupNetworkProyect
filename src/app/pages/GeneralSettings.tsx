@@ -1,4 +1,5 @@
 import { type ChangeEvent, type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import SettingsBreadcrumb from '../components/SettingsBreadcrumb';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Switch } from '../components/ui/switch';
@@ -413,13 +414,7 @@ export default function GeneralSettings() {
       <div className="mb-4 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
         <h1 className="text-[27px] font-normal leading-none text-slate-900">Ajustes generales</h1>
 
-        <div className="flex items-center gap-2 pt-1 text-[14px] text-slate-500">
-          <span>Inicio</span>
-          <span>/</span>
-          <span>Ajustes</span>
-          <span>/</span>
-          <span className="text-[#0d8bff]">General</span>
-        </div>
+        <SettingsBreadcrumb currentLabel="General" />
       </div>
 
       <div className="grid gap-4 xl:grid-cols-2">
