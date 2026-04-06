@@ -12,10 +12,11 @@ import {
   SelectField,
   type DataColumn,
 } from '../network/networkManagementShared';
-import {
-  warehouseMikrosystemPageStyle,
-  warehouseWisphubPageStyle,
-} from './warehouseData';
+
+const warehouseWisphubPageClassName =
+  'min-h-full border-t-4 border-[#45bf63] bg-[radial-gradient(circle_at_top_right,rgba(69,191,99,0.08),transparent_28%),#ffffff] pb-8 text-[#17273d] [font-family:Trebuchet_MS,Segoe_UI,Tahoma,Geneva,Verdana,sans-serif]';
+const warehouseMikrosystemPageClassName =
+  'min-h-full bg-[#d9e7f3] px-[22px] pt-[18px] pb-[26px] text-[#223448] [font-family:Segoe_UI,Tahoma,Geneva,Verdana,sans-serif]';
 
 export function WarehousePageSurface({
   children,
@@ -27,10 +28,10 @@ export function WarehousePageSurface({
 
   return (
     <div
-      style={
+      className={
         isWispHub
-          ? warehouseWisphubPageStyle
-          : warehouseMikrosystemPageStyle
+          ? warehouseWisphubPageClassName
+          : warehouseMikrosystemPageClassName
       }
     >
       {children}

@@ -2,10 +2,6 @@ import { useState } from 'react';
 import { BarChart3, List } from 'lucide-react';
 import { useViewTheme } from '../../context/ViewThemeContext';
 import {
-  mikrosystemPageStyle,
-  wisphubPageStyle,
-} from './networkManagementData';
-import {
   DateRangeField,
   NetworkPanel,
   NetworkTable,
@@ -21,6 +17,11 @@ import {
 
 type TrafficTab = 'list' | 'chart';
 type EmptyRow = Record<string, never>;
+
+const wisphubPageClassName =
+  'min-h-full border-t-4 border-[#45bf63] bg-[radial-gradient(circle_at_top_right,rgba(69,191,99,0.08),transparent_28%),#ffffff] pb-8 text-[#17273d] [font-family:Trebuchet_MS,Segoe_UI,Tahoma,Geneva,Verdana,sans-serif]';
+const mikrosystemPageClassName =
+  'min-h-full bg-[#d9e7f3] px-[22px] pt-[18px] pb-[26px] text-[#223448] [font-family:Segoe_UI,Tahoma,Geneva,Verdana,sans-serif]';
 
 const listColumns: DataColumn<EmptyRow>[] = [
   { key: 'num', header: '#', width: '60px', render: () => '' },
@@ -62,7 +63,7 @@ export default function NetworkTraffic() {
   const [endDate, setEndDate] = useState('30/04/2026');
 
   return (
-    <div style={isWispHub ? wisphubPageStyle : mikrosystemPageStyle}>
+    <div className={isWispHub ? wisphubPageClassName : mikrosystemPageClassName}>
       <NetworkPanel isWispHub={isWispHub}>
         <div className="px-0 pt-0">
           <TopTabs
