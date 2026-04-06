@@ -44,10 +44,10 @@ export function MessagingPageShell({
       }
     >
       <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
-        <h1 className="text-[24px] font-normal text-[#20344a]">
+        <h1 className="text-[26px] font-normal text-[#20344a]">
           {title}
         </h1>
-        <div className="pt-1 text-right text-[14px] text-[#6f8397]">
+        <div className="pt-1 text-right text-[12px] text-[#6f8397]">
           <span>Inicio</span>
           <span className="mx-2 text-[#aab7c4]">/</span>
           <span
@@ -61,8 +61,8 @@ export function MessagingPageShell({
       </div>
 
       <NetworkPanel isWispHub={isWispHub}>
-        <div className="flex items-center justify-between bg-[#1f2429] px-5 py-4">
-          <h2 className="text-[18px] font-bold uppercase text-white">
+        <div className="flex items-center justify-between bg-[#1f2429] px-5 py-3.5">
+          <h2 className="text-[17px] font-bold uppercase text-white">
             {panelTitle}
           </h2>
           <div className="flex items-center gap-2">

@@ -124,6 +124,12 @@ const navigationItems: NavItem[] = [
         roles: ["super_admin", "isp_admin", "tecnico"],
       },
       {
+        name: "CoreBN_OLT",
+        path: "/network-management/corebn-olt",
+        icon: <Network className="h-4 w-4" />,
+        roles: ["super_admin", "isp_admin", "tecnico"],
+      },
+      {
         name: "Redes IPv4",
         path: "/network-management/redes-ipv4",
         icon: <Circle className="h-3 w-3" />,
@@ -318,6 +324,12 @@ const navigationItems: NavItem[] = [
         roles: ["super_admin", "isp_admin", "cobranza"],
       },
       {
+        name: "Reportes de pago",
+        path: "/billing/portal-payment-reports",
+        icon: <DollarSign className="h-4 w-4" />,
+        roles: ["super_admin", "isp_admin", "cobranza"],
+      },
+      {
         name: "Cobranzas Realizadas",
         path: "/billing/completed-payments",
         icon: <CheckCircle className="h-4 w-4" />,
@@ -370,25 +382,19 @@ const navigationItems: NavItem[] = [
     roles: ["super_admin", "isp_admin", "soporte", "cliente"],
     subItems: [
       {
-        name: "Todos los Tickets",
+        name: "Esperando respuesta",
         path: "/tickets",
         icon: <List className="h-4 w-4" />,
         roles: ["super_admin", "isp_admin", "soporte", "cliente"],
       },
       {
-        name: "Tickets de Hoy",
-        path: "/tickets/today",
-        icon: <Clock className="h-4 w-4" />,
-        roles: ["super_admin", "isp_admin", "soporte"],
-      },
-      {
-        name: "Tickets en Proceso",
+        name: "Contestados",
         path: "/tickets/in-progress",
         icon: <Clock className="h-4 w-4" />,
         roles: ["super_admin", "isp_admin", "soporte"],
       },
       {
-        name: "Tickets Finalizados",
+        name: "Cerrados",
         path: "/tickets/completed",
         icon: <CheckCircle className="h-4 w-4" />,
         roles: ["super_admin", "isp_admin", "soporte"],
@@ -401,6 +407,12 @@ const navigationItems: NavItem[] = [
     icon: <MessageCircleMore className="h-5 w-5" />,
     roles: ["super_admin", "isp_admin", "soporte"],
     subItems: [
+      {
+        name: "Telegram",
+        path: "/messaging/telegram",
+        icon: <Send className="h-4 w-4" />,
+        roles: ["super_admin", "isp_admin", "soporte"],
+      },
       {
         name: "Chat whatsapp",
         path: "/messaging/chat-whatsapp",
@@ -725,15 +737,20 @@ export default function MainLayout() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-9 w-9 rounded-full p-0 text-gray-600 hover:bg-gray-100 hover:text-cyan-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-cyan-400"
-                title="Mensajes"
-                aria-label="Mensajes"
+                onClick={() => navigate("/messaging/telegram")}
+                className="relative h-9 w-9 rounded-full p-0 text-gray-600 hover:bg-gray-100 hover:text-cyan-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-cyan-400"
+                title="Mensajes Telegram"
+                aria-label="Mensajes Telegram"
               >
                 <Send className="h-4 w-4" />
+                {location.pathname.startsWith("/messaging/telegram") ? (
+                  <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-cyan-500" />
+                ) : null}
               </Button>
               <Button
                 variant="ghost"
                 size="sm"
+                onClick={() => navigate("/billing/register-payment")}
                 className="h-9 w-9 rounded-full p-0 text-gray-600 hover:bg-gray-100 hover:text-cyan-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-cyan-400"
                 title="Facturacion"
                 aria-label="Facturacion"
@@ -786,7 +803,7 @@ export default function MainLayout() {
               >
                 <DropdownMenuItem
                   className="cursor-pointer rounded-lg px-3 py-2 text-[15px] text-gray-700 dark:text-gray-200"
-                  onSelect={() => navigate("/settings")}
+                  onSelect={() => navigate("/profile")}
                 >
                   <User className="h-4 w-4 text-gray-500" />
                   Mi cuenta

@@ -32,9 +32,11 @@ import {
 import { useNavigate } from 'react-router';
 import { useAuth } from '../context/AuthContext';
 import { useViewTheme } from '../context/ViewThemeContext';
+import { getClientDirectoryRecords } from '../lib/client-workspace';
 import type {
   MikrosystemListaClientesAccion,
   MikrosystemListaClientesDatos,
+  MikrosystemListaClientesFila,
   WispHubListaClientesBoton,
   WispHubListaClientesColumna,
   WispHubListaClientesDatos,
@@ -211,6 +213,33 @@ function obtenerClasesBotonWispHub(
   return mapa[color];
 }
 
+function obtenerEtiquetaAccesibleBotonLista(
+  boton: WispHubListaClientesBoton,
+) {
+  if (boton.etiqueta) {
+    return boton.etiqueta;
+  }
+
+  const mapa = {
+    copiar: 'Copiar',
+    excel: 'Exportar a Excel',
+    documento: 'Exportar documento',
+    tabla: 'Cambiar vista de tabla',
+    ayuda: 'Ayuda',
+    reiniciar: 'Reiniciar',
+    encender: 'Encender servicio',
+    suspender: 'Suspender servicio',
+    cliente: 'Cliente',
+    estado: 'Cambiar estado',
+    grafica: 'Ver grafica',
+    intercambio: 'Intercambiar',
+    herramientas: 'Herramientas',
+    ia: 'IA',
+  } satisfies Record<string, string>;
+
+  return mapa[boton.id] ?? boton.id;
+}
+
 function obtenerIconoAccionMikrosystem(
   icono: MikrosystemListaClientesAccion['icono'],
 ) {
@@ -230,8 +259,27 @@ function obtenerIconoAccionMikrosystem(
   }
 }
 
+function obtenerEtiquetaAccesibleAccionMikrosystem(
+  accion: MikrosystemListaClientesAccion,
+) {
+  if (accion.etiqueta) {
+    return accion.etiqueta;
+  }
+
+  const mapa = {
+    'vista-tabla': 'Vista de tabla',
+    'vista-lista': 'Vista de lista',
+    encendido: 'Encender servicio',
+    eliminar: 'Eliminar',
+    nuevo: 'Nuevo',
+    filtrar: 'Filtrar',
+  } satisfies Record<string, string>;
+
+  return mapa[accion.id] ?? accion.id;
+}
+
 export default function Clients() {
-  useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { viewTheme } = useViewTheme();
   const isWispHub = viewTheme === 'wisphub';
@@ -609,6 +657,73 @@ export default function Clients() {
     setWispHubSortDirection('asc');
   };
 
+  const directorioClientesMikrosystem =
+    getClientDirectoryRecords(user?.companyId);
+  const directorioClientesPorCodigo = new Map(
+    directorioClientesMikrosystem.map((record) => [
+      record.id,
+      record,
+    ]),
+  );
+
+  const filasMikrosystemBase: MikrosystemListaClientesFila[] =
+    directorioClientesMikrosystem.map((record) => ({
+      id: record.id,
+      nombre: record.name,
+      direccionPrincipal: record.address,
+      ultimoPago: record.lastPayment,
+      ip: record.ip,
+      direccionServicio: record.serviceAddress,
+      mac: record.mac,
+      diaPago: record.paymentDay,
+      deudaActual: record.currentDebt,
+      correo: record.email,
+      telefono: record.phone,
+      plan: record.plan,
+    }));
+
+  const filasMikrosystemFiltradas = filasMikrosystemBase.filter(
+    (fila) => {
+      const searchMatches =
+        !searchTerm.trim() ||
+        Object.values(fila).some((value) =>
+          value.toLowerCase().includes(searchTerm.toLowerCase()),
+        );
+
+      if (!searchMatches) {
+        return false;
+      }
+
+      const sourceRecord = directorioClientesMikrosystem.find(
+        (record) => record.id === fila.id,
+      );
+
+      if (!sourceRecord || statusFilter === 'todos') {
+        return true;
+      }
+
+      if (statusFilter === 'usuarios-suspendidos') {
+        return sourceRecord.status === 'suspended';
+      }
+
+      return sourceRecord.status === 'active';
+    },
+  );
+
+  const totalPaginasMikrosystem = Math.max(
+    1,
+    Math.ceil(filasMikrosystemFiltradas.length / pageSize),
+  );
+  const paginaActualMikrosystem = Math.min(
+    currentPage,
+    totalPaginasMikrosystem,
+  );
+  const filasMikrosystemPaginaActual =
+    filasMikrosystemFiltradas.slice(
+      (paginaActualMikrosystem - 1) * pageSize,
+      paginaActualMikrosystem * pageSize,
+    );
+
   const datosListaClientesMikrosystem: MikrosystemListaClientesDatos =
     {
       tituloPagina: 'Lista Usuarios',
@@ -670,8 +785,8 @@ export default function Clients() {
       tabla: {
         placeholderBusquedaGeneral: 'Buscar...',
         tamanoPagina: 15,
-        paginaActual: 1,
-        total: 0,
+        paginaActual: paginaActualMikrosystem,
+        total: filasMikrosystemFiltradas.length,
         columnas: [
           {
             clave: 'id',
@@ -734,7 +849,7 @@ export default function Clients() {
             placeholderFiltro: 'Buscar',
           },
         ],
-        filas: [],
+        filas: filasMikrosystemPaginaActual,
       },
     };
 
@@ -780,6 +895,8 @@ export default function Clients() {
                 }}
                 style={estilosWispHub.inputClasico}
                 className="w-full"
+                title="Filtrar por zona"
+                aria-label="Filtrar por zona"
               >
                 <option value="all">
                   {
@@ -827,6 +944,8 @@ export default function Clients() {
               }
               style={estilosWispHub.inputClasico}
               className="min-w-[320px] flex-1"
+              title="Accion masiva"
+              aria-label="Accion masiva"
             >
               <option value="">
                 {
@@ -867,10 +986,12 @@ export default function Clients() {
         <section style={estilosWispHub.tablaWrapper}>
           <div className="mb-2 flex flex-wrap items-center justify-between gap-4">
             <div className="flex flex-wrap items-center gap-1.5">
-              <button
-                type="button"
-                className="inline-flex h-[33px] items-center gap-2 border border-[#42b960] bg-[#45bf63] px-3 text-[12px] font-medium text-white"
-              >
+            <button
+              type="button"
+              className="inline-flex h-[33px] items-center gap-2 border border-[#42b960] bg-[#45bf63] px-3 text-[12px] font-medium text-white"
+              title={`Mostrar ${pageSize} registros`}
+              aria-label={`Mostrar ${pageSize} registros`}
+            >
                 {
                   datosListaClientesWispHub.tabla
                     .selectorRegistrosLabel
@@ -887,6 +1008,8 @@ export default function Clients() {
                     className={`inline-flex h-[33px] items-center justify-center gap-1.5 border px-3 text-[12px] ${obtenerClasesBotonWispHub(
                       boton.color,
                     )}`}
+                    title={obtenerEtiquetaAccesibleBotonLista(boton)}
+                    aria-label={obtenerEtiquetaAccesibleBotonLista(boton)}
                   >
                     {obtenerIconoBotonLista(boton.icono)}
                     {boton.etiqueta && (
@@ -911,7 +1034,8 @@ export default function Clients() {
                     className={`inline-flex h-[33px] w-[36px] items-center justify-center border text-[12px] ${obtenerClasesBotonWispHub(
                       boton.color,
                     )}`}
-                    title={boton.id}
+                    title={obtenerEtiquetaAccesibleBotonLista(boton)}
+                    aria-label={obtenerEtiquetaAccesibleBotonLista(boton)}
                   >
                     {obtenerIconoBotonLista(boton.icono)}
                   </button>
@@ -926,6 +1050,8 @@ export default function Clients() {
                     className={`inline-flex h-[33px] items-center gap-1.5 border px-3 text-[12px] ${obtenerClasesBotonWispHub(
                       boton.color,
                     )}`}
+                    title={obtenerEtiquetaAccesibleBotonLista(boton)}
+                    aria-label={obtenerEtiquetaAccesibleBotonLista(boton)}
                   >
                     {obtenerIconoBotonLista(boton.icono)}
                     <span>{boton.etiqueta}</span>
@@ -945,6 +1071,9 @@ export default function Clients() {
                     setSearchTerm(event.target.value);
                     setCurrentPage(1);
                   }}
+                  placeholder="Buscar"
+                  title="Buscar"
+                  aria-label="Buscar"
                   className="h-[30px] w-[180px] border border-[#cfd6df] bg-white px-3 pr-8 text-[12px] text-[#20324a] outline-none"
                 />
                 <Search className="pointer-events-none absolute right-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#93a0b0]" />
@@ -965,6 +1094,8 @@ export default function Clients() {
                         type="checkbox"
                         checked={todasFilasPaginaSeleccionadas}
                         onChange={toggleSelectAllCurrentPage}
+                        title="Seleccionar todos los clientes de la pagina"
+                        aria-label="Seleccionar todos los clientes de la pagina"
                         className="h-4 w-4 border-[#c7d1dd]"
                       />
                     </th>
@@ -1032,6 +1163,8 @@ export default function Clients() {
                             placeholder={
                               columna.placeholderFiltro
                             }
+                            title={columna.placeholderFiltro}
+                            aria-label={columna.placeholderFiltro}
                             className="h-[30px] w-full border border-[#cfd6df] bg-white px-3 text-[12px] text-[#20324a] outline-none"
                           />
                         </th>
@@ -1070,6 +1203,8 @@ export default function Clients() {
                               onChange={() =>
                                 toggleSelectedClient(fila.id)
                               }
+                              title={`Seleccionar cliente ${fila.nombre}`}
+                              aria-label={`Seleccionar cliente ${fila.nombre}`}
                               className="h-4 w-4 border-[#c7d1dd]"
                             />
                           </td>
@@ -1166,6 +1301,8 @@ export default function Clients() {
                 }
                 disabled={currentPageWispHub === 1}
                 className="h-[34px] border border-[#d7dde5] bg-white px-4 text-[12px] text-[#6d7a8e] disabled:cursor-not-allowed disabled:opacity-60"
+                title="Pagina anterior"
+                aria-label="Pagina anterior"
               >
                 Anterior
               </button>
@@ -1184,6 +1321,8 @@ export default function Clients() {
                   totalRegistrosWispHub === 0
                 }
                 className="h-[34px] border border-l-0 border-[#d7dde5] bg-white px-4 text-[12px] text-[#6d7a8e] disabled:cursor-not-allowed disabled:opacity-60"
+                title="Pagina siguiente"
+                aria-label="Pagina siguiente"
               >
                 Siguiente
               </button>
@@ -1211,12 +1350,16 @@ export default function Clients() {
             <button
               type="button"
               className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/10 text-white"
+              title="Actualizar"
+              aria-label="Actualizar"
             >
               <RefreshCw className="h-3.5 w-3.5" />
             </button>
             <button
               type="button"
               className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/10 text-white"
+              title="Recargar"
+              aria-label="Recargar"
             >
               <RefreshCw className="h-3.5 w-3.5" />
             </button>
@@ -1232,6 +1375,8 @@ export default function Clients() {
                   setPageSize(Number(event.target.value));
                   setCurrentPage(1);
                 }}
+                title="Cantidad de registros por pagina"
+                aria-label="Cantidad de registros por pagina"
                 className="h-8 rounded border border-[#cfd7e2] bg-white px-3 text-[12px] text-[#24364b] outline-none"
               >
                 <option value={15}>15</option>
@@ -1246,6 +1391,8 @@ export default function Clients() {
                     key={accion.id}
                     type="button"
                     className="inline-flex h-8 w-9 items-center justify-center rounded border border-[#cfd7e2] bg-white text-[#2b3f55]"
+                    title={obtenerEtiquetaAccesibleAccionMikrosystem(accion)}
+                    aria-label={obtenerEtiquetaAccesibleAccionMikrosystem(accion)}
                   >
                     {obtenerIconoAccionMikrosystem(
                       accion.icono,
@@ -1260,6 +1407,8 @@ export default function Clients() {
                     key={accion.id}
                     type="button"
                     className="inline-flex h-8 items-center gap-1.5 rounded border border-[#cfd7e2] bg-white px-3 text-[12px] font-medium text-[#24364b]"
+                    title={obtenerEtiquetaAccesibleAccionMikrosystem(accion)}
+                    aria-label={obtenerEtiquetaAccesibleAccionMikrosystem(accion)}
                     onClick={() => {
                       if (accion.id === 'nuevo') {
                         navigate('/clients/new');
@@ -1279,6 +1428,8 @@ export default function Clients() {
                   setStatusFilter(event.target.value);
                   setCurrentPage(1);
                 }}
+                title="Filtrar por estado"
+                aria-label="Filtrar por estado"
                 className="h-8 min-w-[170px] rounded border border-[#cfd7e2] bg-white px-3 text-[12px] text-[#24364b] outline-none"
               >
                 {datosListaClientesMikrosystem.filtroEstado.opciones.map(
@@ -1305,6 +1456,8 @@ export default function Clients() {
                   datosListaClientesMikrosystem.tabla
                     .placeholderBusquedaGeneral
                 }
+                title="Buscar"
+                aria-label="Buscar"
                 className="h-8 w-[260px] rounded border border-[#cfd7e2] bg-white px-3 pr-8 text-[12px] text-[#24364b] outline-none"
               />
               <Search className="pointer-events-none absolute right-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#9aa8b7]" />
@@ -1317,7 +1470,12 @@ export default function Clients() {
                 <tr className="bg-white">
                   <th className="w-8 border border-[#d7e0ea] px-2 py-2"></th>
                   <th className="w-8 border border-[#d7e0ea] px-2 py-2 text-center">
-                    <input type="checkbox" disabled />
+                    <input
+                      type="checkbox"
+                      disabled
+                      title="Seleccion general"
+                      aria-label="Seleccion general"
+                    />
                   </th>
                   {datosListaClientesMikrosystem.tabla.columnas.map(
                     (columna) => (
@@ -1346,6 +1504,8 @@ export default function Clients() {
                         <input
                           type="text"
                           placeholder={columna.placeholderFiltro}
+                          title={columna.placeholderFiltro}
+                          aria-label={columna.placeholderFiltro}
                           className="h-8 w-full rounded border border-[#d7e0ea] bg-white px-3 text-[12px] text-[#24364b] outline-none placeholder:text-[#c3ccd6]"
                         />
                       </th>
@@ -1369,34 +1529,154 @@ export default function Clients() {
                       para cuando el usuario capture clientes.
                     </td>
                   </tr>
-                ) : null}
+                ) : (
+                  datosListaClientesMikrosystem.tabla.filas.map(
+                    (fila) => (
+                      <tr key={fila.id} className="bg-white">
+                        <td className="border border-[#d7e0ea] px-2 py-2 text-center">
+                          <button
+                            type="button"
+                            className="inline-flex h-6 w-6 items-center justify-center text-[#8fa1b5]"
+                            title="Expandir fila"
+                            aria-label="Expandir fila"
+                          >
+                            +
+                          </button>
+                        </td>
+                        <td className="border border-[#d7e0ea] px-2 py-2 text-center">
+                          <input
+                            type="checkbox"
+                            disabled
+                            title={`Seleccionar cliente ${fila.nombre}`}
+                            aria-label={`Seleccionar cliente ${fila.nombre}`}
+                          />
+                        </td>
+                        <td className="border border-[#d7e0ea] px-3 py-2">
+                          {fila.id}
+                        </td>
+                        <td className="border border-[#d7e0ea] px-3 py-2 font-semibold">
+                          {fila.nombre}
+                        </td>
+                        <td className="border border-[#d7e0ea] px-3 py-2">
+                          {fila.direccionPrincipal}
+                        </td>
+                        <td className="border border-[#d7e0ea] px-3 py-2">
+                          {fila.ultimoPago}
+                        </td>
+                        <td className="border border-[#d7e0ea] px-3 py-2">
+                          {fila.ip || '--'}
+                        </td>
+                        <td className="border border-[#d7e0ea] px-3 py-2">
+                          {fila.direccionServicio}
+                        </td>
+                        <td className="border border-[#d7e0ea] px-3 py-2">
+                          {fila.mac || '--'}
+                        </td>
+                        <td className="border border-[#d7e0ea] px-3 py-2">
+                          {fila.diaPago}
+                        </td>
+                        <td className="border border-[#d7e0ea] px-3 py-2">
+                          {fila.deudaActual}
+                        </td>
+                        <td className="border border-[#d7e0ea] px-3 py-2">
+                          {fila.correo}
+                        </td>
+                        <td className="border border-[#d7e0ea] px-3 py-2">
+                          {fila.telefono}
+                        </td>
+                        <td className="border border-[#d7e0ea] px-3 py-2">
+                          {fila.plan}
+                        </td>
+                        <td className="border border-[#d7e0ea] px-3 py-2">
+                          <div className="flex items-center justify-center gap-1">
+                            <button
+                              type="button"
+                              className="inline-flex h-7 w-7 items-center justify-center rounded border border-[#cfd7e2] bg-white text-[#2b3f55]"
+                              title="Ver"
+                              aria-label="Ver"
+                            >
+                              <Eye className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                navigate(
+                                  `/clients/${directorioClientesPorCodigo.get(fila.id)?.routeId ?? fila.id}/edit`,
+                                )
+                              }
+                              className="inline-flex h-7 w-7 items-center justify-center rounded border border-[#cfd7e2] bg-white text-[#2b3f55]"
+                              title="Editar"
+                              aria-label="Editar"
+                            >
+                              <Edit className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              className="inline-flex h-7 w-7 items-center justify-center rounded border border-[#cfd7e2] bg-white text-[#2b3f55]"
+                              title="Eliminar"
+                              aria-label="Eliminar"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ),
+                  )
+                )}
               </tbody>
             </table>
           </div>
 
           <div className="mt-7 flex flex-wrap items-center justify-between gap-4 text-[13px] text-[#51657d]">
             <div>
-              Mostrando de 0 al 0 de un total de 0
+              {datosListaClientesMikrosystem.tabla.total === 0
+                ? 'Mostrando de 0 al 0 de un total de 0'
+                : `Mostrando de ${(paginaActualMikrosystem - 1) * pageSize + 1} al ${Math.min(
+                    paginaActualMikrosystem * pageSize,
+                    datosListaClientesMikrosystem.tabla.total,
+                  )} de un total de ${datosListaClientesMikrosystem.tabla.total}`}
             </div>
 
             <div className="flex items-center gap-1">
               <button
                 type="button"
-                disabled
+                onClick={() =>
+                  setCurrentPage(
+                    Math.max(1, paginaActualMikrosystem - 1),
+                  )
+                }
+                disabled={paginaActualMikrosystem === 1}
                 className="inline-flex h-8 w-8 items-center justify-center rounded border border-[#d7e0ea] bg-white text-[#9aa8b7]"
+                title="Pagina anterior"
+                aria-label="Pagina anterior"
               >
                 <ChevronDown className="h-3.5 w-3.5 rotate-90" />
               </button>
               <button
                 type="button"
                 className="inline-flex h-8 w-8 items-center justify-center rounded bg-[#2f93e4] text-[12px] font-semibold text-white"
+                title={`Pagina ${paginaActualMikrosystem}`}
+                aria-label={`Pagina ${paginaActualMikrosystem}`}
               >
-                1
+                {paginaActualMikrosystem}
               </button>
               <button
                 type="button"
-                disabled
+                onClick={() =>
+                  setCurrentPage(
+                    Math.min(
+                      totalPaginasMikrosystem,
+                      paginaActualMikrosystem + 1,
+                    ),
+                  )
+                }
+                disabled={
+                  paginaActualMikrosystem === totalPaginasMikrosystem
+                }
                 className="inline-flex h-8 w-8 items-center justify-center rounded border border-[#d7e0ea] bg-white text-[#9aa8b7]"
+                title="Pagina siguiente"
+                aria-label="Pagina siguiente"
               >
                 <ChevronDown className="h-3.5 w-3.5 -rotate-90" />
               </button>

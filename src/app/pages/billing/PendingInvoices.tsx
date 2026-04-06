@@ -112,6 +112,27 @@ function obtenerClasesBotonWispHub(
   return mapa[color];
 }
 
+function obtenerEtiquetaAccesibleBotonWispHub(
+  button: WispHubListaPagosPendientesBoton,
+) {
+  if (button.etiqueta) {
+    return button.etiqueta;
+  }
+
+  const mapa = {
+    copiar: 'Copiar',
+    documento: 'Documento',
+    tabla: 'Tabla',
+    filtro: 'Filtros',
+    dinero: 'Registrar pago',
+    correo: 'Enviar correo',
+    encendido: 'Encender servicio',
+    herramientas: 'Herramientas',
+  } satisfies Record<WispHubListaPagosPendientesBoton['icono'], string>;
+
+  return mapa[button.icono];
+}
+
 export default function PendingInvoices() {
   const { user } = useAuth();
   const { viewTheme } = useViewTheme();
@@ -310,10 +331,20 @@ export default function PendingInvoices() {
         <div className="bg-blue-600 dark:bg-blue-700 px-4 py-3 flex items-center justify-between">
           <h1 className="text-base font-bold text-white">Facturas Pendientes</h1>
           <div className="flex items-center gap-2">
-            <button className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white">
+            <button
+              type="button"
+              title="Exportar documento"
+              aria-label="Exportar documento"
+              className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white"
+            >
               <FileText className="w-4 h-4" />
             </button>
-            <button className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white">
+            <button
+              type="button"
+              title="Configuracion"
+              aria-label="Configuracion"
+              className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white"
+            >
               <Settings className="w-4 h-4" />
             </button>
           </div>
@@ -324,7 +355,11 @@ export default function PendingInvoices() {
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-2">
               <label className="text-xs text-gray-600 dark:text-gray-400">Vencimiento</label>
-              <select className="h-7 px-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded text-xs focus:ring-1 focus:ring-blue-500">
+              <select
+                title="Filtrar por tipo de fecha"
+                aria-label="Filtrar por tipo de fecha"
+                className="h-7 px-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded text-xs focus:ring-1 focus:ring-blue-500"
+              >
                 <option>Vencimiento</option>
                 <option>Emisión</option>
               </select>
@@ -335,22 +370,37 @@ export default function PendingInvoices() {
                 type="text"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
+                placeholder="Fecha inicial"
+                title="Fecha inicial"
+                aria-label="Fecha inicial"
                 className="h-7 w-24 px-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded text-xs focus:ring-1 focus:ring-blue-500"
               />
-              <button className="w-7 h-7 flex items-center justify-center border border-gray-300 dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600">
+              <button
+                type="button"
+                title="Abrir calendario"
+                aria-label="Abrir calendario"
+                className="w-7 h-7 flex items-center justify-center border border-gray-300 dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600"
+              >
                 📅
               </button>
               <input
                 type="text"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
+                placeholder="Fecha final"
+                title="Fecha final"
+                aria-label="Fecha final"
                 className="h-7 w-24 px-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded text-xs focus:ring-1 focus:ring-blue-500"
               />
             </div>
 
             <div className="flex items-center gap-2">
               <label className="text-xs text-gray-600 dark:text-gray-400">Router</label>
-              <select className="h-7 px-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded text-xs focus:ring-1 focus:ring-blue-500">
+              <select
+                title="Filtrar por router"
+                aria-label="Filtrar por router"
+                className="h-7 px-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded text-xs focus:ring-1 focus:ring-blue-500"
+              >
                 <option value="all">Cualquiera</option>
               </select>
             </div>
@@ -360,6 +410,8 @@ export default function PendingInvoices() {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
+                title="Filtrar por estado"
+                aria-label="Filtrar por estado"
                 className="h-7 px-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded text-xs focus:ring-1 focus:ring-blue-500"
               >
                 <option value="all">Cualquiera</option>
@@ -381,6 +433,8 @@ export default function PendingInvoices() {
               <select
                 value={pageSize}
                 onChange={(e) => setPageSize(Number(e.target.value))}
+                title="Cantidad de registros por pagina"
+                aria-label="Cantidad de registros por pagina"
                 className="h-7 px-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded text-xs focus:ring-1 focus:ring-blue-500"
               >
                 <option value={10}>10</option>
@@ -392,20 +446,31 @@ export default function PendingInvoices() {
 
             <div className="flex items-center border border-gray-300 dark:border-gray-600 rounded overflow-hidden">
               <button
+                type="button"
                 onClick={() => setViewMode('list')}
+                title="Vista de lista"
+                aria-label="Vista de lista"
                 className={`p-1.5 ${viewMode === 'list' ? 'bg-blue-600 text-white' : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600'}`}
               >
                 <List className="w-3.5 h-3.5" />
               </button>
               <button
+                type="button"
                 onClick={() => setViewMode('grid')}
+                title="Vista de cuadricula"
+                aria-label="Vista de cuadricula"
                 className={`p-1.5 border-l border-gray-300 dark:border-gray-600 ${viewMode === 'grid' ? 'bg-blue-600 text-white' : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600'}`}
               >
                 <Grid3x3 className="w-3.5 h-3.5" />
               </button>
             </div>
 
-            <button className="p-1.5 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600">
+            <button
+              type="button"
+              title="Herramientas"
+              aria-label="Herramientas"
+              className="p-1.5 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600"
+            >
               <Settings className="w-3.5 h-3.5" />
             </button>
             <span className="text-xs text-gray-600 dark:text-gray-400">Herramientas</span>
@@ -591,7 +656,12 @@ export default function PendingInvoices() {
                       }`}
                     >
                       <td className="px-3 py-2.5 border-r border-gray-200 dark:border-gray-700">
-                        <button className="w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center text-white hover:bg-blue-700">
+                        <button
+                          type="button"
+                          title="Ver informacion"
+                          aria-label="Ver informacion"
+                          className="w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center text-white hover:bg-blue-700"
+                        >
                           <Info className="w-3 h-3" />
                         </button>
                       </td>
@@ -630,16 +700,36 @@ export default function PendingInvoices() {
                       </td>
                       <td className="px-3 py-2.5 text-center">
                         <div className="flex items-center justify-center gap-1">
-                          <button className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded" title="Ver">
+                          <button
+                            type="button"
+                            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                            title="Ver"
+                            aria-label="Ver"
+                          >
                             <Eye className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
                           </button>
-                          <button className="p-1 hover:bg-green-50 dark:hover:bg-green-900/20 rounded" title="Registrar Pago">
+                          <button
+                            type="button"
+                            className="p-1 hover:bg-green-50 dark:hover:bg-green-900/20 rounded"
+                            title="Registrar Pago"
+                            aria-label="Registrar Pago"
+                          >
                             <CreditCard className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
                           </button>
-                          <button className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded" title="Email">
+                          <button
+                            type="button"
+                            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                            title="Email"
+                            aria-label="Email"
+                          >
                             <Mail className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
                           </button>
-                          <button className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded" title="Descargar">
+                          <button
+                            type="button"
+                            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                            title="Descargar"
+                            aria-label="Descargar"
+                          >
                             <Download className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
                           </button>
                         </div>
@@ -658,19 +748,30 @@ export default function PendingInvoices() {
             </div>
             <div className="flex items-center gap-2">
               <button
+                type="button"
                 className="w-8 h-8 flex items-center justify-center border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50"
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage(currentPage - 1)}
+                title="Pagina anterior"
+                aria-label="Pagina anterior"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
-              <button className="w-8 h-8 flex items-center justify-center bg-blue-600 text-white rounded font-medium">
+              <button
+                type="button"
+                className="w-8 h-8 flex items-center justify-center bg-blue-600 text-white rounded font-medium"
+                title={`Pagina ${currentPage}`}
+                aria-label={`Pagina ${currentPage}`}
+              >
                 {currentPage}
               </button>
               <button
+                type="button"
                 className="w-8 h-8 flex items-center justify-center border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50"
                 disabled={currentPage >= Math.ceil(filteredInvoices.length / pageSize)}
                 onClick={() => setCurrentPage(currentPage + 1)}
+                title="Pagina siguiente"
+                aria-label="Pagina siguiente"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -877,6 +978,8 @@ export default function PendingInvoices() {
               }
               style={estilosWispHub.input}
               className="w-full"
+              title="Accion al registrar pagos"
+              aria-label="Accion al registrar pagos"
             >
               <option value="">
                 {datosWispHub.formularioPago.accionPlaceholder}
@@ -895,6 +998,8 @@ export default function PendingInvoices() {
               }
               style={estilosWispHub.input}
               className="w-full"
+              title="Forma de pago"
+              aria-label="Forma de pago"
             >
               <option value="">
                 {datosWispHub.formularioPago.formaPagoPlaceholder}
@@ -907,6 +1012,8 @@ export default function PendingInvoices() {
               type="button"
               style={estilosWispHub.botonAzul}
               className="inline-flex items-center gap-1.5"
+              title={datosWispHub.formularioPago.botonTexto}
+              aria-label={datosWispHub.formularioPago.botonTexto}
             >
               <Play className="h-4 w-4" />
               {datosWispHub.formularioPago.botonTexto}
@@ -924,6 +1031,8 @@ export default function PendingInvoices() {
             <button
               type="button"
               className="inline-flex h-[33px] items-center gap-2 border border-[#42b960] bg-[#45bf63] px-3 text-[12px] font-medium text-white"
+              title={`Mostrar ${pageSize} registros`}
+              aria-label={`Mostrar ${pageSize} registros`}
             >
               {datosWispHub.tabla.selectorRegistrosLabel} {pageSize}{' '}
               registros
@@ -937,6 +1046,8 @@ export default function PendingInvoices() {
                 className={`inline-flex h-[33px] items-center justify-center gap-1.5 border px-3 text-[12px] ${obtenerClasesBotonWispHub(
                   button.color,
                 )}`}
+                title={obtenerEtiquetaAccesibleBotonWispHub(button)}
+                aria-label={obtenerEtiquetaAccesibleBotonWispHub(button)}
               >
                 {obtenerIconoBotonWispHub(button.icono)}
                 {button.etiqueta && <span>{button.etiqueta}</span>}
@@ -961,6 +1072,8 @@ export default function PendingInvoices() {
                 } border text-[12px] ${obtenerClasesBotonWispHub(
                   button.color,
                 )}`}
+                title={obtenerEtiquetaAccesibleBotonWispHub(button)}
+                aria-label={obtenerEtiquetaAccesibleBotonWispHub(button)}
               >
                 {obtenerIconoBotonWispHub(button.icono)}
                 {button.etiqueta && <span>{button.etiqueta}</span>}
@@ -974,6 +1087,9 @@ export default function PendingInvoices() {
               type="text"
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.target.value)}
+              placeholder="Buscar"
+              title="Buscar"
+              aria-label="Buscar"
               className="h-[30px] w-[160px] border border-[#cfd6df] bg-white px-3 text-[12px] text-[#20324a] outline-none"
             />
           </label>
@@ -985,7 +1101,13 @@ export default function PendingInvoices() {
               <thead>
                 <tr className="bg-white">
                   <th className="w-[42px] border border-[#d7dde5] px-2 py-2 text-center">
-                    <input type="checkbox" disabled className="h-4 w-4" />
+                    <input
+                      type="checkbox"
+                      disabled
+                      aria-label="Seleccionar todas las facturas"
+                      title="Seleccionar todas las facturas"
+                      className="h-4 w-4"
+                    />
                   </th>
                   {datosWispHub.tabla.columnas.map((column) => (
                     <th
@@ -1004,6 +1126,8 @@ export default function PendingInvoices() {
                     <button
                       type="button"
                       className="inline-flex h-[28px] w-[28px] items-center justify-center border border-[#cfd6df] bg-white text-[12px] text-[#6c7a8d]"
+                      title="Buscar en columnas"
+                      aria-label="Buscar en columnas"
                     >
                       B
                     </button>
@@ -1016,6 +1140,8 @@ export default function PendingInvoices() {
                       <input
                         type="text"
                         placeholder={column.placeholderFiltro}
+                        title={column.placeholderFiltro}
+                        aria-label={column.placeholderFiltro}
                         className="h-[30px] w-full border border-[#cfd6df] bg-white px-3 text-[12px] text-[#20324a] outline-none"
                       />
                     </th>
@@ -1048,6 +1174,8 @@ export default function PendingInvoices() {
               type="button"
               disabled
               className="h-[34px] border border-[#d7dde5] bg-white px-4 text-[12px] text-[#6d7a8e] opacity-60"
+              title="Pagina anterior"
+              aria-label="Pagina anterior"
             >
               Anterior
             </button>
@@ -1055,6 +1183,8 @@ export default function PendingInvoices() {
               type="button"
               disabled
               className="h-[34px] border border-l-0 border-[#d7dde5] bg-white px-4 text-[12px] text-[#6d7a8e] opacity-60"
+              title="Pagina siguiente"
+              aria-label="Pagina siguiente"
             >
               Siguiente
             </button>

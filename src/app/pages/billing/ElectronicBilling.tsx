@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react';
+import { Link } from 'react-router';
 import { BadgeCheck, Globe2, PlugZap } from 'lucide-react';
 import { useViewTheme } from '../../context/ViewThemeContext';
 
@@ -305,6 +306,15 @@ export default function ElectronicBilling() {
                 </p>
               </div>
             </div>
+
+            <div className="mt-5 flex flex-wrap gap-3">
+              <BillingRouteLink to="/billing/issuers" variant="wisphub">
+                Emisores
+              </BillingRouteLink>
+              <BillingRouteLink to="/billing/afip" variant="wisphub">
+                Facturas AFIP
+              </BillingRouteLink>
+            </div>
           </div>
 
           <div className="grid gap-4 px-5 py-6 sm:grid-cols-2 xl:grid-cols-5">
@@ -390,6 +400,15 @@ export default function ElectronicBilling() {
                 Paises:
               </p>
 
+              <div className="mt-5 flex flex-wrap gap-3">
+                <BillingRouteLink to="/billing/issuers" variant="mikrosystem">
+                  Emisores
+                </BillingRouteLink>
+                <BillingRouteLink to="/billing/afip" variant="mikrosystem">
+                  Facturas AFIP
+                </BillingRouteLink>
+              </div>
+
               <div className="mt-8 grid grid-cols-2 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
                 {countries.map((country) => (
                   <CountryTile
@@ -426,5 +445,26 @@ export default function ElectronicBilling() {
         </section>
       </div>
     </div>
+  );
+}
+
+function BillingRouteLink({
+  to,
+  variant,
+  children,
+}: {
+  to: string;
+  variant: 'wisphub' | 'mikrosystem';
+  children: ReactNode;
+}) {
+  const className =
+    variant === 'wisphub'
+      ? 'inline-flex h-[40px] items-center rounded-[8px] border border-[#45bf63] bg-[#45bf63] px-4 text-[13px] font-semibold text-white'
+      : 'inline-flex h-[34px] items-center rounded-[4px] border border-[#d6dee8] bg-white px-4 text-[12px] font-semibold text-[#24364b]';
+
+  return (
+    <Link to={to} className={className}>
+      {children}
+    </Link>
   );
 }

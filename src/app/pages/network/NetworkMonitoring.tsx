@@ -3,10 +3,6 @@ import { Plus } from 'lucide-react';
 import { useViewTheme } from '../../context/ViewThemeContext';
 import { toast } from 'sonner';
 import {
-  mikrosystemPageStyle,
-  wisphubPageStyle,
-} from './networkManagementData';
-import {
   ActionButton,
   NetworkFormDialog,
   NetworkPageShell,
@@ -18,6 +14,11 @@ import {
   type DataColumn,
   useNetworkDialog,
 } from './networkManagementShared';
+
+const wisphubPageClassName =
+  'min-h-full border-t-4 border-[#45bf63] bg-[radial-gradient(circle_at_top_right,rgba(69,191,99,0.08),transparent_28%),#ffffff] pb-8 text-[#17273d] [font-family:Trebuchet_MS,Segoe_UI,Tahoma,Geneva,Verdana,sans-serif]';
+const mikrosystemPageClassName =
+  'min-h-full bg-[#d9e7f3] px-[22px] pt-[18px] pb-[26px] text-[#223448] [font-family:Segoe_UI,Tahoma,Geneva,Verdana,sans-serif]';
 
 type MonitoringRow = {
   id: string;
@@ -97,7 +98,7 @@ export default function NetworkMonitoring() {
   };
 
   return (
-    <div style={isWispHub ? wisphubPageStyle : mikrosystemPageStyle}>
+    <div className={isWispHub ? wisphubPageClassName : mikrosystemPageClassName}>
       <NetworkPageShell
         title="Monitoreo"
         breadcrumb="Monitoreo"

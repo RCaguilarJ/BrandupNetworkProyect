@@ -3,9 +3,9 @@ import type { CSSProperties } from 'react';
 export const messagingMikrosystemPageStyle = {
   minHeight: '100%',
   backgroundColor: '#d9e7f3',
-  padding: '18px 22px 26px',
+  padding: '22px 28px 30px',
   color: '#223448',
-  fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+  fontFamily: '"Open Sans", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
 } satisfies CSSProperties;
 
 export const messagingWisphubPageStyle = {

@@ -215,6 +215,8 @@ export default function OtherIncomeExpenses() {
                     value={pageSize}
                     onChange={(event) => setPageSize(Number(event.target.value))}
                     className="h-[48px] min-w-[56px] appearance-none border-r border-[#d5dde7] bg-white px-4 text-[18px] font-medium text-[#223448] outline-none"
+                    aria-label="Cantidad de registros por pagina"
+                    title="Cantidad de registros por pagina"
                   >
                     <option value={15}>15</option>
                     <option value={25}>25</option>
@@ -258,6 +260,9 @@ export default function OtherIncomeExpenses() {
                     value={startDate}
                     onChange={(event) => setStartDate(event.target.value)}
                     className="h-[48px] w-[140px] px-4 text-[16px] text-[#223448] outline-none"
+                    placeholder="Fecha inicial"
+                    aria-label="Fecha inicial"
+                    title="Fecha inicial"
                   />
                   <span className="inline-flex h-[48px] items-center border-x border-[#d5dde7] bg-[#eef2f6] px-4 text-[16px] text-[#4a6077]">
                     al
@@ -267,6 +272,9 @@ export default function OtherIncomeExpenses() {
                     value={endDate}
                     onChange={(event) => setEndDate(event.target.value)}
                     className="h-[48px] w-[140px] px-4 text-[16px] text-[#223448] outline-none"
+                    placeholder="Fecha final"
+                    aria-label="Fecha final"
+                    title="Fecha final"
                   />
                 </div>
               </div>
@@ -341,6 +349,8 @@ export default function OtherIncomeExpenses() {
                     type="button"
                     className="inline-flex h-[48px] w-[48px] items-center justify-center rounded-[6px] border border-[#d5dde7] bg-white text-[#9aa8b8]"
                     disabled
+                    aria-label="Pagina anterior"
+                    title="Pagina anterior"
                   >
                     <ChevronLeft className="h-5 w-5" />
                   </button>
@@ -348,6 +358,8 @@ export default function OtherIncomeExpenses() {
                     type="button"
                     className="inline-flex h-[48px] w-[48px] items-center justify-center rounded-[6px] border border-[#d5dde7] bg-white text-[#9aa8b8]"
                     disabled
+                    aria-label="Pagina siguiente"
+                    title="Pagina siguiente"
                   >
                     <ChevronRight className="h-5 w-5" />
                   </button>
