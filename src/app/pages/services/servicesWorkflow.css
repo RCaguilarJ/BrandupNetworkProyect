@@ -478,6 +478,17 @@
   padding-top: 4px;
 }
 
+.service-form__toggle-row--stacked {
+  align-items: flex-start;
+  flex-direction: column;
+}
+
+.service-form__toggle-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .service-form__toggle-label {
   color: #4b5563;
   font-size: 13px;
@@ -487,6 +498,53 @@
   display: inline-flex;
   align-items: center;
   color: #394551;
+}
+
+.service-form__tooltip {
+  position: relative;
+}
+
+.service-form__tooltip-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  background: transparent;
+  color: #16a4c5;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 0;
+}
+
+.service-form__tooltip-trigger:hover {
+  color: #0d88a7;
+}
+
+.service-form__tooltip-content {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 8px);
+  z-index: 10;
+  width: min(320px, 80vw);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-4px);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  border-radius: 6px;
+  background: #1ea6d6;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);
+  color: #ffffff;
+  font-size: 12px;
+  line-height: 1.5;
+  padding: 12px 14px;
+}
+
+.service-form__tooltip:hover .service-form__tooltip-content,
+.service-form__tooltip:focus-within .service-form__tooltip-content {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
 }
 
 .service-shell--wisphub .service-shell__panel {

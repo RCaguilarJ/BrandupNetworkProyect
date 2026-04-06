@@ -279,12 +279,13 @@ export default function TodayTickets() {
               <label className="mb-2 block text-[12px] font-semibold">Desde</label>
               <div className="flex">
                 <input
+                  aria-label="Fecha desde"
                   value={startDate}
                   onChange={(event) => setStartDate(event.target.value)}
                   style={estilosWispHub.input}
                   className="w-[340px]"
                 />
-                <button type="button" className="h-[34px] w-[40px] border border-l-0 border-[#cfd6df] bg-[#f4f6f8] text-[#53657a]">
+                <button type="button" aria-label="Seleccionar fecha desde" className="h-[34px] w-[40px] border border-l-0 border-[#cfd6df] bg-[#f4f6f8] text-[#53657a]">
                   <CalendarDays className="mx-auto h-4 w-4" />
                 </button>
               </div>
@@ -294,12 +295,13 @@ export default function TodayTickets() {
               <label className="mb-2 block text-[12px] font-semibold">Hasta</label>
               <div className="flex">
                 <input
+                  aria-label="Fecha hasta"
                   value={endDate}
                   onChange={(event) => setEndDate(event.target.value)}
                   style={estilosWispHub.input}
                   className="w-[340px]"
                 />
-                <button type="button" className="h-[34px] w-[40px] border border-l-0 border-[#cfd6df] bg-[#f4f6f8] text-[#53657a]">
+                <button type="button" aria-label="Seleccionar fecha hasta" className="h-[34px] w-[40px] border border-l-0 border-[#cfd6df] bg-[#f4f6f8] text-[#53657a]">
                   <CalendarDays className="mx-auto h-4 w-4" />
                 </button>
               </div>
@@ -308,6 +310,7 @@ export default function TodayTickets() {
             <div>
               <label className="mb-2 block text-[12px] font-semibold">Ver</label>
               <select
+                aria-label="Ver tickets"
                 value={ticketView}
                 onChange={(event) => setTicketView(event.target.value)}
                 style={estilosWispHub.input}
@@ -356,6 +359,7 @@ export default function TodayTickets() {
           <div className="flex flex-wrap items-center gap-6">
             <span className="min-w-[95px] text-[12px] text-[#20324a]">Acción:</span>
             <select
+              aria-label="Acción masiva"
               value={bulkAction}
               onChange={(event) => setBulkAction(event.target.value)}
               style={estilosWispHub.input}
@@ -446,6 +450,7 @@ export default function TodayTickets() {
                     <th className="border border-[#d7dde5] px-2 py-2 text-center">
                       <button
                         type="button"
+                        aria-label="Limpiar filtros"
                         className="inline-flex h-[28px] w-[28px] items-center justify-center border border-[#cfd6df] bg-white text-[12px] text-[#6c7a8d]"
                       >
                         B
@@ -458,6 +463,7 @@ export default function TodayTickets() {
                       >
                         <input
                           type="text"
+                          aria-label={`Filtrar por ${column.titulo}`}
                           placeholder={column.placeholderFiltro}
                           className="h-[30px] w-full border border-[#cfd6df] bg-white px-3 text-[12px] text-[#20324a] outline-none"
                         />
@@ -525,6 +531,7 @@ export default function TodayTickets() {
           <div className="flex items-center gap-2">
             <button
               type="button"
+              aria-label="Actualizar"
               className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/10 text-white"
             >
               <RefreshCw className="h-3.5 w-3.5" />
@@ -536,6 +543,7 @@ export default function TodayTickets() {
           <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
             <div className="flex flex-wrap items-center gap-2">
               <select
+                aria-label="Registros por página"
                 value={pageSize}
                 onChange={(event) => setPageSize(Number(event.target.value))}
                 className="h-8 rounded border border-[#cfd7e2] bg-white px-3 text-[12px] text-[#24364b] outline-none"
@@ -559,6 +567,7 @@ export default function TodayTickets() {
               ))}
 
               <select
+                aria-label="Estado"
                 value={statusFilter}
                 onChange={(event) => setStatusFilter(event.target.value)}
                 className="h-8 min-w-[112px] rounded border border-[#cfd7e2] bg-white px-3 text-[12px] text-[#24364b] outline-none"
@@ -571,6 +580,7 @@ export default function TodayTickets() {
               </select>
 
               <select
+                aria-label="Departamento"
                 value={departmentFilter}
                 onChange={(event) => setDepartmentFilter(event.target.value)}
                 className="h-8 min-w-[160px] rounded border border-[#cfd7e2] bg-white px-3 text-[12px] text-[#24364b] outline-none"
@@ -648,6 +658,7 @@ export default function TodayTickets() {
             <div className="flex items-center gap-1">
               <button
                 type="button"
+                aria-label="Página anterior"
                 disabled
                 className="inline-flex h-8 w-8 items-center justify-center rounded border border-[#d7e0ea] bg-white text-[#9aa8b7]"
               >
@@ -655,12 +666,14 @@ export default function TodayTickets() {
               </button>
               <button
                 type="button"
+                aria-label="Página 1"
                 className="inline-flex h-8 w-8 items-center justify-center rounded bg-[#2f93e4] text-[12px] font-semibold text-white"
               >
                 1
               </button>
               <button
                 type="button"
+                aria-label="Página siguiente"
                 disabled
                 className="inline-flex h-8 w-8 items-center justify-center rounded border border-[#d7e0ea] bg-white text-[#9aa8b7]"
               >

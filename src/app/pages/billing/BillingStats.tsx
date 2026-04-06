@@ -234,6 +234,8 @@ function StatsTable({
 
           <div className="relative min-w-[180px]">
             <select
+              aria-label="Cantidad de registros por página"
+              title="Cantidad de registros por página"
               value={pageSize}
               onChange={(event) => setPageSize(event.target.value)}
               className="h-[42px] w-full appearance-none rounded-[6px] border border-[#d7dde5] bg-white pl-3 pr-10 text-[13px] text-[#223448] outline-none"
@@ -422,11 +424,17 @@ export default function BillingStats() {
         <section style={wisphubStyles.card}>
           <div className="grid gap-5 border-b border-[#e1e7ef] px-5 py-5 lg:grid-cols-[minmax(0,1.3fr)_minmax(240px,0.6fr)]">
             <div>
-              <label className="mb-2 block text-[13px] font-semibold text-[#48617c]">
+              <label
+                htmlFor="billing-stats-router-wisphub"
+                className="mb-2 block text-[13px] font-semibold text-[#48617c]"
+              >
                 Router
               </label>
               <div className="relative">
                 <select
+                  id="billing-stats-router-wisphub"
+                  aria-label="Router"
+                  title="Router"
                   value={router}
                   onChange={(event) => setRouter(event.target.value)}
                   style={wisphubStyles.input}
@@ -439,11 +447,17 @@ export default function BillingStats() {
             </div>
 
             <div>
-              <label className="mb-2 block text-[13px] font-semibold text-[#48617c]">
-                Ano
+              <label
+                htmlFor="billing-stats-year-wisphub"
+                className="mb-2 block text-[13px] font-semibold text-[#48617c]"
+              >
+                Año
               </label>
               <div className="relative">
                 <select
+                  id="billing-stats-year-wisphub"
+                  aria-label="Año"
+                  title="Año"
                   value={year}
                   onChange={(event) => setYear(event.target.value)}
                   style={wisphubStyles.input}
@@ -505,11 +519,17 @@ export default function BillingStats() {
         <div className="space-y-6 px-5 py-6">
           <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(280px,0.48fr)]">
             <div>
-              <label className="mb-2 block text-[13px] text-[#31465d]">
+              <label
+                htmlFor="billing-stats-router-mikrosystem"
+                className="mb-2 block text-[13px] text-[#31465d]"
+              >
                 Router
               </label>
               <div className="relative">
                 <select
+                  id="billing-stats-router-mikrosystem"
+                  aria-label="Router"
+                  title="Router"
                   value={router}
                   onChange={(event) => setRouter(event.target.value)}
                   style={mikrosystemStyles.input}
@@ -522,11 +542,17 @@ export default function BillingStats() {
             </div>
 
             <div>
-              <label className="mb-2 block text-[13px] text-[#31465d]">
-                Ano
+              <label
+                htmlFor="billing-stats-year-mikrosystem"
+                className="mb-2 block text-[13px] text-[#31465d]"
+              >
+                Año
               </label>
               <div className="relative">
                 <select
+                  id="billing-stats-year-mikrosystem"
+                  aria-label="Año"
+                  title="Año"
                   value={year}
                   onChange={(event) => setYear(event.target.value)}
                   style={mikrosystemStyles.input}

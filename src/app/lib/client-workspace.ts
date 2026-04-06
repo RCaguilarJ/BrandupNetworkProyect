@@ -2,6 +2,7 @@ import { MOCK_CLIENTS, MOCK_PLANS } from '../data/mockData';
 import type { Client, Plan } from '../types';
 
 export const CLIENT_WORKSPACE_STORAGE_KEY = 'brandup_client_workspaces_v1';
+const MOCK_CLIENT_IDS = new Set(MOCK_CLIENTS.map((client) => client.id));
 
 export interface ClientBillingSettings {
   template: string;
@@ -141,7 +142,17 @@ function readStorage() {
       return [] as ClientWorkspaceData[];
     }
 
-    return JSON.parse(rawValue) as ClientWorkspaceData[];
+    const parsedRecords = JSON.parse(rawValue) as ClientWorkspaceData[];
+    const sanitizedRecords = parsedRecords.filter((record) => !MOCK_CLIENT_IDS.has(record.id));
+
+    if (sanitizedRecords.length !== parsedRecords.length) {
+      window.localStorage.setItem(
+        CLIENT_WORKSPACE_STORAGE_KEY,
+        JSON.stringify(sanitizedRecords),
+      );
+    }
+
+    return sanitizedRecords;
   } catch {
     return [] as ClientWorkspaceData[];
   }
@@ -254,13 +265,7 @@ export function getStoredClientWorkspace(id: string) {
 }
 
 export function getClientWorkspace(id: string) {
-  const storedRecord = getStoredClientWorkspace(id);
-  if (storedRecord) {
-    return storedRecord;
-  }
-
-  const legacyClient = MOCK_CLIENTS.find((client) => client.id === id);
-  return legacyClient ? buildClientWorkspaceFromLegacy(legacyClient) : null;
+  return getStoredClientWorkspace(id);
 }
 
 export function saveClientWorkspace(record: ClientWorkspaceData) {
@@ -333,15 +338,7 @@ export function updateClientStatus(
 }
 
 function getMergedRecords(companyId?: string) {
-  const storageMap = new Map(readStorage().map((record) => [record.id, record]));
-
-  MOCK_CLIENTS.forEach((client) => {
-    if (!storageMap.has(client.id)) {
-      storageMap.set(client.id, buildClientWorkspaceFromLegacy(client));
-    }
-  });
-
-  const mergedRecords = Array.from(storageMap.values());
+  const mergedRecords = readStorage();
 
   return companyId
     ? mergedRecords.filter((record) => record.companyId === companyId)
@@ -358,24 +355,21 @@ function getLegacyPlan(planName: string) {
 
 export function getClientDirectoryRecords(companyId?: string): ClientDirectoryRecord[] {
   return getMergedRecords(companyId).map((record) => {
-    const matchingLegacyClient = MOCK_CLIENTS.find((client) => client.id === record.id);
-    const plan = getLegacyPlan(getPlanName(matchingLegacyClient?.planId ?? MOCK_PLANS[0].id));
-
     return {
       routeId: record.id,
       id: record.personal.clientCode,
       code: record.personal.clientCode,
       name: record.personal.fullName,
       address: record.personal.primaryAddress,
-      lastPayment: matchingLegacyClient?.lastPayment ?? '--',
+      lastPayment: '--',
       ip: '',
       serviceAddress: record.personal.primaryAddress,
       mac: '',
       paymentDay: record.billing.paymentDay,
-      currentDebt: matchingLegacyClient ? `$ ${matchingLegacyClient.balance.toFixed(2)}` : '$ 0.00',
+      currentDebt: '$ 0.00',
       email: record.personal.email,
       phone: record.personal.mobilePhone || record.personal.landlinePhone,
-      plan: plan.name,
+      plan: 'Plan sin asignar',
       status:
         record.status === 'SUSPENDIDO'
           ? 'suspended'

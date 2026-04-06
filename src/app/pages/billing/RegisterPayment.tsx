@@ -491,6 +491,7 @@ export default function RegisterPayment() {
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
+                      aria-label="Página anterior"
                       className="flex h-8 w-8 items-center justify-center rounded border border-gray-300 hover:bg-gray-100 disabled:opacity-50 dark:border-gray-600 dark:hover:bg-gray-700"
                       disabled={currentPage === 1}
                       onClick={() => setCurrentPage((page) => page - 1)}
@@ -499,12 +500,14 @@ export default function RegisterPayment() {
                     </button>
                     <button
                       type="button"
+                      aria-label={`Página ${currentPage}`}
                       className="flex h-8 w-8 items-center justify-center rounded bg-blue-600 font-medium text-white"
                     >
                       {currentPage}
                     </button>
                     <button
                       type="button"
+                      aria-label="Página siguiente"
                       className="flex h-8 w-8 items-center justify-center rounded border border-gray-300 hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-700"
                       onClick={() => setCurrentPage((page) => page + 1)}
                     >

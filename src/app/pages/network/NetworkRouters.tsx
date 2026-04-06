@@ -3,6 +3,7 @@ import {
   Edit,
   Plus,
   Router,
+  Trash2,
   Users,
   UserCog,
   Wrench,
@@ -32,6 +33,14 @@ import {
 
 type RouterRow = (typeof NETWORK_ROUTERS)[number];
 
+const securityOptions = [
+  'Ninguno / Accounting API',
+  'PPP / Accounting API',
+  'Hotspot / Accounting API',
+  'PPP / Accounting Radius',
+  'Hotspot / Accounting Radius',
+] as const;
+
 export default function NetworkRouters() {
   const { user } = useAuth();
   const { viewTheme } = useViewTheme();
@@ -42,14 +51,14 @@ export default function NetworkRouters() {
   const [routerRows, setRouterRows] = useState(() =>
     filterByCompany(NETWORK_ROUTERS, user?.role, user?.companyId),
   );
+  const [editingRouterId, setEditingRouterId] = useState<string | null>(null);
   const [form, setForm] = useState({
     folio: String(routerRows.length + 1),
     name: '',
-    subtitle: '',
+    username: '',
+    password: '',
+    security: securityOptions[0],
     ip: '',
-    model: '',
-    version: '',
-    status: 'API-ERROR',
   });
   const dialog = useNetworkDialog();
 
@@ -64,41 +73,102 @@ export default function NetworkRouters() {
   });
 
   const openNewRouterDialog = () => {
+    setEditingRouterId(null);
     setForm({
       folio: String(routerRows.length + 1),
       name: '',
-      subtitle: '',
+      username: '',
+      password: '',
+      security: securityOptions[0],
       ip: '',
-      model: '',
-      version: '',
-      status: 'API-ERROR',
     });
     dialog.openDialog();
   };
 
-  const saveRouter = () => {
-    if (!form.name || !form.ip || !form.version) {
-      toast.error('Completa los campos requeridos del router');
+  const handleEditRouter = (router: RouterRow) => {
+    setEditingRouterId(router.id);
+    setForm({
+      folio: String(router.folio),
+      name: router.name,
+      username: router.username,
+      password: router.password,
+      security: router.security,
+      ip: router.ip,
+    });
+    dialog.openDialog();
+  };
+
+  const handleDeleteRouter = (router: RouterRow) => {
+    const confirmed = window.confirm(`¿Deseas eliminar el router ${router.name}?`);
+
+    if (!confirmed) {
       return;
     }
 
-    setRouterRows((current) => [
-      ...current,
-      {
+    setRouterRows((current) => current.filter((item) => item.id !== router.id));
+    toast.success(`Router ${router.name} eliminado correctamente`);
+  };
+
+  const handleRouterAction = (
+    action: 'api' | 'clients' | 'credentials' | 'tools',
+    router: RouterRow,
+  ) => {
+    const messages = {
+      api: `Conexion API del router ${router.name}: ${router.status}`,
+      clients: `${router.name} tiene ${router.clients} clientes asociados`,
+      credentials: `Usuario API de ${router.name}: ${router.username}`,
+      tools: `Herramientas del router ${router.name} listas para integrarse`,
+    } satisfies Record<typeof action, string>;
+
+    toast.info(messages[action]);
+  };
+
+  const saveRouter = () => {
+    if (!form.name || !form.username || !form.password || !form.ip) {
+      toast.error('Completa nombre, usuario, contraseña e IP del router');
+      return;
+    }
+
+    setRouterRows((current) => {
+      const nextRouter: RouterRow = {
         id: `router-${Date.now()}`,
         companyId: user?.companyId ?? 'comp1',
         folio: Number.parseInt(form.folio, 10) || current.length + 1,
         name: form.name,
-        subtitle: form.subtitle,
+        subtitle: form.security,
+        username: form.username,
+        password: form.password,
+        security: form.security,
         ip: form.ip,
-        model: form.model,
-        version: form.version,
+        model: '',
+        version: '-',
         clients: 0,
-        status: form.status,
-      },
-    ]);
+        status: 'API-ERROR',
+      };
+
+      if (editingRouterId) {
+        return current.map((router) =>
+          router.id === editingRouterId
+            ? {
+                ...router,
+                folio: Number.parseInt(form.folio, 10) || router.folio,
+                name: form.name,
+                subtitle: form.security,
+                username: form.username,
+                password: form.password,
+                security: form.security,
+                ip: form.ip,
+              }
+            : router,
+        );
+      }
+
+      return [...current, nextRouter];
+    });
+
+    setEditingRouterId(null);
     dialog.closeDialog();
-    toast.success('Router agregado correctamente');
+    toast.success(editingRouterId ? 'Router actualizado correctamente' : 'Router agregado correctamente');
   };
 
   const columns: DataColumn<RouterRow>[] = [
@@ -163,13 +233,62 @@ export default function NetworkRouters() {
       header: 'ACCIONES',
       width: '200px',
       align: 'center',
-      render: () => (
+      render: (row) => (
         <div className="flex items-center justify-center gap-2 text-[#32475c]">
-          <Edit className="h-5 w-5" />
-          <Router className="h-5 w-5" />
-          <Users className="h-5 w-5" />
-          <UserCog className="h-5 w-5" />
-          <Wrench className="h-5 w-5" />
+          <button
+            type="button"
+            onClick={() => handleEditRouter(row)}
+            className="transition hover:text-[#268df2]"
+            aria-label={`Editar router ${row.name}`}
+            title={`Editar ${row.name}`}
+          >
+            <Edit className="h-5 w-5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => handleDeleteRouter(row)}
+            className="transition hover:text-[#dc2626]"
+            aria-label={`Eliminar router ${row.name}`}
+            title={`Eliminar ${row.name}`}
+          >
+            <Trash2 className="h-5 w-5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => handleRouterAction('api', row)}
+            className="transition hover:text-[#0f766e]"
+            aria-label={`Ver estado API del router ${row.name}`}
+            title={`Estado API de ${row.name}`}
+          >
+            <Router className="h-5 w-5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => handleRouterAction('clients', row)}
+            className="transition hover:text-[#0f766e]"
+            aria-label={`Ver clientes del router ${row.name}`}
+            title={`Clientes de ${row.name}`}
+          >
+            <Users className="h-5 w-5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => handleRouterAction('credentials', row)}
+            className="transition hover:text-[#0f766e]"
+            aria-label={`Configurar credenciales del router ${row.name}`}
+            title={`Credenciales de ${row.name}`}
+          >
+            <UserCog className="h-5 w-5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => handleRouterAction('tools', row)}
+            className="transition hover:text-[#0f766e]"
+            aria-label={`Abrir herramientas del router ${row.name}`}
+            title={`Herramientas de ${row.name}`}
+          >
+            <Wrench className="h-5 w-5" />
+          </button>
         </div>
       ),
     },
@@ -232,25 +351,26 @@ export default function NetworkRouters() {
       <NetworkFormDialog
         open={dialog.open}
         loading={dialog.loading}
-        title="Nuevo Router"
-        submitLabel="Guardar Router"
+        title={editingRouterId ? 'Editar Router' : 'Nuevo Router'}
+        submitLabel={editingRouterId ? 'Actualizar Router' : 'Guardar Router'}
         values={form}
         fields={[
-          { name: 'folio', label: 'Folio', type: 'number', required: true, min: 1 },
-          { name: 'name', label: 'Nombre', required: true },
-          { name: 'subtitle', label: 'Detalle API / notas', colSpan: 2 },
-          { name: 'ip', label: 'IP', required: true },
-          { name: 'model', label: 'Modelo' },
-          { name: 'version', label: 'Version', required: true },
+          { name: 'name', label: 'Nombre', required: true, placeholder: 'Nombre del router' },
+          { name: 'username', label: 'Usuario', required: true, placeholder: 'Usuario API' },
           {
-            name: 'status',
-            label: 'Estado',
+            name: 'password',
+            label: 'Contraseña',
+            type: 'password',
+            required: true,
+            placeholder: 'Contraseña API',
+          },
+          { name: 'ip', label: 'IP', required: true, placeholder: 'IP o host de conexión' },
+          {
+            name: 'security',
+            label: 'Seguridad',
             type: 'select',
-            options: [
-              { value: 'API-ERROR', label: 'API-ERROR' },
-              { value: 'ONLINE', label: 'ONLINE' },
-              { value: 'OFFLINE', label: 'OFFLINE' },
-            ],
+            options: securityOptions.map((option) => ({ value: option, label: option })),
+            colSpan: 2,
           },
         ]}
         onOpenChange={dialog.setOpen}

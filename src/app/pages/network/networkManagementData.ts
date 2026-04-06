@@ -6,6 +6,9 @@ export type NetworkRouterRecord = {
   folio: number;
   name: string;
   subtitle: string;
+  username: string;
+  password: string;
+  security: string;
   ip: string;
   model: string;
   version: string;
@@ -68,7 +71,10 @@ export const NETWORK_ROUTERS: NetworkRouterRecord[] = [
     companyId: 'comp1',
     folio: 1,
     name: 'Router Principal',
-    subtitle: 'Api + Colas simples Estaticas',
+    subtitle: 'Ninguno / Accounting API',
+    username: 'admin',
+    password: 'admin123',
+    security: 'Ninguno / Accounting API',
     ip: '10.214.2.2',
     model: '',
     version: '5',

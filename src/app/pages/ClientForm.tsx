@@ -101,6 +101,26 @@ function pageSelectClassName(extraClassName = '') {
   return `${pageInputClassName(extraClassName)} appearance-none pr-8`;
 }
 
+function pageFormRowClassName(
+  size: 'wide' | 'medium' | 'compact' = 'wide',
+  align: 'center' | 'start' = 'center',
+) {
+  const sizeClassName =
+    size === 'wide'
+      ? 'md:grid-cols-[180px_minmax(0,1fr)] lg:grid-cols-[220px_minmax(0,1fr)]'
+      : size === 'medium'
+        ? 'md:grid-cols-[150px_minmax(0,1fr)] lg:grid-cols-[160px_minmax(0,1fr)]'
+        : 'md:grid-cols-[140px_minmax(0,1fr)] lg:grid-cols-[150px_minmax(0,1fr)]';
+
+  return `grid gap-2 sm:gap-3 lg:gap-4 ${sizeClassName} ${
+    align === 'start' ? 'md:items-start' : 'md:items-center'
+  }`;
+}
+
+function pageFormLabelClassName(extraClassName = '') {
+  return `text-left md:text-right leading-[1.5] ${extraClassName}`;
+}
+
 function deriveInitials(name: string) {
   return (
     name
@@ -169,8 +189,8 @@ function EmptyTableCard({
     <section className="rounded border border-[#d7e0ea] bg-white">
       <header className="border-b border-[#d7e0ea] px-4 py-3 text-[13px] font-semibold text-[#2a3d53]">{title}</header>
       <div className="p-4">
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
+        <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+          <div className="flex flex-wrap items-center gap-2">
             <select className="h-8 rounded border border-[#cfd7e2] bg-white px-3 text-[12px] text-[#24364b] outline-none">
               <option>15</option>
             </select>
@@ -188,8 +208,8 @@ function EmptyTableCard({
             ) : null}
           </div>
 
-          <div className="relative">
-            <input type="text" placeholder={searchPlaceholder} className="h-8 w-[230px] rounded border border-[#d7e0ea] bg-white px-3 pr-8 text-[12px] text-[#24364b] outline-none" />
+          <div className="relative w-full sm:w-[230px]">
+            <input type="text" placeholder={searchPlaceholder} className="h-8 w-full rounded border border-[#d7e0ea] bg-white px-3 pr-8 text-[12px] text-[#24364b] outline-none" />
             <Search className="pointer-events-none absolute right-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#a0aebe]" />
           </div>
         </div>
@@ -215,7 +235,7 @@ function EmptyTableCard({
           </table>
         </div>
 
-        <div className="mt-4 flex items-center justify-between text-[12px] text-[#6e8197]">
+        <div className="mt-4 flex flex-col gap-3 text-[12px] text-[#6e8197] sm:flex-row sm:items-center sm:justify-between">
           <span>Mostrando 0 registros</span>
           <div className="flex items-center gap-2">
             <button type="button" className="inline-flex h-8 w-8 items-center justify-center rounded border border-[#d7e0ea] bg-white text-[#9aa8b7]">
@@ -294,6 +314,13 @@ export default function ClientForm() {
     );
   }
 
+  function updatePersonalNumericField(
+    field: 'clientCode' | 'identification' | 'landlinePhone' | 'mobilePhone',
+    value: string,
+  ) {
+    updatePersonalField(field, value.replace(/\D/g, ''));
+  }
+
   function updateBillingField<Field extends keyof ClientBillingSettings>(
     field: Field,
     value: ClientBillingSettings[Field],
@@ -345,13 +372,133 @@ export default function ClientForm() {
     );
   }
 
+  function getStepValidationErrors(
+    stepId: WizardStepId,
+    currentDraft: ClientWorkspaceData,
+  ) {
+    if (stepId === 'personal') {
+      const missingFields: string[] = [];
+
+      if (!currentDraft.personal.identification.trim()) {
+        missingFields.push('N° Identificación');
+      }
+      if (!currentDraft.personal.fullName.trim()) {
+        missingFields.push('Nombre Completo');
+      }
+      if (!currentDraft.personal.primaryAddress.trim()) {
+        missingFields.push('Dirección principal');
+      }
+      if (!currentDraft.personal.location.trim()) {
+        missingFields.push('Ubicación');
+      }
+      if (!currentDraft.personal.landlinePhone.trim()) {
+        missingFields.push('Teléfono fijo');
+      }
+      if (!currentDraft.personal.mobilePhone.trim()) {
+        missingFields.push('Teléfono móvil');
+      }
+      if (!currentDraft.personal.email.trim()) {
+        missingFields.push('E-mail');
+      }
+
+      return missingFields;
+    }
+
+    if (stepId === 'billing') {
+      const missingFields: string[] = [];
+
+      if (!currentDraft.billing.type.trim()) {
+        missingFields.push('Tipo de facturación');
+      }
+      if (!currentDraft.billing.paymentDay.trim()) {
+        missingFields.push('Día de pago');
+      }
+      if (!currentDraft.billing.createInvoice.trim()) {
+        missingFields.push('Crear factura');
+      }
+      if (!currentDraft.billing.taxType.trim()) {
+        missingFields.push('Tipo impuesto');
+      }
+      if (!currentDraft.billing.graceDays.trim()) {
+        missingFields.push('Días de gracia');
+      }
+      if (!currentDraft.billing.applyCutoff.trim()) {
+        missingFields.push('Aplicar corte');
+      }
+      if (!currentDraft.notifications.newInvoiceNotice.trim()) {
+        missingFields.push('Aviso nueva factura');
+      }
+      if (!currentDraft.notifications.screenNotice.trim()) {
+        missingFields.push('Aviso en pantalla');
+      }
+      if (!currentDraft.notifications.remindersChannel.trim()) {
+        missingFields.push('Recordatorios de pago');
+      }
+
+      return missingFields;
+    }
+
+    if (stepId === 'services') {
+      const missingFields: string[] = [];
+
+      if (!currentDraft.services.router.trim()) {
+        missingFields.push('Router');
+      }
+
+      return missingFields;
+    }
+
+    return [];
+  }
+
+  function showStepValidationError(stepId: WizardStepId, errors: string[]) {
+    if (errors.length === 0) {
+      return;
+    }
+
+    const stepTitle = wizardSteps.find((step) => step.id === stepId)?.title ?? 'la etapa actual';
+    toast.error(`Completa los campos obligatorios de ${stepTitle}: ${errors.join(', ')}`);
+  }
+
+  function validateStep(stepId: WizardStepId, currentDraft: ClientWorkspaceData) {
+    const errors = getStepValidationErrors(stepId, currentDraft);
+
+    if (errors.length > 0) {
+      showStepValidationError(stepId, errors);
+      return false;
+    }
+
+    return true;
+  }
+
+  function handleStepChange(nextStepIndex: number) {
+    if (!draft) {
+      return;
+    }
+
+    if (nextStepIndex <= activeStepIndex) {
+      setActiveStepIndex(nextStepIndex);
+      return;
+    }
+
+    for (let index = 0; index < nextStepIndex; index += 1) {
+      const step = wizardSteps[index];
+      if (!validateStep(step.id, draft)) {
+        setActiveStepIndex(index);
+        return;
+      }
+    }
+
+    setActiveStepIndex(nextStepIndex);
+  }
+
   function handleGoNext() {
     if (!draft) {
       return;
     }
 
-    if (activeStepIndex === 0 && !draft.personal.fullName.trim()) {
-      toast.error('Nombre Completo es obligatorio');
+    const currentStep = wizardSteps[activeStepIndex];
+    if (!validateStep(currentStep.id, draft)) {
       return;
     }
 
@@ -365,10 +512,12 @@ export default function ClientForm() {
       return;
     }
 
-    if (!draft.personal.fullName.trim()) {
-      toast.error('Nombre Completo es obligatorio');
-      setActiveStepIndex(0);
-      return;
+    for (let index = 0; index < wizardSteps.length; index += 1) {
+      const step = wizardSteps[index];
+      if (!validateStep(step.id, draft)) {
+        setActiveStepIndex(index);
+        return;
+      }
     }
 
     const registeredClient = ensureClientRegistration(
@@ -541,14 +690,14 @@ export default function ClientForm() {
 
   if (!isEditing) {
     return (
-      <div className="min-h-full bg-[#d9e7f3] px-6 py-5 text-[#223448]">
-        <div className="mb-4 flex items-start justify-between gap-4">
+      <div className="min-h-full bg-[#d9e7f3] px-3 py-4 text-[#223448] sm:px-4 lg:px-6 lg:py-5">
+        <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
           <div>
             <h1 className="text-[22px] font-semibold text-[#223448]">
               Nuevo Cliente
             </h1>
           </div>
-          <div className="text-right text-[12px] text-[#58708b]">
+          <div className="text-left text-[12px] text-[#58708b] md:text-right">
             Inicio <span className="px-1">/</span> Usuarios{' '}
             <span className="px-1">/</span>{' '}
             <span className="text-[#2f93e4]">Nuevo cliente</span>
@@ -565,7 +714,7 @@ export default function ClientForm() {
                 <button
                   key={step.id}
                   type="button"
-                  onClick={() => setActiveStepIndex(stepIndex)}
+                  onClick={() => handleStepChange(stepIndex)}
                   className={`flex min-h-[76px] items-start gap-3 px-5 py-4 text-left ${isActive ? 'bg-[#3395ea] text-white' : 'bg-white text-[#1d2d42]'}`}
                 >
                   <span
@@ -591,20 +740,21 @@ export default function ClientForm() {
               );
             })}
           </div>
-          <div className="px-[10px] py-[10px] text-[12px] text-[#333333]">
+          <div className="px-3 py-3 text-[12px] text-[#333333] sm:px-4">
             {currentStep.id === 'personal' ? (
               <div className="mx-auto max-w-[980px] space-y-4">
-                <div className="grid gap-4 md:grid-cols-[220px_minmax(0,1fr)] md:items-start">
-                  <label className="pt-2 text-right text-[14px] text-[#3c536d]">
+                <div className={pageFormRowClassName('wide', 'start')}>
+                  <label className={pageFormLabelClassName('pt-0 md:pt-2 text-[13px] md:text-[14px] text-[#3c536d]')}>
                     ID cliente
                   </label>
                   <div>
                     <input
                       value={draft.personal.clientCode}
                       onChange={(event) =>
-                        updatePersonalField('clientCode', event.target.value)
+                        updatePersonalNumericField('clientCode', event.target.value)
                       }
                       placeholder="100"
+                      inputMode="numeric"
                       className={pageInputClassName()}
                     />
                     <p className="mt-1.5 text-[12px] text-[#e08d42]">
@@ -613,8 +763,8 @@ export default function ClientForm() {
                   </div>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-[220px_minmax(0,1fr)] md:items-start">
-                  <label className="pt-2 text-right text-[14px] text-[#3c536d]">
+                <div className={pageFormRowClassName('wide', 'start')}>
+                  <label className={pageFormLabelClassName('pt-0 md:pt-2 text-[13px] md:text-[14px] text-[#3c536d]')}>
                     Contraseña Portal
                   </label>
                   <div>
@@ -635,20 +785,21 @@ export default function ClientForm() {
                   </div>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-[220px_minmax(0,1fr)] md:items-start">
-                  <label className="pt-2 text-right text-[14px] text-[#3c536d]">
+                <div className={pageFormRowClassName('wide', 'start')}>
+                  <label className={pageFormLabelClassName('pt-0 md:pt-2 text-[13px] md:text-[14px] text-[#3c536d]')}>
                     N° Identificacion
                   </label>
                   <div>
                     <input
                       value={draft.personal.identification}
                       onChange={(event) =>
-                        updatePersonalField(
+                        updatePersonalNumericField(
                           'identification',
                           event.target.value,
                         )
                       }
                       placeholder="223456634"
+                      inputMode="numeric"
                       className={`${pageInputClassName()} max-w-[280px]`}
                     />
                     <p className="mt-1.5 text-[12px] uppercase tracking-[0.02em] text-[#e08d42]">
@@ -657,8 +808,8 @@ export default function ClientForm() {
                   </div>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-[220px_minmax(0,1fr)] md:items-center">
-                  <label className="text-right text-[14px] text-[#3c536d]">
+                <div className={pageFormRowClassName()}>
+                  <label className={pageFormLabelClassName('text-[13px] md:text-[14px] text-[#3c536d]')}>
                     Nombre Completo <span className="text-[#e16b5f]">*</span>
                   </label>
                   <input
@@ -671,8 +822,8 @@ export default function ClientForm() {
                   />
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-[220px_minmax(0,1fr)] md:items-center">
-                  <label className="text-right text-[14px] text-[#3c536d]">
+                <div className={pageFormRowClassName()}>
+                  <label className={pageFormLabelClassName('text-[13px] md:text-[14px] text-[#3c536d]')}>
                     Direccion principal
                   </label>
                   <input
@@ -688,8 +839,8 @@ export default function ClientForm() {
                   />
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-[220px_minmax(0,1fr)] md:items-center">
-                  <label className="text-right text-[14px] text-[#3c536d]">
+                <div className={pageFormRowClassName()}>
+                  <label className={pageFormLabelClassName('text-[13px] md:text-[14px] text-[#3c536d]')}>
                     Ubicacion
                   </label>
                   <select
@@ -712,42 +863,44 @@ export default function ClientForm() {
                   </select>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-[220px_minmax(0,1fr)] md:items-center">
-                  <label className="text-right text-[14px] text-[#3c536d]">
+                <div className={pageFormRowClassName()}>
+                  <label className={pageFormLabelClassName('text-[13px] md:text-[14px] text-[#3c536d]')}>
                     Telefono fijo
                   </label>
                   <input
                     value={draft.personal.landlinePhone}
                     onChange={(event) =>
-                      updatePersonalField(
+                      updatePersonalNumericField(
                         'landlinePhone',
                         event.target.value,
                       )
                     }
                     placeholder="564567"
+                    inputMode="numeric"
                     className={pageInputClassName()}
                   />
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-[220px_minmax(0,1fr)] md:items-center">
-                  <label className="text-right text-[14px] text-[#3c536d]">
+                <div className={pageFormRowClassName()}>
+                  <label className={pageFormLabelClassName('text-[13px] md:text-[14px] text-[#3c536d]')}>
                     Telefono Movil
                   </label>
                   <input
                     value={draft.personal.mobilePhone}
                     onChange={(event) =>
-                      updatePersonalField(
+                      updatePersonalNumericField(
                         'mobilePhone',
                         event.target.value,
                       )
                     }
                     placeholder="9876526478"
+                    inputMode="numeric"
                     className={pageInputClassName()}
                   />
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-[220px_minmax(0,1fr)] md:items-center">
-                  <label className="text-right text-[14px] text-[#3c536d]">
+                <div className={pageFormRowClassName()}>
+                  <label className={pageFormLabelClassName('text-[13px] md:text-[14px] text-[#3c536d]')}>
                     E-mail
                   </label>
                   <input
@@ -764,8 +917,8 @@ export default function ClientForm() {
 
             {currentStep.id === 'billing' ? (
               <div className="mx-auto max-w-[1560px] space-y-4">
-                <div className="mx-auto grid max-w-[620px] items-center gap-x-4 gap-y-2 md:grid-cols-[42%_58%]">
-                  <label className="text-right text-[12px] leading-[1.5] text-[#333333] md:py-[8px]">
+                <div className={`mx-auto w-full max-w-[620px] ${pageFormRowClassName('medium')}`}>
+                  <label className={pageFormLabelClassName('text-[12px] text-[#333333] md:py-[8px]')}>
                     Cargar desde plantilla
                   </label>
                   <select
@@ -799,8 +952,8 @@ export default function ClientForm() {
                         ['Crear Factura', 'createInvoice', createInvoiceOptions],
                         ['Tipo impuesto', 'taxType', taxTypeOptions],
                       ].map(([label, key, options]) => (
-                        <div key={key} className="grid items-center gap-x-4 gap-y-2 md:grid-cols-[45%_55%]">
-                          <label className="text-right text-[12px] leading-[1.5] text-[#333333] md:py-[8px]">
+                        <div key={key} className={pageFormRowClassName('medium')}>
+                          <label className={pageFormLabelClassName('text-[12px] text-[#333333] md:py-[8px]')}>
                             {label}
                           </label>
                           <select
@@ -820,8 +973,8 @@ export default function ClientForm() {
                         </div>
                       ))}
 
-                      <div className="grid items-start gap-x-4 gap-y-2 md:grid-cols-[45%_55%]">
-                        <label className="text-right text-[12px] leading-[1.5] text-[#333333] md:py-[8px]">
+                      <div className={pageFormRowClassName('medium', 'start')}>
+                        <label className={pageFormLabelClassName('text-[12px] text-[#333333] md:py-[8px]')}>
                           Días de gracia
                         </label>
                         <div>
@@ -842,8 +995,8 @@ export default function ClientForm() {
                         </div>
                       </div>
 
-                      <div className="grid items-center gap-x-4 gap-y-2 md:grid-cols-[45%_55%]">
-                        <label className="text-right text-[12px] leading-[1.5] text-[#333333] md:py-[8px]">
+                      <div className={pageFormRowClassName('medium')}>
+                        <label className={pageFormLabelClassName('text-[12px] text-[#333333] md:py-[8px]')}>
                           Aplicar Corte
                         </label>
                         <select
@@ -862,8 +1015,8 @@ export default function ClientForm() {
                         </select>
                       </div>
 
-                      <div className="grid items-center gap-x-4 gap-y-2 md:grid-cols-[45%_55%]">
-                        <label className="flex items-center justify-end gap-2 text-right text-[12px] leading-[1.5] text-[#333333] md:py-[8px]">
+                      <div className={pageFormRowClassName('medium')}>
+                        <label className={`flex items-center gap-2 md:justify-end ${pageFormLabelClassName('text-[12px] text-[#333333] md:py-[8px]')}`}>
                           Fecha Fija
                           <span className="inline-flex h-5 w-5 items-center justify-center rounded border border-[#cfd7e2] bg-white text-[#485d73]">
                             <CircleHelp className="h-3 w-3" />
@@ -895,8 +1048,8 @@ export default function ClientForm() {
                         ['Aplicar Reconexión', 'applyReconnection'],
                         ['Reactivar con pago parcial', 'reactivateWithPartialPayment'],
                       ].map(([label, key], index) => (
-                        <div key={key} className="grid items-start gap-x-4 gap-y-2 md:grid-cols-[45%_55%]">
-                          <label className="text-right text-[12px] leading-[1.5] text-[#333333] md:py-[6px]">
+                        <div key={key} className={pageFormRowClassName('medium', 'start')}>
+                          <label className={pageFormLabelClassName('text-[12px] text-[#333333] md:py-[6px]')}>
                             {label}
                           </label>
                           <div>
@@ -935,8 +1088,8 @@ export default function ClientForm() {
                       </div>
 
                       {draft.billing.taxes.map((taxValue, taxIndex) => (
-                        <div key={`wizard-tax-${taxIndex}`} className="grid items-start gap-x-4 gap-y-2 md:grid-cols-[45%_55%]">
-                          <label className="text-right text-[12px] leading-[1.5] text-[#333333] md:py-[8px]">{`Impuesto #${taxIndex + 1} (%)`}</label>
+                        <div key={`wizard-tax-${taxIndex}`} className={pageFormRowClassName('medium', 'start')}>
+                          <label className={pageFormLabelClassName('text-[12px] text-[#333333] md:py-[8px]')}>{`Impuesto #${taxIndex + 1} (%)`}</label>
                           <div>
                             <input
                               value={taxValue}
@@ -962,8 +1115,8 @@ export default function ClientForm() {
                       Notificaciones
                     </header>
                     <div className="space-y-4 p-[15px]">
-                      <div className="grid items-center gap-x-4 gap-y-2 md:grid-cols-[45%_55%]">
-                        <label className="text-right text-[12px] leading-[1.5] text-[#333333] md:py-[8px]">
+                      <div className={pageFormRowClassName('medium')}>
+                        <label className={pageFormLabelClassName('text-[12px] text-[#333333] md:py-[8px]')}>
                           Aviso nueva factura
                         </label>
                         <select
@@ -982,8 +1135,8 @@ export default function ClientForm() {
                         </select>
                       </div>
 
-                      <div className="grid items-start gap-x-4 gap-y-2 md:grid-cols-[45%_55%]">
-                        <label className="text-right text-[12px] leading-[1.5] text-[#333333] md:py-[8px]">
+                      <div className={pageFormRowClassName('medium', 'start')}>
+                        <label className={pageFormLabelClassName('text-[12px] text-[#333333] md:py-[8px]')}>
                           Aviso en Pantalla
                         </label>
                         <div>
@@ -1013,8 +1166,8 @@ export default function ClientForm() {
                         ['Recordatorio #2', 'reminderTwo', reminderOptions],
                         ['Recordatorio #3', 'reminderThree', reminderOptions],
                       ].map(([label, key, options]) => (
-                        <div key={key} className="grid items-start gap-x-4 gap-y-2 md:grid-cols-[45%_55%]">
-                          <label className="text-right text-[12px] leading-[1.5] text-[#333333] md:py-[8px]">
+                        <div key={key} className={pageFormRowClassName('medium', 'start')}>
+                          <label className={pageFormLabelClassName('text-[12px] text-[#333333] md:py-[8px]')}>
                             {label}
                           </label>
                           <div>
@@ -1049,8 +1202,8 @@ export default function ClientForm() {
             {currentStep.id === 'services' ? (
               <div className="mx-auto max-w-[1560px] pt-1">
                 <div className="mx-auto max-w-[620px] space-y-4">
-                  <div className="grid gap-x-4 gap-y-2 md:grid-cols-[34%_66%] md:items-center">
-                    <label className="text-right text-[12px] leading-[1.5] text-[#333333] md:py-[8px]">
+                  <div className={pageFormRowClassName('medium')}>
+                    <label className={pageFormLabelClassName('text-[12px] text-[#333333] md:py-[8px]')}>
                       Router
                   </label>
                   <select
@@ -1071,8 +1224,8 @@ export default function ClientForm() {
                   </select>
                 </div>
 
-                <div className="grid gap-x-4 gap-y-2 md:grid-cols-[34%_66%] md:items-center">
-                  <label className="text-right text-[12px] leading-[1.5] text-[#333333] md:py-[8px]">
+                <div className={pageFormRowClassName('medium')}>
+                  <label className={pageFormLabelClassName('text-[12px] text-[#333333] md:py-[8px]')}>
                     Excluir Firewall
                   </label>
                   <button
@@ -1097,7 +1250,7 @@ export default function ClientForm() {
             ) : null}
           </div>
 
-          <div className={`border-t border-[#d7e0ea] px-8 py-5 ${activeStepIndex < wizardSteps.length - 1 ? 'flex justify-end gap-4' : 'flex justify-center'}`}>
+          <div className={`border-t border-[#d7e0ea] px-4 py-4 sm:px-6 ${activeStepIndex < wizardSteps.length - 1 ? 'flex flex-col-reverse gap-3 sm:flex-row sm:justify-end sm:gap-4' : 'flex justify-center'}`}>
             {activeStepIndex < wizardSteps.length - 1 ? (
               <>
                 <button
@@ -1108,14 +1261,14 @@ export default function ClientForm() {
                     )
                   }
                   disabled={activeStepIndex === 0}
-                  className="inline-flex h-10 items-center rounded-[4px] border border-[#cfd7e2] bg-white px-6 text-[14px] text-[#7b8da3] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="inline-flex h-10 w-full items-center justify-center rounded-[4px] border border-[#cfd7e2] bg-white px-6 text-[14px] text-[#7b8da3] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
                 >
                   Anterior
                 </button>
                 <button
                   type="button"
                   onClick={handleGoNext}
-                  className="inline-flex h-10 items-center rounded-[4px] border border-[#cfd7e2] bg-white px-6 text-[14px] font-semibold text-[#24364b]"
+                  className="inline-flex h-10 w-full items-center justify-center rounded-[4px] border border-[#cfd7e2] bg-white px-6 text-[14px] font-semibold text-[#24364b] sm:w-auto"
                 >
                   Siguiente
                 </button>
@@ -1137,8 +1290,8 @@ export default function ClientForm() {
   }
 
   return (
-    <div className="min-h-full bg-[#d9e7f3] px-6 py-5 text-[#223448]">
-      <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
+    <div className="min-h-full bg-[#d9e7f3] px-3 py-4 text-[#223448] sm:px-4 lg:px-6 lg:py-5">
+      <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div className="flex items-center gap-3">
           <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#f35f93] text-[20px] font-semibold text-white">
             {initials}
@@ -1153,7 +1306,7 @@ export default function ClientForm() {
           </div>
         </div>
 
-        <div className="text-right text-[12px] text-[#58708b]">
+        <div className="text-left text-[12px] text-[#58708b] md:text-right">
           Inicio <span className="px-1">/</span> Lista usuarios
           (Activos) <span className="px-1">/</span>{' '}
           <span className="text-[#2f93e4]">{breadcrumbAction}</span>
@@ -1161,7 +1314,8 @@ export default function ClientForm() {
       </div>
 
       <section className="rounded border border-[#d7e0ea] bg-white">
-        <div className="relative flex flex-wrap items-center gap-0 bg-[#1f252c] px-2 py-0">
+        <div className="relative bg-[#1f252c] px-2 py-0">
+          <div className="flex flex-wrap items-center gap-0">
           {mainTabs.map((tab) => {
             const isActive = activeTab === tab.id;
 
@@ -1181,12 +1335,12 @@ export default function ClientForm() {
           <button
             type="button"
             onClick={() => setShowToolsMenu((currentValue) => !currentValue)}
-            className={`ml-2 inline-flex h-10 items-center justify-center px-4 ${showToolsMenu ? 'bg-white text-[#23384d]' : 'text-white'}`}
+            className={`inline-flex h-10 items-center justify-center px-4 sm:ml-2 ${showToolsMenu ? 'bg-white text-[#23384d]' : 'text-white'}`}
           >
             <Wrench className="h-4 w-4" />
           </button>
 
-          <div className="ml-auto flex items-center gap-2 pr-2">
+          <div className="ml-auto flex w-full items-center justify-end gap-2 py-2 pr-2 sm:w-auto sm:py-0">
             <button type="button" className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#2f93e4] text-white">
               <ChevronRight className="h-3.5 w-3.5 rotate-180" />
             </button>
@@ -1194,9 +1348,10 @@ export default function ClientForm() {
               <ChevronRight className="h-3.5 w-3.5" />
             </button>
           </div>
+          </div>
 
           {showToolsMenu ? (
-            <div className="absolute right-14 top-12 z-20 w-[270px] rounded border border-[#d1d8df] bg-white shadow-[0_12px_32px_rgba(15,23,42,0.16)]">
+            <div className="absolute right-3 top-[calc(100%+0.5rem)] z-20 w-[min(270px,calc(100vw-2rem))] rounded border border-[#d1d8df] bg-white shadow-[0_12px_32px_rgba(15,23,42,0.16)] sm:right-14 sm:top-12">
               <div className="flex items-center justify-between border-b border-[#e3e8ee] px-4 py-3 text-[14px] font-semibold text-[#334b64]">
                 <span>Herramientas</span>
                 <button type="button" onClick={() => setShowToolsMenu(false)} className="text-[#6d8097]">
@@ -1212,7 +1367,7 @@ export default function ClientForm() {
                     <option>{draft.services.router || 'No hay ningun servicio...'}</option>
                   </select>
                 </div>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                   {[
                     ['Ver Antena', <Router className="h-3.5 w-3.5" key="router" />],
                     ['Trafico mikrotik', <BarChart3 className="h-3.5 w-3.5" key="traffic" />],
@@ -1229,7 +1384,7 @@ export default function ClientForm() {
                     </button>
                   ))}
                 </div>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                   <button
                     type="button"
                     onClick={() => handleToolStatusChange('SUSPENDIDO')}
@@ -1259,8 +1414,8 @@ export default function ClientForm() {
                   <h2>Datos del cliente</h2>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-[220px_minmax(0,1fr)] md:items-center">
-                  <label className="text-right text-[14px] text-[#415970]">
+                <div className={pageFormRowClassName()}>
+                  <label className={pageFormLabelClassName('text-[13px] md:text-[14px] text-[#415970]')}>
                     Estado
                   </label>
                   <div>
@@ -1270,8 +1425,8 @@ export default function ClientForm() {
                   </div>
                 </div>
 
-                <div className="mt-4 grid gap-4 md:grid-cols-[220px_minmax(0,1fr)] md:items-center">
-                  <label className="text-right text-[14px] text-[#415970]">
+                <div className={`mt-4 ${pageFormRowClassName()}`}>
+                  <label className={pageFormLabelClassName('text-[13px] md:text-[14px] text-[#415970]')}>
                     Conectado al Router(s)
                   </label>
                   <div className="text-[13px] text-[#526b84]">
@@ -1289,36 +1444,43 @@ export default function ClientForm() {
                     ['Telefono Movil', 'mobilePhone'],
                     ['E-mail', 'email'],
                   ].map(([label, key]) => (
-                    <div key={key} className="grid gap-4 md:grid-cols-[220px_minmax(0,1fr)] md:items-center">
-                      <label className="text-right text-[14px] text-[#415970]">
+                    <div key={key} className={pageFormRowClassName()}>
+                      <label className={pageFormLabelClassName('text-[13px] md:text-[14px] text-[#415970]')}>
                         {label}
                       </label>
                       <input
                         value={draft.personal[key as keyof ClientWorkspaceData['personal']] as string}
                         onChange={(event) =>
-                          updatePersonalField(
-                            key as keyof ClientWorkspaceData['personal'],
-                            event.target.value as never,
-                          )
+                          key === 'clientCode' || key === 'landlinePhone' || key === 'mobilePhone'
+                            ? updatePersonalNumericField(
+                                key as 'clientCode' | 'landlinePhone' | 'mobilePhone',
+                                event.target.value,
+                              )
+                            : updatePersonalField(
+                                key as keyof ClientWorkspaceData['personal'],
+                                event.target.value as never,
+                              )
                         }
+                        inputMode={key === 'clientCode' || key === 'landlinePhone' || key === 'mobilePhone' ? 'numeric' : undefined}
                         className={pageInputClassName(key === 'clientCode' || key === 'portalPassword' ? 'max-w-[160px]' : '')}
                       />
                     </div>
                   ))}
 
-                  <div className="grid gap-4 md:grid-cols-[220px_minmax(0,1fr)] md:items-start">
-                    <label className="pt-2 text-right text-[14px] text-[#415970]">
+                  <div className={pageFormRowClassName('wide', 'start')}>
+                    <label className={pageFormLabelClassName('pt-0 md:pt-2 text-[13px] md:text-[14px] text-[#415970]')}>
                       N° Identificacion
                     </label>
                     <div>
                       <input
                         value={draft.personal.identification}
                         onChange={(event) =>
-                          updatePersonalField(
+                          updatePersonalNumericField(
                             'identification',
                             event.target.value,
                           )
                         }
+                        inputMode="numeric"
                         className={`${pageInputClassName()} max-w-[180px]`}
                       />
                       <p className="mt-1 text-[11px] uppercase tracking-[0.02em] text-[#5b748c]">
@@ -1327,8 +1489,8 @@ export default function ClientForm() {
                     </div>
                   </div>
 
-                  <div className="grid gap-4 md:grid-cols-[220px_minmax(0,1fr)] md:items-center">
-                    <label className="text-right text-[14px] text-[#415970]">
+                  <div className={pageFormRowClassName()}>
+                    <label className={pageFormLabelClassName('text-[13px] md:text-[14px] text-[#415970]')}>
                       Ubicacion
                     </label>
                     <select
@@ -1389,7 +1551,7 @@ export default function ClientForm() {
 
           {activeTab === 'billing' ? (
             <div className="space-y-4">
-              <div className="flex flex-wrap items-center gap-1 border-b border-[#d7e0ea]">
+              <div className="flex flex-wrap items-center gap-1 overflow-x-auto border-b border-[#d7e0ea] pb-1">
                 {billingTabs.map((tab) => (
                   <button
                     key={tab.id}
@@ -1408,8 +1570,8 @@ export default function ClientForm() {
 
               {activeBillingTab === 'config' ? (
                 <div className="space-y-5">
-                  <div className="grid max-w-[520px] gap-4 md:grid-cols-[220px_minmax(0,1fr)] md:items-center">
-                    <label className="text-right text-[14px] text-[#415970]">
+                  <div className={`w-full max-w-[520px] ${pageFormRowClassName()}`}>
+                    <label className={pageFormLabelClassName('text-[13px] md:text-[14px] text-[#415970]')}>
                       Configurar utilizando plantilla
                     </label>
                     <select
@@ -1443,8 +1605,8 @@ export default function ClientForm() {
                           ['Aplicar Corte', 'applyCutoff', cutoffOptions],
                           ['Bajar Velocidad', 'slowdownMode', slowdownOptions],
                         ].map(([label, key, options]) => (
-                          <div key={key} className="grid items-center gap-4 md:grid-cols-[160px_minmax(0,1fr)]">
-                            <label className="text-right text-[13px] text-[#40576f]">
+                          <div key={key} className={pageFormRowClassName('medium')}>
+                            <label className={pageFormLabelClassName('text-[13px] text-[#40576f]')}>
                               {label}
                             </label>
                             <select
@@ -1468,8 +1630,8 @@ export default function ClientForm() {
                           ['Fecha Fija', 'fixedDate'],
                           ['Corte Fijo Programado', 'fixedCutoffDate'],
                         ].map(([label, key]) => (
-                          <div key={key} className="grid items-center gap-4 md:grid-cols-[160px_minmax(0,1fr)]">
-                            <label className="flex items-center justify-end gap-2 text-right text-[13px] text-[#40576f]">
+                          <div key={key} className={pageFormRowClassName('medium')}>
+                            <label className={`flex items-center gap-2 md:justify-end ${pageFormLabelClassName('text-[13px] text-[#40576f]')}`}>
                               {label} <CircleHelp className="h-3.5 w-3.5 text-[#67809a]" />
                             </label>
                             <div className="grid grid-cols-[minmax(0,1fr)_40px]">
@@ -1496,8 +1658,8 @@ export default function ClientForm() {
                           ['Aplicar Reconexion', 'applyReconnection'],
                           ['Reactivar con pago parcial', 'reactivateWithPartialPayment'],
                         ].map(([label, key]) => (
-                          <div key={key} className="grid items-start gap-4 md:grid-cols-[160px_minmax(0,1fr)]">
-                            <label className="pt-1 text-right text-[13px] text-[#40576f]">
+                          <div key={key} className={pageFormRowClassName('medium', 'start')}>
+                            <label className={pageFormLabelClassName('pt-1 text-[13px] text-[#40576f]')}>
                               {label}
                             </label>
                             <button
@@ -1519,8 +1681,8 @@ export default function ClientForm() {
                           Otros Impuestos
                         </div>
                         {draft.billing.taxes.map((taxValue, taxIndex) => (
-                          <div key={`config-tax-${taxIndex}`} className="grid items-start gap-4 md:grid-cols-[160px_minmax(0,1fr)]">
-                            <label className="pt-2 text-right text-[13px] text-[#40576f]">{`Impuesto #${taxIndex + 1} (%)`}</label>
+                          <div key={`config-tax-${taxIndex}`} className={pageFormRowClassName('medium', 'start')}>
+                            <label className={pageFormLabelClassName('pt-0 md:pt-2 text-[13px] text-[#40576f]')}>{`Impuesto #${taxIndex + 1} (%)`}</label>
                             <div>
                               <input
                                 value={taxValue}
@@ -1578,8 +1740,8 @@ export default function ClientForm() {
                           ['Recordatorio #2', 'reminderTwo', reminderOptions],
                           ['Recordatorio #3', 'reminderThree', reminderOptions],
                         ].map(([label, key, options]) => (
-                          <div key={key} className="grid items-start gap-4 md:grid-cols-[160px_minmax(0,1fr)]">
-                            <label className="pt-2 text-right text-[13px] text-[#40576f]">
+                          <div key={key} className={pageFormRowClassName('medium', 'start')}>
+                            <label className={pageFormLabelClassName('pt-0 md:pt-2 text-[13px] text-[#40576f]')}>
                               {label}
                             </label>
                             <select
@@ -1674,8 +1836,8 @@ export default function ClientForm() {
           {activeTab === 'statistics' ? (
             <div className="space-y-4">
               <div className="flex flex-wrap items-center justify-center gap-4">
-                <div className="grid min-w-[460px] gap-4 md:grid-cols-[110px_minmax(0,1fr)_150px_100px_24px_100px] md:items-center">
-                  <label className="text-right text-[13px] text-[#40576f]">Servicio</label>
+                <div className="grid w-full max-w-[720px] gap-3 md:grid-cols-[110px_minmax(0,1fr)] lg:grid-cols-[110px_minmax(0,1fr)_150px_100px_24px_100px] md:items-center">
+                  <label className={pageFormLabelClassName('text-[13px] text-[#40576f]')}>Servicio</label>
                   <select className={pageSelectClassName()}>
                     <option>Todos los servicios</option>
                   </select>

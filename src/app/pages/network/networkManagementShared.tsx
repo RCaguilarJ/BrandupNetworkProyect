@@ -53,7 +53,7 @@ type SummaryRow = {
 type FormField = {
   name: string;
   label: string;
-  type?: 'text' | 'number' | 'textarea' | 'select' | 'date';
+  type?: 'text' | 'number' | 'textarea' | 'select' | 'date' | 'password';
   placeholder?: string;
   required?: boolean;
   options?: Array<{ value: string; label: string }>;

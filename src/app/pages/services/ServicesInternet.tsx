@@ -338,16 +338,33 @@ export default function ServicesInternet() {
             <div className="service-form__field">
               <span className="service-form__label">No crear reglas</span>
               <div className="service-form__control">
-                <div className="service-form__toggle-row">
-                  <span className="service-form__help">
-                    <CircleHelp className="h-4 w-4" />
-                  </span>
-                  <Switch
-                    checked={form.noRules}
-                    onCheckedChange={(checked) =>
-                      setForm((current) => ({ ...current, noRules: checked }))
-                    }
-                  />
+                <div className="service-form__toggle-row service-form__toggle-row--stacked">
+                  <div className="service-form__toggle-main">
+                    <Switch
+                      checked={form.noRules}
+                      onCheckedChange={(checked) =>
+                        setForm((current) => ({ ...current, noRules: checked }))
+                      }
+                    />
+                    <div className="service-form__tooltip">
+                      <button
+                        type="button"
+                        className="service-form__tooltip-trigger"
+                        aria-label="Ver explicación de las reglas"
+                      >
+                        <CircleHelp className="h-4 w-4" />
+                        <span>¿Para qué sirven las reglas?</span>
+                      </button>
+                      <div className="service-form__tooltip-content">
+                        Por defecto la plataforma crea perfiles y reglas en Mikrotik para PPP, Hotspot y PCQ.
+                        Si vas a usar tu propia configuración, activa esta opción y administra los nombres y
+                        parámetros manualmente.
+                      </div>
+                    </div>
+                  </div>
+                  <p className="service-form__hint service-form__hint--info">
+                    Desactiva esta opción para configurar las reglas del perfil de internet.
+                  </p>
                 </div>
               </div>
             </div>

@@ -158,6 +158,7 @@ export default function Transactions() {
                 </label>
                 <div className="relative">
                   <select
+                    aria-label="Tipo de pago"
                     value={paymentType}
                     onChange={(event) => setPaymentType(event.target.value)}
                     style={wispHubStyles.input}
@@ -175,6 +176,7 @@ export default function Transactions() {
                 </label>
                 <div className="flex">
                   <input
+                    aria-label="Fecha de inicio"
                     value={startDate}
                     onChange={(event) => setStartDate(event.target.value)}
                     style={wispHubStyles.input}
@@ -184,6 +186,7 @@ export default function Transactions() {
                     al
                   </span>
                   <input
+                    aria-label="Fecha de fin"
                     value={endDate}
                     onChange={(event) => setEndDate(event.target.value)}
                     style={wispHubStyles.input}
@@ -200,6 +203,7 @@ export default function Transactions() {
                   <div>
                     <div className="flex">
                       <input
+                        aria-label="Hora desde"
                         value={fromTime}
                         onChange={(event) => setFromTime(event.target.value)}
                         style={wispHubStyles.input}
@@ -220,6 +224,7 @@ export default function Transactions() {
                   <div>
                     <div className="flex">
                       <input
+                        aria-label="Hora hasta"
                         value={toTime}
                         onChange={(event) => setToTime(event.target.value)}
                         style={wispHubStyles.input}
@@ -248,6 +253,7 @@ export default function Transactions() {
                 </label>
                 <div className="relative">
                   <select
+                    aria-label="Operador"
                     value={operator}
                     onChange={(event) => setOperator(event.target.value)}
                     style={wispHubStyles.input}
@@ -265,6 +271,7 @@ export default function Transactions() {
                 </label>
                 <div className="relative">
                   <select
+                    aria-label="Router"
                     value={router}
                     onChange={(event) => setRouter(event.target.value)}
                     style={wispHubStyles.input}
@@ -284,6 +291,7 @@ export default function Transactions() {
             <div className="flex flex-wrap items-center gap-2">
               <div className="flex overflow-hidden rounded-[4px] border border-[#d7dde5]">
                 <select
+                  aria-label="Registros por página"
                   value={pageSize}
                   onChange={(event) => setPageSize(event.target.value)}
                   className="h-[34px] min-w-[58px] border-r border-[#d7dde5] bg-white px-3 text-[12px] font-semibold text-[#24364b] outline-none"
@@ -383,6 +391,7 @@ export default function Transactions() {
               <div className="flex items-center gap-2">
                 <button
                   type="button"
+                  aria-label="Página anterior"
                   disabled
                   className="inline-flex h-[34px] w-[34px] items-center justify-center rounded-[4px] border border-[#d7dde5] bg-white text-[#8da0b3] opacity-70"
                 >
@@ -390,6 +399,7 @@ export default function Transactions() {
                 </button>
                 <button
                   type="button"
+                  aria-label="Página siguiente"
                   disabled
                   className="inline-flex h-[34px] w-[34px] items-center justify-center rounded-[4px] border border-[#d7dde5] bg-white text-[#8da0b3] opacity-70"
                 >
@@ -446,6 +456,7 @@ export default function Transactions() {
                 </label>
                 <div className="relative">
                   <select
+                    aria-label="Tipo de pago"
                     value={paymentType}
                     onChange={(event) => setPaymentType(event.target.value)}
                     className="h-12 w-full appearance-none rounded-[6px] border border-[#d7e0ea] bg-white px-4 pr-10 text-[14px] font-semibold text-[#24364b] outline-none"
@@ -462,6 +473,7 @@ export default function Transactions() {
                 </label>
                 <div className="flex">
                   <input
+                    aria-label="Fecha de inicio"
                     value={startDate}
                     onChange={(event) => setStartDate(event.target.value)}
                     className="h-12 w-full rounded-l-[6px] rounded-r-none border border-[#d7e0ea] bg-white px-4 text-center text-[14px] text-[#4c6078] outline-none"
@@ -470,6 +482,7 @@ export default function Transactions() {
                     al
                   </span>
                   <input
+                    aria-label="Fecha de fin"
                     value={endDate}
                     onChange={(event) => setEndDate(event.target.value)}
                     className="h-12 w-full rounded-l-none rounded-r-[6px] border border-[#d7e0ea] bg-white px-4 text-center text-[14px] text-[#4c6078] outline-none"
@@ -485,6 +498,7 @@ export default function Transactions() {
                   <div>
                     <div className="flex">
                       <input
+                        aria-label="Hora desde"
                         value={fromTime}
                         onChange={(event) => setFromTime(event.target.value)}
                         className="h-12 w-full rounded-l-[6px] rounded-r-none border border-[#d7e0ea] bg-white px-4 text-[14px] text-[#4c6078] outline-none"
@@ -505,6 +519,7 @@ export default function Transactions() {
                   <div>
                     <div className="flex">
                       <input
+                        aria-label="Hora hasta"
                         value={toTime}
                         onChange={(event) => setToTime(event.target.value)}
                         className="h-12 w-full rounded-l-[6px] rounded-r-none border border-[#d7e0ea] bg-white px-4 text-[14px] text-[#4c6078] outline-none"
@@ -532,6 +547,7 @@ export default function Transactions() {
                 </label>
                 <div className="relative">
                   <select
+                    aria-label="Operador"
                     value={operator}
                     onChange={(event) => setOperator(event.target.value)}
                     className="h-12 w-full appearance-none rounded-[6px] border border-[#d7e0ea] bg-white px-4 pr-10 text-[14px] font-semibold text-[#24364b] outline-none"
@@ -548,6 +564,7 @@ export default function Transactions() {
                 </label>
                 <div className="relative">
                   <select
+                    aria-label="Router"
                     value={router}
                     onChange={(event) => setRouter(event.target.value)}
                     className="h-12 w-full appearance-none rounded-[6px] border border-[#d7e0ea] bg-white px-4 pr-10 text-[14px] font-semibold text-[#24364b] outline-none"
@@ -564,6 +581,7 @@ export default function Transactions() {
             <div className="flex flex-wrap items-center gap-3">
               <div className="flex overflow-hidden rounded-[6px] border border-[#d7e0ea]">
                 <select
+                  aria-label="Registros por página"
                   value={pageSize}
                   onChange={(event) => setPageSize(event.target.value)}
                   className="h-[50px] min-w-[58px] border-r border-[#d7e0ea] bg-white px-3 text-[14px] font-semibold text-[#24364b] outline-none"
@@ -664,6 +682,7 @@ export default function Transactions() {
             <div className="flex items-center gap-2">
               <button
                 type="button"
+                aria-label="Página anterior"
                 disabled
                 className="inline-flex h-12 w-12 items-center justify-center rounded-[6px] border border-[#d7e0ea] bg-white text-[#9fb0c2] opacity-70"
               >
@@ -671,6 +690,7 @@ export default function Transactions() {
               </button>
               <button
                 type="button"
+                aria-label="Página siguiente"
                 disabled
                 className="inline-flex h-12 w-12 items-center justify-center rounded-[6px] border border-[#d7e0ea] bg-white text-[#9fb0c2] opacity-70"
               >

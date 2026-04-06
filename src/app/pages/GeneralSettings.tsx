@@ -353,7 +353,7 @@ export default function GeneralSettings() {
     }
 
     if (file.size > LOGO_MAX_SIZE_BYTES) {
-      toast.error('El archivo supera el tamano maximo de 20 MB.');
+      toast.error('El archivo supera el tamaño maximo de 20 MB.');
       return;
     }
 
