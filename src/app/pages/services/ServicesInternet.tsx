@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { CircleHelp, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { Switch } from '../../components/ui/switch';
 import { useAuth } from '../../context/AuthContext';
+import { sanitizeDecimalValue, sanitizeNumericValue } from '../../lib/input-sanitizers';
 import type { DataColumn } from '../network/networkManagementShared';
 import {
   filterServicesByCompany,
@@ -34,6 +35,8 @@ type InternetFormState = {
   burstTime: string;
   priority: string;
   addressList: string;
+  profile: string;
+  addressListPcq: string;
   active: string;
   suspended: string;
 };
@@ -43,6 +46,17 @@ const priorityOptions = [
   'Media (5)',
   'Alta (1)',
 ] as const;
+
+const speedPresetOptions = Array.from({ length: 10 }, (_, index) => {
+  const mbps = index + 1;
+
+  return {
+    mbps,
+    kbps: String(mbps * 1000),
+  };
+});
+
+type SpeedPresetField = 'downloadKbps' | 'uploadKbps';
 
 function createEmptyForm(nextId: number): InternetFormState {
   return {
@@ -61,6 +75,8 @@ function createEmptyForm(nextId: number): InternetFormState {
     burstTime: '0',
     priority: priorityOptions[0],
     addressList: 'habilitados',
+    profile: '',
+    addressListPcq: '',
     active: '0',
     suspended: '0',
   };
@@ -71,18 +87,58 @@ function formatPrice(value: string) {
   return Number.isFinite(amount) ? amount.toFixed(2) : '0.00';
 }
 
+function formatMbpsFromKbps(value: string) {
+  const numericValue = Number(value);
+
+  if (!Number.isFinite(numericValue) || numericValue <= 0) {
+    return '0';
+  }
+
+  const mbpsValue = numericValue / 1000;
+
+  if (Number.isInteger(mbpsValue)) {
+    return String(mbpsValue);
+  }
+
+  return mbpsValue.toFixed(2).replace(/\.?0+$/, '');
+}
+
+function parseNumericValue(value: string) {
+  const normalizedValue = Number(value.replace(',', '.'));
+
+  return Number.isFinite(normalizedValue) ? normalizedValue : 0;
+}
+
+function formatCalculatedKbps(value: number) {
+  if (!Number.isFinite(value) || value <= 0) {
+    return '0 Kbps';
+  }
+
+  return `${Math.round(value)} Kbps`;
+}
+
 export default function ServicesInternet() {
   const { user } = useAuth();
   const flow = useServiceCreationFlow();
+  const speedPresetRef = useRef<HTMLDivElement | null>(null);
   const [pageSize, setPageSize] = useState(15);
   const [searchTerm, setSearchTerm] = useState('');
   const [rows, setRows] = useState<InternetServiceRecord[]>(() =>
     filterServicesByCompany(INTERNET_SERVICES, user?.role, user?.companyId),
   );
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [openSpeedPreset, setOpenSpeedPreset] = useState<SpeedPresetField | null>(null);
   const [form, setForm] = useState<InternetFormState>(() =>
     createEmptyForm(rows.length + 1),
   );
+  const downloadMbpsLabel = formatMbpsFromKbps(form.downloadKbps);
+  const uploadMbpsLabel = formatMbpsFromKbps(form.uploadKbps);
+  const limitAtRatio = parseNumericValue(form.limitAt) / 100;
+  const burstThresholdRatio = parseNumericValue(form.burstThreshold) / 100;
+  const guaranteedRxKbps = parseNumericValue(form.uploadKbps) * limitAtRatio;
+  const guaranteedTxKbps = parseNumericValue(form.downloadKbps) * limitAtRatio;
+  const burstThresholdRxKbps = parseNumericValue(form.uploadKbps) * burstThresholdRatio;
+  const burstThresholdTxKbps = parseNumericValue(form.downloadKbps) * burstThresholdRatio;
 
   const filteredRows = rows.filter((row) => {
     const query = searchTerm.trim().toLowerCase();
@@ -159,6 +215,24 @@ export default function ServicesInternet() {
     },
   ];
 
+  useEffect(() => {
+    if (!openSpeedPreset) {
+      return;
+    }
+
+    function handlePointerDown(event: MouseEvent) {
+      if (!speedPresetRef.current?.contains(event.target as Node)) {
+        setOpenSpeedPreset(null);
+      }
+    }
+
+    document.addEventListener('mousedown', handlePointerDown);
+
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown);
+    };
+  }, [openSpeedPreset]);
+
   function handleOpenNew() {
     setEditingId(null);
     setForm(createEmptyForm(rows.length + 1));
@@ -183,6 +257,8 @@ export default function ServicesInternet() {
       burstTime: row.burstTime,
       priority: row.priority,
       addressList: row.addressList,
+      profile: row.profile,
+      addressListPcq: row.addressListPcq,
       active: row.active,
       suspended: row.suspended,
     });
@@ -192,6 +268,14 @@ export default function ServicesInternet() {
   function handleDelete(id: string) {
     setRows((current) => current.filter((row) => row.id !== id));
     toast.success('Perfil de internet eliminado');
+  }
+
+  function applySpeedPreset(field: SpeedPresetField, kbps: string) {
+    setForm((current) => ({
+      ...current,
+      [field]: kbps,
+    }));
+    setOpenSpeedPreset(null);
   }
 
   function saveRow() {
@@ -217,6 +301,8 @@ export default function ServicesInternet() {
       burstTime: form.burstTime,
       priority: form.priority,
       addressList: form.addressList,
+      profile: form.profile,
+      addressListPcq: form.addressListPcq,
       active: form.active,
       suspended: form.suspended,
     };
@@ -309,7 +395,12 @@ export default function ServicesInternet() {
                   <input
                     id="internet-plan-price"
                     value={form.price}
-                    onChange={(event) => setForm((current) => ({ ...current, price: event.target.value }))}
+                    onChange={(event) =>
+                      setForm((current) => ({
+                        ...current,
+                        price: sanitizeDecimalValue(event.target.value),
+                      }))
+                    }
                     className="service-form__input"
                     inputMode="decimal"
                   />
@@ -326,7 +417,12 @@ export default function ServicesInternet() {
                   <input
                     id="internet-plan-tax"
                     value={form.tax}
-                    onChange={(event) => setForm((current) => ({ ...current, tax: event.target.value }))}
+                    onChange={(event) =>
+                      setForm((current) => ({
+                        ...current,
+                        tax: sanitizeDecimalValue(event.target.value),
+                      }))
+                    }
                     className="service-form__input"
                     inputMode="decimal"
                   />
@@ -346,7 +442,7 @@ export default function ServicesInternet() {
                         setForm((current) => ({ ...current, noRules: checked }))
                       }
                     />
-                    {form.noRules ? <div className="service-form__tooltip">
+                    <div className="service-form__tooltip">
                       <button
                         type="button"
                         className="service-form__tooltip-trigger"
@@ -360,13 +456,11 @@ export default function ServicesInternet() {
                         Si vas a usar tu propia configuración, activa esta opción y administra los nombres y
                         parámetros manualmente.
                       </div>
-                    </div> : null}
+                    </div>
                   </div>
-                  {form.noRules ? (
                   <p className="service-form__hint service-form__hint--info">
                     Desactiva esta opción para configurar las reglas del perfil de internet.
                   </p>
-                  ) : null}
                 </div>
               </div>
             </div>
@@ -381,19 +475,57 @@ export default function ServicesInternet() {
                   Descarga Kbps
                 </label>
                 <div className="service-form__control">
-                  <div className="service-form__inline">
-                    <div className="service-form__small-button">+</div>
+                  <div
+                    className="service-form__inline service-form__preset"
+                    ref={openSpeedPreset === 'downloadKbps' ? speedPresetRef : null}
+                  >
+                    <button
+                      type="button"
+                      className="service-form__small-button service-form__small-button--interactive"
+                      onClick={() =>
+                        setOpenSpeedPreset((current) =>
+                          current === 'downloadKbps' ? null : 'downloadKbps',
+                        )
+                      }
+                      aria-label="Seleccionar velocidad de descarga"
+                    >
+                      +
+                    </button>
                     <input
                       id="internet-download"
                       value={form.downloadKbps}
                       onChange={(event) =>
-                        setForm((current) => ({ ...current, downloadKbps: event.target.value }))
+                        setForm((current) => ({
+                          ...current,
+                          downloadKbps: sanitizeNumericValue(event.target.value),
+                        }))
                       }
                       className="service-form__input"
                       inputMode="numeric"
                     />
                     <div className="service-form__addon">Kbps</div>
+                    {openSpeedPreset === 'downloadKbps' ? (
+                      <div className="service-form__preset-menu">
+                        <p className="service-form__preset-title">Velocidades</p>
+                        <div className="service-form__preset-list">
+                          {speedPresetOptions.map((option) => (
+                            <button
+                              key={`download-${option.kbps}`}
+                              type="button"
+                              className="service-form__preset-option"
+                              onClick={() => applySpeedPreset('downloadKbps', option.kbps)}
+                            >
+                              <span>{option.mbps} Mbps</span>
+                              <span className="service-form__preset-note">({option.kbps} Kbps)</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
                   </div>
+                  <p className="service-form__hint service-form__hint--info">
+                    Descarga: {downloadMbpsLabel}Mbps
+                  </p>
                 </div>
               </div>
 
@@ -407,18 +539,19 @@ export default function ServicesInternet() {
                       id="internet-limit-at"
                       value={form.limitAt}
                       onChange={(event) =>
-                        setForm((current) => ({ ...current, limitAt: event.target.value }))
+                        setForm((current) => ({
+                          ...current,
+                          limitAt: sanitizeDecimalValue(event.target.value),
+                        }))
                       }
                       className="service-form__input"
                       inputMode="decimal"
                     />
                     <div className="service-form__addon">%</div>
                   </div>
-                  {form.noRules ? (
                   <p className="service-form__hint service-form__hint--info">
-                    Velocidad garantizada RX/TX: 0/0
+                    Velocidad garantizada RX/TX: {formatCalculatedKbps(guaranteedRxKbps)} / {formatCalculatedKbps(guaranteedTxKbps)}
                   </p>
-                  ) : null}
                 </div>
               </div>
 
@@ -432,7 +565,10 @@ export default function ServicesInternet() {
                       id="internet-burst-threshold"
                       value={form.burstThreshold}
                       onChange={(event) =>
-                        setForm((current) => ({ ...current, burstThreshold: event.target.value }))
+                        setForm((current) => ({
+                          ...current,
+                          burstThreshold: sanitizeDecimalValue(event.target.value),
+                        }))
                       }
                       className="service-form__input"
                       inputMode="decimal"
@@ -440,7 +576,7 @@ export default function ServicesInternet() {
                     <div className="service-form__addon">%</div>
                   </div>
                   <p className="service-form__hint service-form__hint--info">
-                    RX/TX: 0/0
+                    RX/TX: {formatCalculatedKbps(burstThresholdRxKbps)} / {formatCalculatedKbps(burstThresholdTxKbps)}
                   </p>
                 </div>
               </div>
@@ -477,19 +613,57 @@ export default function ServicesInternet() {
                   Subida Kbps
                 </label>
                 <div className="service-form__control">
-                  <div className="service-form__inline">
-                    <div className="service-form__small-button">+</div>
+                  <div
+                    className="service-form__inline service-form__preset"
+                    ref={openSpeedPreset === 'uploadKbps' ? speedPresetRef : null}
+                  >
+                    <button
+                      type="button"
+                      className="service-form__small-button service-form__small-button--interactive"
+                      onClick={() =>
+                        setOpenSpeedPreset((current) =>
+                          current === 'uploadKbps' ? null : 'uploadKbps',
+                        )
+                      }
+                      aria-label="Seleccionar velocidad de subida"
+                    >
+                      +
+                    </button>
                     <input
                       id="internet-upload"
                       value={form.uploadKbps}
                       onChange={(event) =>
-                        setForm((current) => ({ ...current, uploadKbps: event.target.value }))
+                        setForm((current) => ({
+                          ...current,
+                          uploadKbps: sanitizeNumericValue(event.target.value),
+                        }))
                       }
                       className="service-form__input"
                       inputMode="numeric"
                     />
                     <div className="service-form__addon">Kbps</div>
+                    {openSpeedPreset === 'uploadKbps' ? (
+                      <div className="service-form__preset-menu">
+                        <p className="service-form__preset-title">Velocidades</p>
+                        <div className="service-form__preset-list">
+                          {speedPresetOptions.map((option) => (
+                            <button
+                              key={`upload-${option.kbps}`}
+                              type="button"
+                              className="service-form__preset-option"
+                              onClick={() => applySpeedPreset('uploadKbps', option.kbps)}
+                            >
+                              <span>{option.mbps} Mbps</span>
+                              <span className="service-form__preset-note">({option.kbps} Kbps)</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
                   </div>
+                  <p className="service-form__hint service-form__hint--info">
+                    Subida: {uploadMbpsLabel}Mbps
+                  </p>
                 </div>
               </div>
 
@@ -504,14 +678,17 @@ export default function ServicesInternet() {
                       id="internet-burst-limit"
                       value={form.burstLimit}
                       onChange={(event) =>
-                        setForm((current) => ({ ...current, burstLimit: event.target.value }))
+                        setForm((current) => ({
+                          ...current,
+                          burstLimit: sanitizeDecimalValue(event.target.value),
+                        }))
                       }
                       className="service-form__input"
                       inputMode="decimal"
                     />
                     <div className="service-form__addon">%</div>
                   </div>
-                  {form.noRules ? <p className="service-form__hint service-form__hint--info">RX/TX: 0/0</p> : null}
+                  <p className="service-form__hint service-form__hint--info">RX/TX: 0/0</p>
                 </div>
               </div>
 
@@ -525,7 +702,10 @@ export default function ServicesInternet() {
                       id="internet-burst-time"
                       value={form.burstTime}
                       onChange={(event) =>
-                        setForm((current) => ({ ...current, burstTime: event.target.value }))
+                        setForm((current) => ({
+                          ...current,
+                          burstTime: sanitizeDecimalValue(event.target.value),
+                        }))
                       }
                       className="service-form__input"
                       inputMode="decimal"
@@ -557,6 +737,53 @@ export default function ServicesInternet() {
               </div>
             </div>
           </div>
+
+          {form.noRules ? (
+            <>
+              <div className="service-form__divider" />
+
+              <div className="service-form__section service-form__section--split">
+                <div className="service-form__field">
+                  <label className="service-form__label" htmlFor="internet-profile">
+                    Profile
+                  </label>
+                  <div className="service-form__control">
+                    <input
+                      id="internet-profile"
+                      value={form.profile}
+                      onChange={(event) =>
+                        setForm((current) => ({ ...current, profile: event.target.value }))
+                      }
+                      className="service-form__input"
+                      placeholder="Nombre del profile Mikrotik"
+                    />
+                    <p className="service-form__hint">*Nombre del Perfil PPPoE/Hotspot.</p>
+                  </div>
+                </div>
+
+                <div className="service-form__field">
+                  <label className="service-form__label" htmlFor="internet-address-list-pcq">
+                    Addresslist PCQ
+                  </label>
+                  <div className="service-form__control">
+                    <input
+                      id="internet-address-list-pcq"
+                      value={form.addressListPcq}
+                      onChange={(event) =>
+                        setForm((current) => ({
+                          ...current,
+                          addressListPcq: event.target.value,
+                        }))
+                      }
+                      className="service-form__input"
+                      placeholder="Lista utilizada en su mikrotik"
+                    />
+                    <p className="service-form__hint">*Lista de addresslist para PCQ + Addresslist</p>
+                  </div>
+                </div>
+              </div>
+            </>
+          ) : null}
         </div>
       </ServiceModalFrame>
     </>

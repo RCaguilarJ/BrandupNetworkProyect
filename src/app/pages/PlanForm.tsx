@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { ArrowLeft } from 'lucide-react';
 import { MOCK_PLANS } from '../data/mockData';
 import { useAuth } from '../context/AuthContext';
+import { sanitizeDecimalValue } from '../lib/input-sanitizers';
 import { toast } from 'sonner';
 
 export default function PlanForm() {
@@ -115,7 +116,8 @@ export default function PlanForm() {
                   type="number"
                   step="0.01"
                   value={formData.price}
-                  onChange={(e) => handleChange('price', e.target.value)}
+                  onChange={(e) => handleChange('price', sanitizeDecimalValue(e.target.value))}
+                  inputMode="decimal"
                   placeholder="0.00"
                   required
                   className="mt-1 dark:bg-gray-700 dark:text-white dark:border-gray-600"

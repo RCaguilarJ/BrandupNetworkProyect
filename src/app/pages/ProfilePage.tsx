@@ -13,6 +13,7 @@ import {
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import { useViewTheme } from '../context/ViewThemeContext';
+import { sanitizeLettersValue, sanitizeNumericValue } from '../lib/input-sanitizers';
 
 type ProfileTab = 'datos' | 'configuracion' | 'seguridad';
 
@@ -130,7 +131,7 @@ export default function ProfilePage() {
                 label="Nombres Completos"
                 icon={<User className="h-3.5 w-3.5" />}
                 value={form.name}
-                onChange={(value) => setForm((prev) => ({ ...prev, name: value }))}
+                onChange={(value) => setForm((prev) => ({ ...prev, name: sanitizeLettersValue(value) }))}
               />
               <ProfileField
                 label="Email"
@@ -143,7 +144,7 @@ export default function ProfilePage() {
                 label="Telefono Movil"
                 icon={<Smartphone className="h-3.5 w-3.5" />}
                 value={form.phone}
-                onChange={(value) => setForm((prev) => ({ ...prev, phone: value }))}
+                onChange={(value) => setForm((prev) => ({ ...prev, phone: sanitizeNumericValue(value) }))}
               />
               <ProfileField
                 label="Usuario Facebook"
@@ -189,7 +190,7 @@ export default function ProfilePage() {
                   max={59}
                   value={form.timeout}
                   onChange={(event) =>
-                    setForm((prev) => ({ ...prev, timeout: event.target.value }))
+                    setForm((prev) => ({ ...prev, timeout: sanitizeNumericValue(event.target.value) }))
                   }
                   className="h-9 w-[50%] min-w-[180px] rounded border border-[#d6dee8] px-3 text-[13px] text-[#24364b] outline-none"
                 />

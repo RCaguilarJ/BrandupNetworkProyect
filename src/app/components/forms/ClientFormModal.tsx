@@ -5,6 +5,7 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { sanitizeLettersValue, sanitizeNumericValue } from '../../lib/input-sanitizers';
 
 interface ClientFormModalProps {
   open: boolean;
@@ -49,7 +50,9 @@ export function ClientFormModal({ open, onClose, onSubmit, plans, initialData }:
             <Input
               id="name"
               value={formData.name}
-              onChange={(e) => handleChange('name', e.target.value)}
+              onChange={(e) => handleChange('name', sanitizeLettersValue(e.target.value))}
+              inputMode="text"
+              pattern="[A-Za-zÀ-ÿ\\s'-]+"
               placeholder="Juan Pérez García"
               required
               className="dark:bg-gray-700 dark:text-white dark:border-gray-600"
@@ -76,7 +79,8 @@ export function ClientFormModal({ open, onClose, onSubmit, plans, initialData }:
                 id="phone"
                 type="tel"
                 value={formData.phone}
-                onChange={(e) => handleChange('phone', e.target.value)}
+                onChange={(e) => handleChange('phone', sanitizeNumericValue(e.target.value))}
+                inputMode="numeric"
                 placeholder="+52 55 1234 5678"
                 required
                 className="dark:bg-gray-700 dark:text-white dark:border-gray-600"

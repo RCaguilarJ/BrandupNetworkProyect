@@ -5,6 +5,7 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { sanitizeDecimalValue } from '../../lib/input-sanitizers';
 
 interface PromotionFormModalProps {
   open: boolean;
@@ -26,7 +27,13 @@ export function PromotionFormModal({ open, onClose, onSubmit, initialData }: Pro
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    onSubmit({
+      ...formData,
+      discount:
+        formData.discount === ''
+          ? ''
+          : parseFloat(String(formData.discount).replace(',', '.')),
+    });
     onClose();
   };
 
@@ -91,7 +98,8 @@ export function PromotionFormModal({ open, onClose, onSubmit, initialData }: Pro
                 type="number"
                 step="0.01"
                 value={formData.discount}
-                onChange={(e) => handleChange('discount', parseFloat(e.target.value))}
+                onChange={(e) => handleChange('discount', sanitizeDecimalValue(e.target.value))}
+                inputMode="decimal"
                 placeholder={formData.type === 'percentage' ? '50' : '200.00'}
                 required
                 className="dark:bg-gray-700 dark:text-white dark:border-gray-600"

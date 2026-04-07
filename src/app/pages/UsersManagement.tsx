@@ -15,6 +15,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { sanitizeLettersValue, sanitizeNumericValue } from '../lib/input-sanitizers';
 
 function getRoleLabel(role: string) {
   const labels: Record<string, string> = {
@@ -90,7 +91,14 @@ export default function UsersManagement() {
   function handleNumericFieldChange(field: 'id' | 'documentNumber' | 'cellphone', value: string) {
     setFormState((current) => ({
       ...current,
-      [field]: value.replace(/\D/g, ''),
+      [field]: sanitizeNumericValue(value),
+    }));
+  }
+
+  function handleLettersFieldChange(field: 'fullName', value: string) {
+    setFormState((current) => ({
+      ...current,
+      [field]: sanitizeLettersValue(value),
     }));
   }
 
@@ -200,8 +208,10 @@ export default function UsersManagement() {
                 <input
                   type="text"
                   value={formState.fullName}
-                  onChange={(event) => setFormState((current) => ({ ...current, fullName: event.target.value }))}
+                  onChange={(event) => handleLettersFieldChange('fullName', event.target.value)}
                   placeholder="Nombre del usuario"
+                  inputMode="text"
+                  pattern="[A-Za-zÀ-ÿ\\s'-]+"
                   className="h-[38px] rounded-[4px] border border-[#d7dfe8] px-3 text-[14px] text-[#111827] outline-none"
                 />
               </label>

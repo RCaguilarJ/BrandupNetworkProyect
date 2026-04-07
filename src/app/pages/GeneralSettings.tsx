@@ -4,6 +4,7 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Switch } from '../components/ui/switch';
 import { useAuth } from '../context/AuthContext';
+import { sanitizeNumericValue } from '../lib/input-sanitizers';
 import { notifyGeneralSettingsUpdated } from '../lib/login-background';
 import {
   type GeneralSettingsBasicConfigSection,
@@ -246,11 +247,16 @@ export default function GeneralSettings() {
   }
 
   function handleCompanyFieldChange(field: keyof GeneralSettingsCompanySection, value: string) {
+    const nextValue =
+      field === 'phoneNumbers' || field === 'identification'
+        ? sanitizeNumericValue(value)
+        : value;
+
     setSettings((current) => ({
       ...current,
       company: {
         ...current.company,
-        [field]: value,
+        [field]: nextValue,
       },
     }));
   }
@@ -272,11 +278,13 @@ export default function GeneralSettings() {
     field: keyof GeneralSettingsNotificationsSection,
     value: string,
   ) {
+    const nextValue = field === 'routerDownMobile' ? sanitizeNumericValue(value) : value;
+
     setSettings((current) => ({
       ...current,
       notifications: {
         ...current.notifications,
-        [field]: value,
+        [field]: nextValue,
       },
     }));
   }

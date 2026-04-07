@@ -27,6 +27,7 @@ import {
 import { MOCK_CLIENTS, MOCK_INVOICES } from '../../data/mockData';
 import { useAuth } from '../../context/AuthContext';
 import { useViewTheme } from '../../context/ViewThemeContext';
+import { sanitizeDecimalValue } from '../../lib/input-sanitizers';
 import { toast } from 'sonner';
 import { formatCurrency } from '../../lib/utils';
 
@@ -598,7 +599,7 @@ export default function RegisterPayment() {
                     type="number"
                     placeholder="0.00"
                     value={amount}
-                    onChange={(event) => setAmount(event.target.value)}
+                    onChange={(event) => setAmount(sanitizeDecimalValue(event.target.value))}
                     min="0"
                     step="0.01"
                   />

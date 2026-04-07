@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Save } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
+import { sanitizeDecimalValue, sanitizeNumericValue } from '../../lib/input-sanitizers';
 import type { DataColumn } from '../network/networkManagementShared';
 import {
   filterServicesByCompany,
@@ -262,8 +263,14 @@ export default function ServicesVoice() {
                 <input
                   id="voice-minutes"
                   value={form.minutes}
-                  onChange={(event) => setForm((current) => ({ ...current, minutes: event.target.value }))}
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      minutes: sanitizeNumericValue(event.target.value),
+                    }))
+                  }
                   className="service-form__input"
+                  inputMode="numeric"
                 />
               </div>
             </div>
@@ -276,8 +283,14 @@ export default function ServicesVoice() {
                 <input
                   id="voice-price"
                   value={form.price}
-                  onChange={(event) => setForm((current) => ({ ...current, price: event.target.value }))}
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      price: sanitizeDecimalValue(event.target.value),
+                    }))
+                  }
                   className="service-form__input"
+                  inputMode="decimal"
                 />
               </div>
             </div>
@@ -293,9 +306,13 @@ export default function ServicesVoice() {
                   id="voice-fixed-value"
                   value={form.fixedValue}
                   onChange={(event) =>
-                    setForm((current) => ({ ...current, fixedValue: event.target.value }))
+                    setForm((current) => ({
+                      ...current,
+                      fixedValue: sanitizeDecimalValue(event.target.value),
+                    }))
                   }
                   className="service-form__input"
+                  inputMode="decimal"
                 />
               </div>
             </div>
@@ -309,9 +326,13 @@ export default function ServicesVoice() {
                   id="voice-mobile-value"
                   value={form.mobileValue}
                   onChange={(event) =>
-                    setForm((current) => ({ ...current, mobileValue: event.target.value }))
+                    setForm((current) => ({
+                      ...current,
+                      mobileValue: sanitizeDecimalValue(event.target.value),
+                    }))
                   }
                   className="service-form__input"
+                  inputMode="decimal"
                 />
               </div>
             </div>
@@ -326,8 +347,14 @@ export default function ServicesVoice() {
                 <input
                   id="voice-tax"
                   value={form.tax}
-                  onChange={(event) => setForm((current) => ({ ...current, tax: event.target.value }))}
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      tax: sanitizeDecimalValue(event.target.value),
+                    }))
+                  }
                   className="service-form__input"
+                  inputMode="decimal"
                 />
               </div>
             </div>

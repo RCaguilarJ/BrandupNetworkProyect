@@ -17,6 +17,8 @@ export type InternetServiceRecord = {
   burstTime: string;
   priority: string;
   addressList: string;
+  profile: string;
+  addressListPcq: string;
   active: string;
   suspended: string;
 };
@@ -46,6 +48,8 @@ export type CustomServiceRecord = {
   currency: string;
   price: string;
   tax: string;
+  newPriceEnabled: boolean;
+  billingCode: string;
   active: string;
   suspended: string;
   retired: string;

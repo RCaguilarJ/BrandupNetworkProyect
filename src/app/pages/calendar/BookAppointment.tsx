@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button } from '../../components/ui/button';
-import { 
+import {
   Calendar as CalendarIcon,
   Clock,
   User,
@@ -12,6 +12,7 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
+import { sanitizeLettersValue, sanitizeNumericValue } from '../../lib/input-sanitizers';
 
 interface TimeSlot {
   time: string;
@@ -345,7 +346,11 @@ export default function BookAppointment() {
                       type="text"
                       required
                       value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, name: sanitizeLettersValue(e.target.value) })
+                      }
+                      inputMode="text"
+                      pattern="[A-Za-zÀ-ÿ\\s'-]+"
                       className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       placeholder="Juan Pérez"
                     />
@@ -379,7 +384,10 @@ export default function BookAppointment() {
                       type="tel"
                       required
                       value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, phone: sanitizeNumericValue(e.target.value) })
+                      }
+                      inputMode="numeric"
                       className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       placeholder="+52 55 1234 5678"
                     />

@@ -31,6 +31,11 @@ import type { JSX } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import {
+  sanitizeDecimalValue,
+  sanitizeLettersValue,
+  sanitizeNumericValue,
+} from '../lib/input-sanitizers';
+import {
   appendClientLog,
   createEmptyClientWorkspace,
   ensureClientRegistration,
@@ -82,7 +87,6 @@ const wizardSteps: WizardStep[] = [
 
 const locationOptions = ['Seleccionar Ubicacion', 'Centro', 'Lomas', 'Norte', 'Sur', 'Cumbres'];
 const routerOptions = ['Seleccionar Router', 'Router Principal', 'Torre Norte', 'Torre Centro', 'Torre Sur'];
-const firewallOptions = ['Ningun registro', 'Bypass clientes', 'Lista blanca'];
 const billingTemplateOptions = ['Seleccionar plantilla', 'Plantilla estandar', 'Plantilla prepago', 'Plantilla corporativa'];
 const billingTypeOptions = ['Prepago (Adelantado)', 'Pospago'];
 const paymentDayOptions = ['01', '05', '10', '15', '20', '25'];
@@ -96,7 +100,7 @@ const reminderOptions = ['2 Dias Antes', '1 Dia Antes', 'El mismo dia', 'Desacti
 const statisticsDateRange = ['22/03/2026', '06/04/2026'] as const;
 
 function pageInputClassName(extraClassName = '') {
-  return `h-[31px] w-full rounded-[3px] border border-[#cfd7e2] bg-white px-[10px] text-[12px] leading-[1.4] text-[#333333] outline-none placeholder:text-[#b7c2cf] ${extraClassName}`;
+  return `h-[40px] w-full rounded-[4px] border border-[#cfd7e2] bg-white px-3 text-[14px] leading-[1.4] text-[#333333] outline-none placeholder:text-[#b7c2cf] ${extraClassName}`;
 }
 
 function pageSelectClassName(extraClassName = '') {
@@ -109,18 +113,29 @@ function pageFormRowClassName(
 ) {
   const sizeClassName =
     size === 'wide'
-      ? 'md:grid-cols-[180px_minmax(0,1fr)] lg:grid-cols-[220px_minmax(0,1fr)]'
+      ? 'md:grid-cols-[210px_minmax(0,1fr)] lg:grid-cols-[250px_minmax(0,1fr)]'
       : size === 'medium'
-        ? 'md:grid-cols-[150px_minmax(0,1fr)] lg:grid-cols-[160px_minmax(0,1fr)]'
-        : 'md:grid-cols-[140px_minmax(0,1fr)] lg:grid-cols-[150px_minmax(0,1fr)]';
+        ? 'md:grid-cols-[170px_minmax(0,1fr)] lg:grid-cols-[190px_minmax(0,1fr)]'
+        : 'md:grid-cols-[155px_minmax(0,1fr)] lg:grid-cols-[175px_minmax(0,1fr)]';
 
-  return `grid gap-2 sm:gap-3 lg:gap-4 ${sizeClassName} ${
+  return `grid gap-3 sm:gap-4 lg:gap-5 ${sizeClassName} ${
     align === 'start' ? 'md:items-start' : 'md:items-center'
   }`;
 }
 
 function pageFormLabelClassName(extraClassName = '') {
   return `text-left md:text-right leading-[1.5] ${extraClassName}`;
+}
+
+function controlA11yProps(label: string) {
+  return {
+    'aria-label': label,
+    title: label,
+  } as const;
+}
+
+function sanitizeDateLikeValue(value: string) {
+  return value.replace(/[^0-9/\-:\s]/g, '');
 }
 
 function deriveInitials(name: string) {
@@ -193,17 +208,32 @@ function EmptyTableCard({
       <div className="p-4">
         <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
           <div className="flex flex-wrap items-center gap-2">
-            <select className="h-8 rounded border border-[#cfd7e2] bg-white px-3 text-[12px] text-[#24364b] outline-none">
+            <select
+              className="h-8 rounded border border-[#cfd7e2] bg-white px-3 text-[12px] text-[#24364b] outline-none"
+              {...controlA11yProps('Cantidad de registros')}
+            >
               <option>15</option>
             </select>
-            <button type="button" className="inline-flex h-8 w-8 items-center justify-center rounded border border-[#cfd7e2] bg-white text-[#30465f]">
+            <button
+              type="button"
+              className="inline-flex h-8 w-8 items-center justify-center rounded border border-[#cfd7e2] bg-white text-[#30465f]"
+              {...controlA11yProps('Vista de lista')}
+            >
               <List className="h-3.5 w-3.5" />
             </button>
-            <button type="button" className="inline-flex h-8 w-8 items-center justify-center rounded border border-[#cfd7e2] bg-white text-[#30465f]">
+            <button
+              type="button"
+              className="inline-flex h-8 w-8 items-center justify-center rounded border border-[#cfd7e2] bg-white text-[#30465f]"
+              {...controlA11yProps('Capturar imagen')}
+            >
               <Camera className="h-3.5 w-3.5" />
             </button>
             {actionLabel ? (
-              <button type="button" className="inline-flex h-8 items-center gap-2 rounded border border-[#cfd7e2] bg-white px-3 text-[12px] font-semibold text-[#24364b]">
+              <button
+                type="button"
+                className="inline-flex h-8 items-center gap-2 rounded border border-[#cfd7e2] bg-white px-3 text-[12px] font-semibold text-[#24364b]"
+                {...controlA11yProps(actionLabel)}
+              >
                 <Plus className="h-3.5 w-3.5" />
                 {actionLabel}
               </button>
@@ -211,7 +241,12 @@ function EmptyTableCard({
           </div>
 
           <div className="relative w-full sm:w-[230px]">
-            <input type="text" placeholder={searchPlaceholder} className="h-8 w-full rounded border border-[#d7e0ea] bg-white px-3 pr-8 text-[12px] text-[#24364b] outline-none" />
+            <input
+              type="text"
+              placeholder={searchPlaceholder}
+              className="h-8 w-full rounded border border-[#d7e0ea] bg-white px-3 pr-8 text-[12px] text-[#24364b] outline-none"
+              {...controlA11yProps(searchPlaceholder)}
+            />
             <Search className="pointer-events-none absolute right-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#a0aebe]" />
           </div>
         </div>
@@ -240,10 +275,18 @@ function EmptyTableCard({
         <div className="mt-4 flex flex-col gap-3 text-[12px] text-[#6e8197] sm:flex-row sm:items-center sm:justify-between">
           <span>Mostrando 0 registros</span>
           <div className="flex items-center gap-2">
-            <button type="button" className="inline-flex h-8 w-8 items-center justify-center rounded border border-[#d7e0ea] bg-white text-[#9aa8b7]">
+            <button
+              type="button"
+              className="inline-flex h-8 w-8 items-center justify-center rounded border border-[#d7e0ea] bg-white text-[#9aa8b7]"
+              {...controlA11yProps('Pagina anterior')}
+            >
               <ChevronRight className="h-3.5 w-3.5 rotate-180" />
             </button>
-            <button type="button" className="inline-flex h-8 w-8 items-center justify-center rounded border border-[#d7e0ea] bg-white text-[#9aa8b7]">
+            <button
+              type="button"
+              className="inline-flex h-8 w-8 items-center justify-center rounded border border-[#d7e0ea] bg-white text-[#9aa8b7]"
+              {...controlA11yProps('Pagina siguiente')}
+            >
               <ChevronRight className="h-3.5 w-3.5" />
             </button>
           </div>
@@ -267,8 +310,15 @@ export default function ClientForm() {
   const { id } = useParams();
   const { user } = useAuth();
   const isEditing = Boolean(id);
+  const initialDraft = useMemo(() => {
+    if (isEditing && id) {
+      return getClientWorkspace(id);
+    }
 
-  const [draft, setDraft] = useState<ClientWorkspaceData | null>(null);
+    return createEmptyClientWorkspace(user?.companyId ?? 'comp1');
+  }, [id, isEditing, user?.companyId]);
+
+  const [draft, setDraft] = useState<ClientWorkspaceData | null>(initialDraft);
   const [activeStepIndex, setActiveStepIndex] = useState(0);
   const [activeTab, setActiveTab] = useState<ClientMainTab>('summary');
   const [activeBillingTab, setActiveBillingTab] = useState<BillingDetailTab>('config');
@@ -276,21 +326,11 @@ export default function ClientForm() {
   const [showPortalPassword, setShowPortalPassword] = useState(false);
 
   useEffect(() => {
-    if (isEditing && id) {
-      const record = getClientWorkspace(id);
-
-      if (!record) {
-        toast.error('No se encontro el cliente solicitado');
-        navigate('/clients', { replace: true });
-        return;
-      }
-
-      setDraft(record);
-      return;
+    if (isEditing && id && !initialDraft) {
+      toast.error('No se encontro el cliente solicitado');
+      navigate('/clients', { replace: true });
     }
-
-    setDraft(createEmptyClientWorkspace(user?.companyId ?? 'comp1'));
-  }, [id, isEditing, navigate, user?.companyId]);
+  }, [id, initialDraft, isEditing, navigate]);
 
   const schedule = useMemo(() => {
     if (!draft) {
@@ -304,13 +344,18 @@ export default function ClientForm() {
     field: Field,
     value: ClientWorkspaceData['personal'][Field],
   ) {
+    const nextValue =
+      typeof value === 'string' && field === 'fullName'
+        ? sanitizeLettersValue(value)
+        : value;
+
     setDraft((currentDraft) =>
       currentDraft
         ? {
             ...currentDraft,
             personal: {
               ...currentDraft.personal,
-              [field]: value,
+              [field]: nextValue,
             },
           }
         : currentDraft,
@@ -321,20 +366,26 @@ export default function ClientForm() {
     field: 'clientCode' | 'identification' | 'landlinePhone' | 'mobilePhone',
     value: string,
   ) {
-    updatePersonalField(field, value.replace(/\D/g, ''));
+    updatePersonalField(field, sanitizeNumericValue(value));
   }
 
   function updateBillingField<Field extends keyof ClientBillingSettings>(
     field: Field,
     value: ClientBillingSettings[Field],
   ) {
+    const nextValue =
+      typeof value === 'string' &&
+      (field === 'fixedDate' || field === 'fixedCutoffDate')
+        ? sanitizeDateLikeValue(value)
+        : value;
+
     setDraft((currentDraft) =>
       currentDraft
         ? {
             ...currentDraft,
             billing: {
               ...currentDraft.billing,
-              [field]: value,
+              [field]: nextValue,
             },
           }
         : currentDraft,
@@ -719,6 +770,7 @@ export default function ClientForm() {
                   type="button"
                   onClick={() => handleStepChange(stepIndex)}
                   className={`flex min-h-[76px] items-start gap-3 px-5 py-4 text-left ${isActive ? 'bg-[#3395ea] text-white' : 'bg-white text-[#1d2d42]'}`}
+                  {...controlA11yProps(step.title)}
                 >
                   <span
                     className={`mt-0.5 inline-flex h-7 w-7 items-center justify-center rounded-full text-[12px] font-semibold ${isActive ? 'bg-[#1f6cb3] text-white' : 'bg-[#dbe4ec] text-[#24364b]'}`}
@@ -743,9 +795,9 @@ export default function ClientForm() {
               );
             })}
           </div>
-          <div className="px-3 py-3 text-[12px] text-[#333333] sm:px-4">
+          <div className="px-4 py-5 text-[13px] text-[#333333] sm:px-6">
             {currentStep.id === 'personal' ? (
-              <div className="mx-auto max-w-[980px] space-y-4">
+              <div className="mx-auto max-w-[1180px] space-y-5">
                 <div className={pageFormRowClassName('wide', 'start')}>
                   <label className={pageFormLabelClassName('pt-0 md:pt-2 text-[13px] md:text-[14px] text-[#3c536d]')}>
                     ID cliente
@@ -759,6 +811,7 @@ export default function ClientForm() {
                       placeholder="100"
                       inputMode="numeric"
                       className={pageInputClassName()}
+                      {...controlA11yProps('ID cliente')}
                     />
                     <p className="mt-1.5 text-[12px] text-[#e08d42]">
                       Dejar en blanco para que sea automatico.
@@ -783,6 +836,7 @@ export default function ClientForm() {
                         }
                         placeholder="4243Tdp"
                         className={pageInputClassName('pr-10')}
+                        {...controlA11yProps('Contrasena portal')}
                       />
                       <button
                         type="button"
@@ -830,6 +884,7 @@ export default function ClientForm() {
                       placeholder="223456634"
                       inputMode="numeric"
                       className={`${pageInputClassName()} max-w-[280px]`}
+                      {...controlA11yProps('Numero de identificacion')}
                     />
                     <p className="mt-1.5 text-[12px] uppercase tracking-[0.02em] text-[#e08d42]">
                       Cedula, DNI, RUC, CUIT, NIT, SAT, RUT, RTN, etc.
@@ -847,7 +902,10 @@ export default function ClientForm() {
                       updatePersonalField('fullName', event.target.value)
                     }
                     placeholder="Carlos Miguel Santana castro"
+                    inputMode="text"
+                    pattern="[A-Za-zÀ-ÿ\\s'-]+"
                     className={pageInputClassName()}
+                    {...controlA11yProps('Nombre completo')}
                   />
                 </div>
 
@@ -855,17 +913,18 @@ export default function ClientForm() {
                   <label className={pageFormLabelClassName('text-[13px] md:text-[14px] text-[#3c536d]')}>
                     Direccion principal
                   </label>
-                  <input
-                    value={draft.personal.primaryAddress}
+                    <input
+                      value={draft.personal.primaryAddress}
                     onChange={(event) =>
                       updatePersonalField(
                         'primaryAddress',
                         event.target.value,
                       )
                     }
-                    placeholder="Av. urios 4453"
-                    className={pageInputClassName()}
-                  />
+                      placeholder="Av. urios 4453"
+                      className={pageInputClassName()}
+                      {...controlA11yProps('Direccion principal')}
+                    />
                 </div>
 
                 <div className={pageFormRowClassName()}>
@@ -885,6 +944,7 @@ export default function ClientForm() {
                       )
                     }
                     className={pageSelectClassName()}
+                    {...controlA11yProps('Ubicacion')}
                   >
                     {locationOptions.map((option) => (
                       <option key={option}>{option}</option>
@@ -896,50 +956,53 @@ export default function ClientForm() {
                   <label className={pageFormLabelClassName('text-[13px] md:text-[14px] text-[#3c536d]')}>
                     Telefono fijo
                   </label>
-                  <input
-                    value={draft.personal.landlinePhone}
+                    <input
+                      value={draft.personal.landlinePhone}
                     onChange={(event) =>
                       updatePersonalNumericField(
                         'landlinePhone',
                         event.target.value,
                       )
                     }
-                    placeholder="564567"
-                    inputMode="numeric"
-                    className={pageInputClassName()}
-                  />
+                      placeholder="564567"
+                      inputMode="numeric"
+                      className={pageInputClassName()}
+                      {...controlA11yProps('Telefono fijo')}
+                    />
                 </div>
 
                 <div className={pageFormRowClassName()}>
                   <label className={pageFormLabelClassName('text-[13px] md:text-[14px] text-[#3c536d]')}>
                     Telefono Movil
                   </label>
-                  <input
-                    value={draft.personal.mobilePhone}
+                    <input
+                      value={draft.personal.mobilePhone}
                     onChange={(event) =>
                       updatePersonalNumericField(
                         'mobilePhone',
                         event.target.value,
                       )
                     }
-                    placeholder="9876526478"
-                    inputMode="numeric"
-                    className={pageInputClassName()}
-                  />
+                      placeholder="9876526478"
+                      inputMode="numeric"
+                      className={pageInputClassName()}
+                      {...controlA11yProps('Telefono movil')}
+                    />
                 </div>
 
                 <div className={pageFormRowClassName()}>
                   <label className={pageFormLabelClassName('text-[13px] md:text-[14px] text-[#3c536d]')}>
                     E-mail
                   </label>
-                  <input
-                    value={draft.personal.email}
+                    <input
+                      value={draft.personal.email}
                     onChange={(event) =>
                       updatePersonalField('email', event.target.value)
                     }
-                    placeholder="jorge@correo.com"
-                    className={pageInputClassName()}
-                  />
+                      placeholder="jorge@correo.com"
+                      className={pageInputClassName()}
+                      {...controlA11yProps('E-mail')}
+                    />
                 </div>
               </div>
             ) : null}
@@ -961,6 +1024,7 @@ export default function ClientForm() {
                       )
                     }
                     className={pageSelectClassName()}
+                    {...controlA11yProps('Cargar desde plantilla')}
                   >
                     {billingTemplateOptions.map((option) => (
                       <option key={option}>{option}</option>
@@ -980,8 +1044,8 @@ export default function ClientForm() {
                         ['Día pago', 'paymentDay', paymentDayOptions],
                         ['Crear Factura', 'createInvoice', createInvoiceOptions],
                         ['Tipo impuesto', 'taxType', taxTypeOptions],
-                      ].map(([label, key, options]) => (
-                        <div key={key} className={pageFormRowClassName('medium')}>
+                      ].map(([label, key, options], index) => (
+                        <div key={`wizard-billing-${index}`} className={pageFormRowClassName('medium')}>
                           <label className={pageFormLabelClassName('text-[12px] text-[#333333] md:py-[8px]')}>
                             {label}
                           </label>
@@ -994,6 +1058,7 @@ export default function ClientForm() {
                               )
                             }
                             className={pageSelectClassName()}
+                            {...controlA11yProps(String(label))}
                           >
                             {(options as string[]).map((option) => (
                               <option key={option}>{option}</option>
@@ -1013,6 +1078,7 @@ export default function ClientForm() {
                               updateBillingField('graceDays', event.target.value)
                             }
                             className={pageSelectClassName()}
+                            {...controlA11yProps('Dias de gracia')}
                           >
                             {graceDayOptions.map((option) => (
                               <option key={option}>{option}</option>
@@ -1037,6 +1103,7 @@ export default function ClientForm() {
                             )
                           }
                           className={pageSelectClassName()}
+                          {...controlA11yProps('Aplicar Corte')}
                         >
                           {cutoffOptions.map((option) => (
                             <option key={option}>{option}</option>
@@ -1062,10 +1129,14 @@ export default function ClientForm() {
                             }
                             placeholder="Automático"
                             className={`${pageInputClassName('rounded-r-none bg-[#f8fafc] text-[#a4b1bf]')} rounded-r-none`}
+                            aria-label="Fecha Fija"
+                            title="Fecha Fija"
                           />
                           <button
                             type="button"
                             className="inline-flex h-[31px] items-center justify-center rounded-r-[3px] border border-l-0 border-[#cfd7e2] bg-[#edf2f6] text-[#55697d]"
+                            aria-label="Limpiar fecha fija"
+                            title="Limpiar fecha fija"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>
@@ -1077,7 +1148,7 @@ export default function ClientForm() {
                         ['Aplicar Reconexión', 'applyReconnection'],
                         ['Reactivar con pago parcial', 'reactivateWithPartialPayment'],
                       ].map(([label, key], index) => (
-                        <div key={key} className={pageFormRowClassName('medium', 'start')}>
+                        <div key={`wizard-toggle-${index}`} className={pageFormRowClassName('medium', 'start')}>
                           <label className={pageFormLabelClassName('text-[12px] text-[#333333] md:py-[6px]')}>
                             {label}
                           </label>
@@ -1093,6 +1164,7 @@ export default function ClientForm() {
                                 )
                               }
                               className={`relative h-6 w-[40px] rounded-full transition ${(draft.billing[key as keyof ClientBillingSettings] as boolean) ? 'bg-[#2f93e4]' : 'bg-[#c8ced5]'}`}
+                              {...controlA11yProps(String(label))}
                             >
                               <span
                                 className={`absolute top-[2px] h-5 w-5 rounded-full bg-white transition ${(draft.billing[key as keyof ClientBillingSettings] as boolean) ? 'left-[18px]' : 'left-[2px]'}`}
@@ -1124,10 +1196,13 @@ export default function ClientForm() {
                               value={taxValue}
                               onChange={(event) => {
                                 const nextTaxes = [...draft.billing.taxes] as ClientBillingSettings['taxes'];
-                                nextTaxes[taxIndex] = event.target.value;
+                                nextTaxes[taxIndex] = sanitizeDecimalValue(event.target.value);
                                 updateBillingField('taxes', nextTaxes);
                               }}
+                              inputMode="decimal"
                               className={pageInputClassName()}
+                              placeholder="0"
+                              {...controlA11yProps(`Impuesto ${taxIndex + 1} porcentaje`)}
                             />
                             <p className="mt-1 text-[11px] text-[#24364b]">
                               * Dejar en 0 (cero) para quedar deshabilitado
@@ -1157,6 +1232,7 @@ export default function ClientForm() {
                             )
                           }
                           className={pageSelectClassName()}
+                          {...controlA11yProps('Aviso nueva factura')}
                         >
                           {notificationToggleOptions.map((option) => (
                             <option key={option}>{option}</option>
@@ -1178,6 +1254,7 @@ export default function ClientForm() {
                               )
                             }
                             className={pageSelectClassName()}
+                            {...controlA11yProps('Aviso en Pantalla')}
                           >
                             {notificationToggleOptions.map((option) => (
                               <option key={option}>{option}</option>
@@ -1194,8 +1271,8 @@ export default function ClientForm() {
                         ['Recordatorio #1', 'reminderOne', reminderOptions],
                         ['Recordatorio #2', 'reminderTwo', reminderOptions],
                         ['Recordatorio #3', 'reminderThree', reminderOptions],
-                      ].map(([label, key, options]) => (
-                        <div key={key} className={pageFormRowClassName('medium', 'start')}>
+                      ].map(([label, key, options], index) => (
+                        <div key={`wizard-notification-${index}`} className={pageFormRowClassName('medium', 'start')}>
                           <label className={pageFormLabelClassName('text-[12px] text-[#333333] md:py-[8px]')}>
                             {label}
                           </label>
@@ -1208,8 +1285,9 @@ export default function ClientForm() {
                                   event.target.value as never,
                                 )
                               }
-                              className={pageSelectClassName()}
-                            >
+                            className={pageSelectClassName()}
+                            {...controlA11yProps(String(label))}
+                          >
                               {(options as string[]).map((option) => (
                                 <option key={option}>{option}</option>
                               ))}
@@ -1246,6 +1324,7 @@ export default function ClientForm() {
                       )
                     }
                     className={pageSelectClassName()}
+                    {...controlA11yProps('Router')}
                   >
                     {routerOptions.map((option) => (
                       <option key={option}>{option}</option>
@@ -1268,6 +1347,7 @@ export default function ClientForm() {
                       )
                     }
                     className={`relative h-6 w-[40px] rounded-full transition ${draft.services.excludeFirewall === 'Activado' ? 'bg-[#2f93e4]' : 'bg-[#c8ced5]'}`}
+                    {...controlA11yProps('Excluir Firewall')}
                   >
                     <span
                       className={`absolute top-[2px] h-5 w-5 rounded-full bg-white transition ${draft.services.excludeFirewall === 'Activado' ? 'left-[18px]' : 'left-[2px]'}`}
@@ -1291,6 +1371,7 @@ export default function ClientForm() {
                   }
                   disabled={activeStepIndex === 0}
                   className="inline-flex h-10 w-full items-center justify-center rounded-[4px] border border-[#cfd7e2] bg-white px-6 text-[14px] text-[#7b8da3] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                  {...controlA11yProps('Anterior')}
                 >
                   Anterior
                 </button>
@@ -1298,6 +1379,7 @@ export default function ClientForm() {
                   type="button"
                   onClick={handleGoNext}
                   className="inline-flex h-10 w-full items-center justify-center rounded-[4px] border border-[#cfd7e2] bg-white px-6 text-[14px] font-semibold text-[#24364b] sm:w-auto"
+                  {...controlA11yProps('Siguiente')}
                 >
                   Siguiente
                 </button>
@@ -1307,6 +1389,7 @@ export default function ClientForm() {
                   type="button"
                   onClick={handleRegisterClient}
                   className="inline-flex h-11 items-center gap-2 rounded-[4px] bg-[#2f93e4] px-6 text-[14px] font-semibold text-white"
+                  {...controlA11yProps('Registrar Cliente')}
                 >
                   <CheckCircle2 className="h-5 w-5" />
                   Registrar Cliente
@@ -1354,6 +1437,7 @@ export default function ClientForm() {
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
                 className={`inline-flex h-10 items-center gap-2 px-4 text-[12px] font-semibold ${isActive ? 'bg-white text-[#23384d]' : 'text-white'}`}
+                {...controlA11yProps(tab.label)}
               >
                 {tab.icon}
                 {tab.label}
@@ -1365,15 +1449,16 @@ export default function ClientForm() {
             type="button"
             onClick={() => setShowToolsMenu((currentValue) => !currentValue)}
             className={`inline-flex h-10 items-center justify-center px-4 sm:ml-2 ${showToolsMenu ? 'bg-white text-[#23384d]' : 'text-white'}`}
+            {...controlA11yProps('Abrir herramientas')}
           >
             <Wrench className="h-4 w-4" />
           </button>
 
           <div className="ml-auto flex w-full items-center justify-end gap-2 py-2 pr-2 sm:w-auto sm:py-0">
-            <button type="button" className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#2f93e4] text-white">
+            <button type="button" className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#2f93e4] text-white" {...controlA11yProps('Pestana anterior')}>
               <ChevronRight className="h-3.5 w-3.5 rotate-180" />
             </button>
-            <button type="button" className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#2f93e4] text-white">
+            <button type="button" className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#2f93e4] text-white" {...controlA11yProps('Pestana siguiente')}>
               <ChevronRight className="h-3.5 w-3.5" />
             </button>
           </div>
@@ -1383,7 +1468,7 @@ export default function ClientForm() {
             <div className="absolute right-3 top-[calc(100%+0.5rem)] z-20 w-[min(270px,calc(100vw-2rem))] rounded border border-[#d1d8df] bg-white shadow-[0_12px_32px_rgba(15,23,42,0.16)] sm:right-14 sm:top-12">
               <div className="flex items-center justify-between border-b border-[#e3e8ee] px-4 py-3 text-[14px] font-semibold text-[#334b64]">
                 <span>Herramientas</span>
-                <button type="button" onClick={() => setShowToolsMenu(false)} className="text-[#6d8097]">
+                <button type="button" onClick={() => setShowToolsMenu(false)} className="text-[#6d8097]" {...controlA11yProps('Cerrar herramientas')}>
                   <X className="h-4 w-4" />
                 </button>
               </div>
@@ -1392,7 +1477,7 @@ export default function ClientForm() {
                   <label className="mb-1 block text-[12px] text-[#4d6278]">
                     Seleccionar servicio
                   </label>
-                  <select className={pageSelectClassName()}>
+                  <select className={pageSelectClassName()} {...controlA11yProps('Seleccionar servicio')}>
                     <option>{draft.services.router || 'No hay ningun servicio...'}</option>
                   </select>
                 </div>
@@ -1406,8 +1491,8 @@ export default function ClientForm() {
                     ['Mail Bienvenida', <Mail className="h-3.5 w-3.5" key="mail" />],
                     ['¿Como llegar?', <MapPin className="h-3.5 w-3.5" key="map" />],
                     ['Enviar SMS', <Smartphone className="h-3.5 w-3.5" key="sms" />],
-                  ].map(([label, icon]) => (
-                    <button key={label} type="button" className="inline-flex h-9 items-center justify-center gap-2 rounded border border-[#cfd7e2] text-[12px] text-[#24364b]">
+                  ].map(([label, icon], toolIndex) => (
+                    <button key={`tool-${toolIndex}`} type="button" className="inline-flex h-9 items-center justify-center gap-2 rounded border border-[#cfd7e2] text-[12px] text-[#24364b]" {...controlA11yProps(String(label))}>
                       {icon as JSX.Element}
                       {label}
                     </button>
@@ -1418,6 +1503,7 @@ export default function ClientForm() {
                     type="button"
                     onClick={() => handleToolStatusChange('SUSPENDIDO')}
                     className="inline-flex h-10 items-center justify-center rounded bg-[#f5a623] text-[12px] font-semibold text-white"
+                    {...controlA11yProps('Suspender')}
                   >
                     SUSPENDER
                   </button>
@@ -1425,6 +1511,7 @@ export default function ClientForm() {
                     type="button"
                     onClick={() => handleToolStatusChange('RETIRADO')}
                     className="inline-flex h-10 items-center justify-center rounded bg-[#ef5c5c] text-[12px] font-semibold text-white"
+                    {...controlA11yProps('Retirar cliente')}
                   >
                     RETIRAR cliente
                   </button>
@@ -1490,8 +1577,16 @@ export default function ClientForm() {
                                 event.target.value as never,
                               )
                         }
-                        inputMode={key === 'clientCode' || key === 'landlinePhone' || key === 'mobilePhone' ? 'numeric' : undefined}
+                        inputMode={
+                          key === 'clientCode' || key === 'landlinePhone' || key === 'mobilePhone'
+                            ? 'numeric'
+                            : key === 'fullName'
+                              ? 'text'
+                              : undefined
+                        }
+                        pattern={key === 'fullName' ? "[A-Za-zÀ-ÿ\\s'-]+" : undefined}
                         className={pageInputClassName(key === 'clientCode' || key === 'portalPassword' ? 'max-w-[160px]' : '')}
+                        {...controlA11yProps(String(label))}
                       />
                     </div>
                   ))}
@@ -1511,6 +1606,7 @@ export default function ClientForm() {
                         }
                         inputMode="numeric"
                         className={`${pageInputClassName()} max-w-[180px]`}
+                        {...controlA11yProps('Numero de identificacion')}
                       />
                       <p className="mt-1 text-[11px] uppercase tracking-[0.02em] text-[#5b748c]">
                         Cedula, DNI, RUC, CUIT, NIT, SAT, RUT, RTN, etc.
@@ -1522,8 +1618,8 @@ export default function ClientForm() {
                     <label className={pageFormLabelClassName('text-[13px] md:text-[14px] text-[#415970]')}>
                       Ubicacion
                     </label>
-                    <select
-                      value={draft.personal.location || locationOptions[0]}
+                  <select
+                    value={draft.personal.location || locationOptions[0]}
                       onChange={(event) =>
                         updatePersonalField(
                           'location',
@@ -1531,9 +1627,10 @@ export default function ClientForm() {
                             ? ''
                             : event.target.value,
                         )
-                      }
-                      className={pageSelectClassName()}
-                    >
+                    }
+                    className={pageSelectClassName()}
+                    {...controlA11yProps('Ubicacion')}
+                  >
                       {locationOptions.map((option) => (
                         <option key={option}>{option}</option>
                       ))}
@@ -1546,6 +1643,7 @@ export default function ClientForm() {
                     type="button"
                     onClick={handleSavePersonalChanges}
                     className="inline-flex h-10 items-center gap-2 rounded-full border border-[#2f93e4] px-6 text-[13px] font-semibold text-[#2f93e4]"
+                    {...controlA11yProps('Guardar datos')}
                   >
                     <CheckCircle2 className="h-4 w-4" />
                     Guardar datos
@@ -1587,6 +1685,7 @@ export default function ClientForm() {
                     type="button"
                     onClick={() => setActiveBillingTab(tab.id)}
                     className={`inline-flex h-9 items-center gap-2 border border-b-0 px-4 text-[12px] ${activeBillingTab === tab.id ? 'bg-white font-semibold text-[#24364b]' : 'bg-[#f5f7fa] text-[#6b8198]'}`}
+                    {...controlA11yProps(tab.label)}
                   >
                     {tab.label}
                   </button>
@@ -1612,6 +1711,7 @@ export default function ClientForm() {
                         )
                       }
                       className={pageSelectClassName()}
+                      {...controlA11yProps('Plantilla de facturacion')}
                     >
                       {billingTemplateOptions.map((option) => (
                         <option key={option}>{option}</option>
@@ -1633,8 +1733,8 @@ export default function ClientForm() {
                           ['Dias de gracia', 'graceDays', graceDayOptions],
                           ['Aplicar Corte', 'applyCutoff', cutoffOptions],
                           ['Bajar Velocidad', 'slowdownMode', slowdownOptions],
-                        ].map(([label, key, options]) => (
-                          <div key={key} className={pageFormRowClassName('medium')}>
+                        ].map(([label, key, options], index) => (
+                          <div key={`config-billing-${index}`} className={pageFormRowClassName('medium')}>
                             <label className={pageFormLabelClassName('text-[13px] text-[#40576f]')}>
                               {label}
                             </label>
@@ -1647,6 +1747,7 @@ export default function ClientForm() {
                                 )
                               }
                               className={pageSelectClassName()}
+                              {...controlA11yProps(String(label))}
                             >
                               {(options as string[]).map((option) => (
                                 <option key={option}>{option}</option>
@@ -1658,8 +1759,8 @@ export default function ClientForm() {
                         {[
                           ['Fecha Fija', 'fixedDate'],
                           ['Corte Fijo Programado', 'fixedCutoffDate'],
-                        ].map(([label, key]) => (
-                          <div key={key} className={pageFormRowClassName('medium')}>
+                        ].map(([label, key], index) => (
+                          <div key={`config-fixed-${index}`} className={pageFormRowClassName('medium')}>
                             <label className={`flex items-center gap-2 md:justify-end ${pageFormLabelClassName('text-[13px] text-[#40576f]')}`}>
                               {label} <CircleHelp className="h-3.5 w-3.5 text-[#67809a]" />
                             </label>
@@ -1674,8 +1775,9 @@ export default function ClientForm() {
                                 }
                                 placeholder="Automatico"
                                 className={pageInputClassName('rounded-r-none')}
+                                {...controlA11yProps(String(label))}
                               />
-                              <button type="button" className="inline-flex h-8 items-center justify-center rounded-r border border-l-0 border-[#cfd7e2] bg-[#eef3f7] text-[#4c5f74]">
+                              <button type="button" className="inline-flex h-8 items-center justify-center rounded-r border border-l-0 border-[#cfd7e2] bg-[#eef3f7] text-[#4c5f74]" {...controlA11yProps(`Configurar ${String(label)}`)}>
                                 <Settings2 className="h-3.5 w-3.5" />
                               </button>
                             </div>
@@ -1686,8 +1788,8 @@ export default function ClientForm() {
                           ['Aplicar Mora', 'applyLateFee'],
                           ['Aplicar Reconexion', 'applyReconnection'],
                           ['Reactivar con pago parcial', 'reactivateWithPartialPayment'],
-                        ].map(([label, key]) => (
-                          <div key={key} className={pageFormRowClassName('medium', 'start')}>
+                        ].map(([label, key], index) => (
+                          <div key={`config-toggle-${index}`} className={pageFormRowClassName('medium', 'start')}>
                             <label className={pageFormLabelClassName('pt-1 text-[13px] text-[#40576f]')}>
                               {label}
                             </label>
@@ -1700,6 +1802,7 @@ export default function ClientForm() {
                                 )
                               }
                               className={`relative h-7 w-13 rounded-full transition ${(draft.billing[key as keyof ClientBillingSettings] as boolean) ? 'bg-[#2f93e4]' : 'bg-[#c8ced5]'}`}
+                              {...controlA11yProps(String(label))}
                             >
                               <span className={`absolute top-[2px] h-6 w-6 rounded-full bg-white transition ${(draft.billing[key as keyof ClientBillingSettings] as boolean) ? 'left-[26px]' : 'left-[2px]'}`} />
                             </button>
@@ -1717,10 +1820,13 @@ export default function ClientForm() {
                                 value={taxValue}
                                 onChange={(event) => {
                                   const nextTaxes = [...draft.billing.taxes] as ClientBillingSettings['taxes'];
-                                  nextTaxes[taxIndex] = event.target.value;
+                                  nextTaxes[taxIndex] = sanitizeDecimalValue(event.target.value);
                                   updateBillingField('taxes', nextTaxes);
                                 }}
+                                inputMode="decimal"
                                 className={pageInputClassName()}
+                                placeholder="0"
+                                {...controlA11yProps(`Impuesto ${taxIndex + 1} porcentaje`)}
                               />
                               <p className="mt-1 text-[11px] text-[#24364b]">
                                 * Dejar en 0 (cero) para quedar deshabilitado
@@ -1734,6 +1840,7 @@ export default function ClientForm() {
                             type="button"
                             onClick={handleSaveBillingChanges}
                             className="inline-flex h-10 items-center gap-2 rounded-full border border-[#2f93e4] px-6 text-[13px] font-semibold text-[#2f93e4]"
+                            {...controlA11yProps('Guardar cambios de facturacion')}
                           >
                             <CheckCircle2 className="h-4 w-4" />
                             Guardar cambios
@@ -1768,8 +1875,8 @@ export default function ClientForm() {
                           ['Recordatorio #1', 'reminderOne', reminderOptions],
                           ['Recordatorio #2', 'reminderTwo', reminderOptions],
                           ['Recordatorio #3', 'reminderThree', reminderOptions],
-                        ].map(([label, key, options]) => (
-                          <div key={key} className={pageFormRowClassName('medium', 'start')}>
+                        ].map(([label, key, options], index) => (
+                          <div key={`config-notification-${index}`} className={pageFormRowClassName('medium', 'start')}>
                             <label className={pageFormLabelClassName('pt-0 md:pt-2 text-[13px] text-[#40576f]')}>
                               {label}
                             </label>
@@ -1782,6 +1889,7 @@ export default function ClientForm() {
                                 )
                               }
                               className={pageSelectClassName()}
+                              {...controlA11yProps(String(label))}
                             >
                               {(options as string[]).map((option) => (
                                 <option key={option}>{option}</option>
@@ -1795,6 +1903,7 @@ export default function ClientForm() {
                             type="button"
                             onClick={handleSaveBillingChanges}
                             className="inline-flex h-10 items-center gap-2 rounded-full border border-[#2f93e4] px-6 text-[13px] font-semibold text-[#2f93e4]"
+                            {...controlA11yProps('Guardar cambios de notificaciones')}
                           >
                             <CheckCircle2 className="h-4 w-4" />
                             Guardar cambios
@@ -1849,15 +1958,19 @@ export default function ClientForm() {
             <div className="space-y-5">
               <EmptyTableCard title="Contratos" columns={['N°', 'N° EXTERNO', 'TITULO', 'CREADO', 'INICIO', 'FINALIZA', 'DURACION', 'FIRMADO', 'ESTADO', 'ACCIONES']} actionLabel="Nuevo Contrato" />
               <EmptyTableCard title="Documentos PDF" columns={['CREADO POR', 'TITULO', 'DESCRIPCION', 'ARCHIVO', 'FECHA', 'ACCIONES']} actionLabel="Nuevo Documento" />
-              <section className="rounded border border-[#d7e0ea] bg-white">
-                <header className="flex items-center justify-between border-b border-[#d7e0ea] px-4 py-3 text-[13px] font-semibold text-[#2a3d53]">
-                  <span>Notas</span>
-                  <button type="button" className="inline-flex h-8 items-center gap-2 rounded bg-[#43c2eb] px-3 text-[12px] font-semibold text-white">
+                <section className="rounded border border-[#d7e0ea] bg-white">
+                  <header className="flex items-center justify-between border-b border-[#d7e0ea] px-4 py-3 text-[13px] font-semibold text-[#2a3d53]">
+                    <span>Notas</span>
+                  <button
+                    type="button"
+                    className="inline-flex h-8 items-center gap-2 rounded bg-[#43c2eb] px-3 text-[12px] font-semibold text-white"
+                    {...controlA11yProps('Agregar nota')}
+                  >
                     <Plus className="h-3.5 w-3.5" />
                     Agrega Nota
                   </button>
-                </header>
-                <div className="min-h-[90px] bg-[#edf2f6]" />
+                  </header>
+                  <div className="min-h-[90px] bg-[#edf2f6]" />
               </section>
             </div>
           ) : null}
@@ -1867,15 +1980,15 @@ export default function ClientForm() {
               <div className="flex flex-wrap items-center justify-center gap-4">
                 <div className="grid w-full max-w-[720px] gap-3 md:grid-cols-[110px_minmax(0,1fr)] lg:grid-cols-[110px_minmax(0,1fr)_150px_100px_24px_100px] md:items-center">
                   <label className={pageFormLabelClassName('text-[13px] text-[#40576f]')}>Servicio</label>
-                  <select className={pageSelectClassName()}>
+                  <select className={pageSelectClassName()} {...controlA11yProps('Servicio')}>
                     <option>Todos los servicios</option>
                   </select>
-                  <select className={pageSelectClassName()}>
+                  <select className={pageSelectClassName()} {...controlA11yProps('Tipo de grafico')}>
                     <option>Grafico diario</option>
                   </select>
-                  <input value={statisticsDateRange[0]} readOnly className={pageInputClassName()} />
+                  <input value={statisticsDateRange[0]} readOnly className={pageInputClassName()} {...controlA11yProps('Fecha inicial')} />
                   <span className="text-center text-[12px] text-[#40576f]">al</span>
-                  <input value={statisticsDateRange[1]} readOnly className={pageInputClassName()} />
+                  <input value={statisticsDateRange[1]} readOnly className={pageInputClassName()} {...controlA11yProps('Fecha final')} />
                 </div>
               </div>
 
@@ -1898,7 +2011,7 @@ export default function ClientForm() {
                     </div>
 
                     <div className="mt-5 flex justify-center">
-                      <button type="button" className="inline-flex h-10 items-center gap-2 rounded border border-[#cfd7e2] bg-white px-5 text-[13px] text-[#24364b]">
+                      <button type="button" className="inline-flex h-10 items-center gap-2 rounded border border-[#cfd7e2] bg-white px-5 text-[13px] text-[#24364b]" {...controlA11yProps('Sitios visitados hoy')}>
                         <Monitor className="h-4 w-4" />
                         Sitios visitados Hoy
                       </button>
@@ -1909,8 +2022,11 @@ export default function ClientForm() {
                 <section className="rounded border border-[#d7e0ea] bg-white">
                   <header className="border-b border-[#d7e0ea] px-4 py-3 text-[13px] font-semibold text-[#2a3d53]">Grafico</header>
                   <div className="relative h-[300px] p-6">
-                    {[0, 1, 2, 3].map((row) => (
-                      <div key={`line-${row}`} className="absolute left-12 right-6 border-t border-[#dce4ec]" style={{ top: `${70 + row * 52}px` }} />
+                    {['top-[70px]', 'top-[122px]', 'top-[174px]', 'top-[226px]'].map((topClassName, row) => (
+                      <div
+                        key={`line-${row}`}
+                        className={`absolute left-12 right-6 border-t border-[#dce4ec] ${topClassName}`}
+                      />
                     ))}
                     <div className="absolute bottom-12 left-12 right-6 border-t border-[#dce4ec]" />
                     <div className="absolute bottom-12 left-12 top-6 border-l border-[#dce4ec]" />
@@ -1935,24 +2051,24 @@ export default function ClientForm() {
           {activeTab === 'log' ? (
             <div className="space-y-4">
               <div className="flex flex-wrap items-center gap-2">
-                <select className="h-8 rounded border border-[#cfd7e2] bg-white px-3 text-[12px] text-[#24364b] outline-none">
+                <select className="h-8 rounded border border-[#cfd7e2] bg-white px-3 text-[12px] text-[#24364b] outline-none" {...controlA11yProps('Cantidad de logs')}>
                   <option>15</option>
                 </select>
-                <button type="button" className="inline-flex h-8 w-8 items-center justify-center rounded border border-[#cfd7e2] bg-white text-[#30465f]">
+                <button type="button" className="inline-flex h-8 w-8 items-center justify-center rounded border border-[#cfd7e2] bg-white text-[#30465f]" {...controlA11yProps('Vista de lista de logs')}>
                   <List className="h-3.5 w-3.5" />
                 </button>
-                <button type="button" className="inline-flex h-8 items-center rounded border border-[#cfd7e2] bg-white px-3 text-[12px] text-[#24364b]">
+                <button type="button" className="inline-flex h-8 items-center rounded border border-[#cfd7e2] bg-white px-3 text-[12px] text-[#24364b]" {...controlA11yProps('Fecha inicial de logs')}>
                   01/04/2026
                 </button>
                 <span className="text-[12px] text-[#415970]">al</span>
-                <button type="button" className="inline-flex h-8 items-center rounded border border-[#cfd7e2] bg-white px-3 text-[12px] text-[#24364b]">
+                <button type="button" className="inline-flex h-8 items-center rounded border border-[#cfd7e2] bg-white px-3 text-[12px] text-[#24364b]" {...controlA11yProps('Fecha final de logs')}>
                   30/04/2026
                 </button>
-                <select className="h-8 rounded border border-[#cfd7e2] bg-white px-3 text-[12px] text-[#24364b] outline-none">
+                <select className="h-8 rounded border border-[#cfd7e2] bg-white px-3 text-[12px] text-[#24364b] outline-none" {...controlA11yProps('Filtro de logs')}>
                   <option>Todos los logs</option>
                 </select>
                 <div className="relative ml-auto">
-                  <input type="text" placeholder="Buscar..." className="h-8 w-[260px] rounded border border-[#d7e0ea] bg-white px-3 pr-8 text-[12px] text-[#24364b] outline-none" />
+                  <input type="text" placeholder="Buscar..." className="h-8 w-[260px] rounded border border-[#d7e0ea] bg-white px-3 pr-8 text-[12px] text-[#24364b] outline-none" {...controlA11yProps('Buscar en logs')} />
                   <Search className="pointer-events-none absolute right-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#a0aebe]" />
                 </div>
               </div>
@@ -1989,13 +2105,13 @@ export default function ClientForm() {
               <div className="flex items-center justify-between text-[12px] text-[#607488]">
                 <span>Mostrando de 1 al {draft.log.length} de un total de {draft.log.length}</span>
                 <div className="flex items-center gap-2">
-                  <button type="button" className="inline-flex h-8 w-8 items-center justify-center rounded border border-[#d7e0ea] bg-white text-[#9aa8b7]">
+                  <button type="button" className="inline-flex h-8 w-8 items-center justify-center rounded border border-[#d7e0ea] bg-white text-[#9aa8b7]" {...controlA11yProps('Pagina anterior de logs')}>
                     <ChevronRight className="h-3.5 w-3.5 rotate-180" />
                   </button>
-                  <button type="button" className="inline-flex h-8 w-8 items-center justify-center rounded bg-[#2f93e4] text-[12px] font-semibold text-white">
+                  <button type="button" className="inline-flex h-8 w-8 items-center justify-center rounded bg-[#2f93e4] text-[12px] font-semibold text-white" {...controlA11yProps('Pagina 1')}>
                     1
                   </button>
-                  <button type="button" className="inline-flex h-8 w-8 items-center justify-center rounded border border-[#d7e0ea] bg-white text-[#9aa8b7]">
+                  <button type="button" className="inline-flex h-8 w-8 items-center justify-center rounded border border-[#d7e0ea] bg-white text-[#9aa8b7]" {...controlA11yProps('Pagina siguiente de logs')}>
                     <ChevronRight className="h-3.5 w-3.5" />
                   </button>
                 </div>

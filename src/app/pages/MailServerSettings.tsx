@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Button } from '../components/ui/button';
 import SettingsBreadcrumb from '../components/SettingsBreadcrumb';
 import { useAuth } from '../context/AuthContext';
+import { sanitizeNumericValue } from '../lib/input-sanitizers';
 import { CircleHelp, Save, Send } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -106,6 +107,10 @@ export default function MailServerSettings() {
   const [form, setForm] = useState<MailServerSettingsState>(() => loadStoredSettings(storageKey));
 
   function updateField<K extends keyof MailServerSettingsState>(field: K, value: MailServerSettingsState[K]) {
+    if (field === 'port' || field === 'emailLimit') {
+      value = sanitizeNumericValue(String(value)) as MailServerSettingsState[K];
+    }
+
     setForm((current) => ({ ...current, [field]: value }));
   }
 

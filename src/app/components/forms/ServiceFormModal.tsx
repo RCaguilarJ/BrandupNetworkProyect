@@ -5,6 +5,7 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { sanitizeDecimalValue } from '../../lib/input-sanitizers';
 
 interface ServiceFormModalProps {
   open: boolean;
@@ -24,7 +25,10 @@ export function ServiceFormModal({ open, onClose, onSubmit, initialData }: Servi
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    onSubmit({
+      ...formData,
+      price: formData.price === '' ? '' : parseFloat(String(formData.price).replace(',', '.')),
+    });
     onClose();
   };
 
@@ -74,7 +78,8 @@ export function ServiceFormModal({ open, onClose, onSubmit, initialData }: Servi
                 type="number"
                 step="0.01"
                 value={formData.price}
-                onChange={(e) => handleChange('price', parseFloat(e.target.value))}
+                onChange={(e) => handleChange('price', sanitizeDecimalValue(e.target.value))}
+                inputMode="decimal"
                 placeholder="0.00"
                 required
                 className="dark:bg-gray-700 dark:text-white dark:border-gray-600"
