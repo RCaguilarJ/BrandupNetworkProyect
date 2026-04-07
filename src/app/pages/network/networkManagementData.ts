@@ -83,6 +83,16 @@ export const NETWORK_ROUTERS: NetworkRouterRecord[] = [
   },
 ];
 
+export function getNetworkRouterById(
+  id: string,
+  role?: string,
+  companyId?: string,
+) {
+  return filterByCompany(NETWORK_ROUTERS, role, companyId).find(
+    (router) => router.id === id,
+  );
+}
+
 export const NETWORK_NAP_BOXES: NapBoxRecord[] = [
   {
     id: 'nap-1',

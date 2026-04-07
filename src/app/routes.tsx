@@ -70,6 +70,7 @@ const NetworkCoreBnOlt = lazy(() => import('./pages/network/NetworkCoreBnOlt'));
 const NetworkIpv4 = lazy(() => import('./pages/network/NetworkIpv4'));
 const NetworkMonitoring = lazy(() => import('./pages/network/NetworkMonitoring'));
 const NetworkNapBoxes = lazy(() => import('./pages/network/NetworkNapBoxes'));
+const NetworkRouterEdit = lazy(() => import('./pages/network/NetworkRouterEdit'));
 const NetworkRouters = lazy(() => import('./pages/network/NetworkRouters'));
 const NetworkSmartOlt = lazy(() => import('./pages/network/NetworkSmartOlt'));
 const NetworkTraffic = lazy(() => import('./pages/network/NetworkTraffic'));
@@ -185,6 +186,7 @@ export const router = createBrowserRouter([
       { path: 'monitoring', element: <Navigate to="/network-management/routers" replace /> },
       { path: 'network-management', element: <Navigate to="/network-management/routers" replace /> },
       { path: 'network-management/routers', element: withSuspense(NetworkRouters) },
+      { path: 'network-management/routers/:id/edit', element: withSuspense(NetworkRouterEdit) },
       { path: 'network-management/router', element: <Navigate to="/network-management/routers" replace /> },
       { path: 'network-management/smart-olt', element: withSuspense(NetworkSmartOlt) },
       { path: 'network-management/smartolt', element: <Navigate to="/network-management/smart-olt" replace /> },

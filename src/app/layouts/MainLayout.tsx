@@ -464,10 +464,19 @@ export default function MainLayout() {
   const [expandedItems, setExpandedItems] = useState<string[]>(
     [],
   );
+  const [collapsedItems, setCollapsedItems] = useState<string[]>(
+    [],
+  );
+  const activeParentPaths = getActiveParentPaths(
+    location.pathname,
+    user?.role,
+  );
   const expandedPaths = [
     ...new Set([
       ...expandedItems,
-      ...getActiveParentPaths(location.pathname, user?.role),
+      ...activeParentPaths.filter(
+        (path) => !collapsedItems.includes(path),
+      ),
     ]),
   ];
 
@@ -519,11 +528,21 @@ export default function MainLayout() {
   );
 
   const toggleExpand = (path: string) => {
+    const isCurrentlyExpanded = expandedPaths.includes(path);
+
     setExpandedItems((prev) =>
-      prev.includes(path)
+      isCurrentlyExpanded
         ? prev.filter((itemPath) => itemPath !== path)
         : [...prev, path],
     );
+
+    if (activeParentPaths.includes(path)) {
+      setCollapsedItems((prev) =>
+        isCurrentlyExpanded
+          ? [...new Set([...prev, path])]
+          : prev.filter((itemPath) => itemPath !== path),
+      );
+    }
   };
 
   const renderNavItem = (

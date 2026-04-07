@@ -7,6 +7,8 @@ import {
   CheckCircle2,
   ChevronRight,
   CircleHelp,
+  Eye,
+  EyeOff,
   FileText,
   List,
   Mail,
@@ -271,6 +273,7 @@ export default function ClientForm() {
   const [activeTab, setActiveTab] = useState<ClientMainTab>('summary');
   const [activeBillingTab, setActiveBillingTab] = useState<BillingDetailTab>('config');
   const [showToolsMenu, setShowToolsMenu] = useState(false);
+  const [showPortalPassword, setShowPortalPassword] = useState(false);
 
   useEffect(() => {
     if (isEditing && id) {
@@ -768,17 +771,43 @@ export default function ClientForm() {
                     Contraseña Portal
                   </label>
                   <div>
-                    <input
-                      value={draft.personal.portalPassword}
-                      onChange={(event) =>
-                        updatePersonalField(
-                          'portalPassword',
-                          event.target.value,
-                        )
-                      }
-                      placeholder="4243Tdp"
-                      className={pageInputClassName()}
-                    />
+                    <div className="relative">
+                      <input
+                        type={showPortalPassword ? 'text' : 'password'}
+                        value={draft.personal.portalPassword}
+                        onChange={(event) =>
+                          updatePersonalField(
+                            'portalPassword',
+                            event.target.value,
+                          )
+                        }
+                        placeholder="4243Tdp"
+                        className={pageInputClassName('pr-10')}
+                      />
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setShowPortalPassword((current) => !current)
+                        }
+                        className="absolute right-2 top-1/2 inline-flex -translate-y-1/2 items-center justify-center rounded p-1 text-[#7f92a7] transition hover:bg-[#eef3f8] hover:text-[#405468]"
+                        aria-label={
+                          showPortalPassword
+                            ? 'Ocultar contrasena portal'
+                            : 'Mostrar contrasena portal'
+                        }
+                        title={
+                          showPortalPassword
+                            ? 'Ocultar contrasena portal'
+                            : 'Mostrar contrasena portal'
+                        }
+                      >
+                        {showPortalPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
                     <p className="mt-1.5 text-[12px] text-[#e08d42]">
                       Dejar en blanco para que sea automatico.
                     </p>

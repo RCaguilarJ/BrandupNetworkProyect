@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router';
 import {
   Edit,
   Plus,
@@ -44,6 +45,7 @@ const securityOptions = [
 export default function NetworkRouters() {
   const { user } = useAuth();
   const { viewTheme } = useViewTheme();
+  const navigate = useNavigate();
   const isWispHub = viewTheme === 'wisphub';
 
   const [pageSize, setPageSize] = useState(15);
@@ -51,7 +53,6 @@ export default function NetworkRouters() {
   const [routerRows, setRouterRows] = useState(() =>
     filterByCompany(NETWORK_ROUTERS, user?.role, user?.companyId),
   );
-  const [editingRouterId, setEditingRouterId] = useState<string | null>(null);
   const [form, setForm] = useState({
     folio: String(routerRows.length + 1),
     name: '',
@@ -73,7 +74,6 @@ export default function NetworkRouters() {
   });
 
   const openNewRouterDialog = () => {
-    setEditingRouterId(null);
     setForm({
       folio: String(routerRows.length + 1),
       name: '',
@@ -86,16 +86,9 @@ export default function NetworkRouters() {
   };
 
   const handleEditRouter = (router: RouterRow) => {
-    setEditingRouterId(router.id);
-    setForm({
-      folio: String(router.folio),
-      name: router.name,
-      username: router.username,
-      password: router.password,
-      security: router.security,
-      ip: router.ip,
+    navigate(`/network-management/routers/${router.id}/edit`, {
+      state: { router },
     });
-    dialog.openDialog();
   };
 
   const handleDeleteRouter = (router: RouterRow) => {
@@ -146,29 +139,11 @@ export default function NetworkRouters() {
         status: 'API-ERROR',
       };
 
-      if (editingRouterId) {
-        return current.map((router) =>
-          router.id === editingRouterId
-            ? {
-                ...router,
-                folio: Number.parseInt(form.folio, 10) || router.folio,
-                name: form.name,
-                subtitle: form.security,
-                username: form.username,
-                password: form.password,
-                security: form.security,
-                ip: form.ip,
-              }
-            : router,
-        );
-      }
-
       return [...current, nextRouter];
     });
 
-    setEditingRouterId(null);
     dialog.closeDialog();
-    toast.success(editingRouterId ? 'Router actualizado correctamente' : 'Router agregado correctamente');
+    toast.success('Router agregado correctamente');
   };
 
   const columns: DataColumn<RouterRow>[] = [
@@ -351,8 +326,8 @@ export default function NetworkRouters() {
       <NetworkFormDialog
         open={dialog.open}
         loading={dialog.loading}
-        title={editingRouterId ? 'Editar Router' : 'Nuevo Router'}
-        submitLabel={editingRouterId ? 'Actualizar Router' : 'Guardar Router'}
+        title="Nuevo Router"
+        submitLabel="Guardar Router"
         values={form}
         fields={[
           { name: 'name', label: 'Nombre', required: true, placeholder: 'Nombre del router' },
