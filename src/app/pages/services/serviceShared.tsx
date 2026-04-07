@@ -349,4 +349,60 @@ export function useServiceCreationFlow() {
   };
 }
 
+export function useTicketCreationFlow() {
+  const [processingOpen, setProcessingOpen] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
+  const timerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        window.clearTimeout(timerRef.current);
+      }
+    };
+  }, []);
+
+  const clearTimer = () => {
+    if (timerRef.current) {
+      window.clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+  };
+
+  const openSequence = () => {
+    clearTimer();
+    setProcessingOpen(true);
+    setFormOpen(false);
+
+    timerRef.current = window.setTimeout(() => {
+      setProcessingOpen(false);
+      setFormOpen(true);
+      timerRef.current = null;
+    }, 650);
+  };
+
+  const closeAll = () => {
+    clearTimer();
+    setProcessingOpen(false);
+    setFormOpen(false);
+  };
+
+  const setDialogOpen = (open: boolean) => {
+    if (!open) {
+      closeAll();
+      return;
+    }
+
+    setFormOpen(true);
+  };
+
+  return {
+    processingOpen,
+    formOpen,
+    openSequence,
+    closeAll,
+    setDialogOpen,
+  };
+}
+
 export type { DataColumn };

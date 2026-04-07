@@ -18,8 +18,11 @@ import {
   Table2,
   Users,
 } from 'lucide-react';
-import { Link } from 'react-router';
 import { useViewTheme } from '../../context/ViewThemeContext';
+import { TicketFormModal } from '../../components/forms/TicketFormModal';
+import { ServiceProcessingDialog } from '../services/serviceShared';
+import { useTicketCreationFlow } from '../services/serviceShared';
+import { MOCK_CLIENTS } from '../../data/mockData';
 import type {
   MikrosystemListaTicketsAccion,
   MikrosystemTicketsHoyDatos,
@@ -153,6 +156,7 @@ function obtenerIconoAccionMikrosystem(
 export default function TodayTickets() {
   const { viewTheme } = useViewTheme();
   const isWispHub = viewTheme === 'wisphub';
+  const ticketFlow = useTicketCreationFlow();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [pageSize, setPageSize] = useState(isWispHub ? 10 : 15);
@@ -162,6 +166,17 @@ export default function TodayTickets() {
   const [bulkAction, setBulkAction] = useState('');
   const [statusFilter, setStatusFilter] = useState('todos');
   const [departmentFilter, setDepartmentFilter] = useState('todos');
+  const [tickets, setTickets] = useState<any[]>([]);
+
+  const handleCreateTicket = (data: any) => {
+    const newTicket = {
+      id: String(tickets.length + 1),
+      ...data,
+      createdAt: new Date().toISOString(),
+      status: 'open',
+    };
+    setTickets((prev) => [newTicket, ...prev]);
+  };
 
   const datosWispHub: WispHubTicketsHoyDatos = {
     tituloPagina: 'Tickets de Hoy',
@@ -341,16 +356,15 @@ export default function TodayTickets() {
                 className="min-w-[420px] flex-1"
               />
 
-              <Link to="/tickets/new">
-                <button
-                  type="button"
-                  style={estilosWispHub.botonVerde}
-                  className="inline-flex items-center gap-1.5"
-                >
-                  <Plus className="h-4 w-4" />
-                  {datosWispHub.buscadorCliente.botonTexto}
-                </button>
-              </Link>
+              <button
+                type="button"
+                style={estilosWispHub.botonVerde}
+                className="inline-flex items-center gap-1.5"
+                onClick={ticketFlow.openSequence}
+              >
+                <Plus className="h-4 w-4" />
+                {datosWispHub.buscadorCliente.botonTexto}
+              </button>
             </div>
           </div>
         </section>
@@ -554,16 +568,30 @@ export default function TodayTickets() {
               </select>
 
               {datosMikrosystem.accionesRapidas.map((action) => (
-                <Link
-                  key={action.id}
-                  to={action.icono === 'nuevo' ? '/tickets/new' : '#'}
-                  className={`inline-flex h-8 items-center justify-center gap-1.5 rounded border border-[#cfd7e2] bg-white px-3 text-[12px] text-[#24364b] ${
-                    action.variante === 'icono' ? 'w-10 px-0' : ''
-                  }`}
-                >
-                  {obtenerIconoAccionMikrosystem(action.icono)}
-                  {action.etiqueta && <span>{action.etiqueta}</span>}
-                </Link>
+                action.icono === 'nuevo' ? (
+                  <button
+                    key={action.id}
+                    type="button"
+                    onClick={ticketFlow.openSequence}
+                    className={`inline-flex h-8 items-center justify-center gap-1.5 rounded border border-[#cfd7e2] bg-white px-3 text-[12px] text-[#24364b] ${
+                      action.variante === 'icono' ? 'w-10 px-0' : ''
+                    }`}
+                  >
+                    {obtenerIconoAccionMikrosystem(action.icono)}
+                    {action.etiqueta && <span>{action.etiqueta}</span>}
+                  </button>
+                ) : (
+                  <button
+                    key={action.id}
+                    type="button"
+                    className={`inline-flex h-8 items-center justify-center gap-1.5 rounded border border-[#cfd7e2] bg-white px-3 text-[12px] text-[#24364b] ${
+                      action.variante === 'icono' ? 'w-10 px-0' : ''
+                    }`}
+                  >
+                    {obtenerIconoAccionMikrosystem(action.icono)}
+                    {action.etiqueta && <span>{action.etiqueta}</span>}
+                  </button>
+                )
               ))}
 
               <select
@@ -683,6 +711,15 @@ export default function TodayTickets() {
           </div>
         </div>
       </section>
+
+      <ServiceProcessingDialog open={ticketFlow.processingOpen} />
+
+      <TicketFormModal
+        open={ticketFlow.formOpen}
+        onClose={ticketFlow.closeAll}
+        onSubmit={handleCreateTicket}
+        clients={MOCK_CLIENTS}
+      />
     </div>
   );
 }

@@ -9,8 +9,11 @@ import {
   RefreshCw,
   Search,
 } from 'lucide-react';
-import { useNavigate } from 'react-router';
 import { useViewTheme } from '../../context/ViewThemeContext';
+import { TicketFormModal } from '../../components/forms/TicketFormModal';
+import { ServiceProcessingDialog } from '../services/serviceShared';
+import { useTicketCreationFlow } from '../services/serviceShared';
+import { MOCK_CLIENTS } from '../../data/mockData';
 
 const mikrosystemTicketColumns = [
   'N°',
@@ -37,9 +40,20 @@ const mikrosystemPanelClassName =
 
 export default function CompletedTickets() {
   const { viewTheme } = useViewTheme();
-  const navigate = useNavigate();
+  const ticketFlow = useTicketCreationFlow();
   const [searchTerm, setSearchTerm] = useState('');
   const [pageSize] = useState(viewTheme === 'wisphub' ? 10 : 15);
+  const [tickets, setTickets] = useState<any[]>([]);
+
+  const handleCreateTicket = (data: any) => {
+    const newTicket = {
+      id: String(tickets.length + 1),
+      ...data,
+      createdAt: new Date().toISOString(),
+      status: 'open',
+    };
+    setTickets((prev) => [newTicket, ...prev]);
+  };
 
   if (viewTheme === 'wisphub') {
     return (
@@ -113,7 +127,7 @@ export default function CompletedTickets() {
 
               <button
                 type="button"
-                onClick={() => navigate('/tickets/new')}
+                onClick={ticketFlow.openSequence}
                 className="inline-flex h-8 items-center justify-center gap-1.5 rounded border border-[#cfd7e2] bg-white px-3 text-[12px] text-[#24364b]"
               >
                 <Plus className="h-3.5 w-3.5" />
@@ -190,6 +204,15 @@ export default function CompletedTickets() {
           </div>
         </div>
       </section>
+
+      <ServiceProcessingDialog open={ticketFlow.processingOpen} />
+
+      <TicketFormModal
+        open={ticketFlow.formOpen}
+        onClose={ticketFlow.closeAll}
+        onSubmit={handleCreateTicket}
+        clients={MOCK_CLIENTS}
+      />
     </div>
   );
 }
