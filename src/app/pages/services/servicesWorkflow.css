@@ -471,6 +471,11 @@
   color: #00a9c0;
 }
 
+.service-form--rules-active .service-form__hint--info,
+.service-form--rules-active .service-form__tooltip {
+  display: none;
+}
+
 .service-form__toggle-row {
   display: flex;
   align-items: center;

@@ -264,7 +264,7 @@ export default function ServicesInternet() {
         onCancel={flow.closeAll}
         onSubmit={saveRow}
       >
-        <div className="service-form">
+        <div className={`service-form ${!form.noRules ? 'service-form--rules-active' : ''}`}>
           <div className="service-form__section">
             <div className="service-form__field">
               <label className="service-form__label" htmlFor="internet-plan-name">
@@ -346,7 +346,7 @@ export default function ServicesInternet() {
                         setForm((current) => ({ ...current, noRules: checked }))
                       }
                     />
-                    <div className="service-form__tooltip">
+                    {form.noRules ? <div className="service-form__tooltip">
                       <button
                         type="button"
                         className="service-form__tooltip-trigger"
@@ -360,11 +360,13 @@ export default function ServicesInternet() {
                         Si vas a usar tu propia configuración, activa esta opción y administra los nombres y
                         parámetros manualmente.
                       </div>
-                    </div>
+                    </div> : null}
                   </div>
+                  {form.noRules ? (
                   <p className="service-form__hint service-form__hint--info">
                     Desactiva esta opción para configurar las reglas del perfil de internet.
                   </p>
+                  ) : null}
                 </div>
               </div>
             </div>
@@ -412,9 +414,11 @@ export default function ServicesInternet() {
                     />
                     <div className="service-form__addon">%</div>
                   </div>
+                  {form.noRules ? (
                   <p className="service-form__hint service-form__hint--info">
                     Velocidad garantizada RX/TX: 0/0
                   </p>
+                  ) : null}
                 </div>
               </div>
 
@@ -507,7 +511,7 @@ export default function ServicesInternet() {
                     />
                     <div className="service-form__addon">%</div>
                   </div>
-                  <p className="service-form__hint service-form__hint--info">RX/TX: 0/0</p>
+                  {form.noRules ? <p className="service-form__hint service-form__hint--info">RX/TX: 0/0</p> : null}
                 </div>
               </div>
 
