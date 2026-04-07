@@ -10,6 +10,7 @@ import {
   ArrowLeft,
   MapPin,
   Eye,
+  EyeOff,
   Save,
   type LucideIcon,
 } from 'lucide-react';
@@ -220,6 +221,8 @@ export default function NetworkRouterEdit() {
   const isWispHub = viewTheme === 'wisphub';
   const routerFromState = (location.state as RouterLocationState | null)?.router;
   const [activeTab, setActiveTab] = useState<RouterEditTab>('data');
+  const [showApiPassword, setShowApiPassword] = useState(false);
+  const [showRadiusSecret, setShowRadiusSecret] = useState(false);
 
   const routerRecord = useMemo(
     () =>
@@ -396,12 +399,26 @@ export default function NetworkRouterEdit() {
 
                   <div className="space-y-5">
                     <FormRow label="Radius Secret">
-                      <TextInput
-                        value={form.radiusSecret}
-                        onChange={(value) => updateField('radiusSecret', value)}
-                        placeholder="Contrasena Radius"
-                        type="password"
-                      />
+                      <div className="relative">
+                        <TextInput
+                          value={form.radiusSecret}
+                          onChange={(value) => updateField('radiusSecret', value)}
+                          placeholder="Contrasena Radius"
+                          type={showRadiusSecret ? 'text' : 'password'}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowRadiusSecret((prev) => !prev)}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-[#607286] hover:text-[#24364b]"
+                          aria-label={showRadiusSecret ? 'Ocultar contrasena' : 'Mostrar contrasena'}
+                        >
+                          {showRadiusSecret ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
                     </FormRow>
 
                     <FormRow label="Radius NAS IP">
@@ -434,11 +451,20 @@ export default function NetworkRouterEdit() {
                     <TextInput
                       value={form.apiPassword}
                       onChange={(value) => updateField('apiPassword', value)}
-                      type="password"
+                      type={showApiPassword ? 'text' : 'password'}
                     />
-                    <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#607286]">
-                      <Eye className="h-4 w-4" />
-                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setShowApiPassword((prev) => !prev)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-[#607286] hover:text-[#24364b]"
+                      aria-label={showApiPassword ? 'Ocultar contrasena' : 'Mostrar contrasena'}
+                    >
+                      {showApiPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
                   </div>
                 </FormRow>
 
