@@ -307,6 +307,10 @@
 }
 
 .service-modal__footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
   border-top: 1px solid #d4dbe3;
   background: #f2f4f7;
   padding: 12px 18px;
@@ -699,5 +703,30 @@
   .service-form__label {
     padding-top: 0;
     text-align: left;
+  }
+
+  .service-modal {
+    max-width: calc(100vw - 1rem);
+  }
+
+  .service-modal__header,
+  .service-modal__body,
+  .service-modal__footer {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .service-modal__footer {
+    flex-direction: column-reverse;
+  }
+
+  .service-modal__primary-action,
+  .service-modal__secondary-action {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .service-form__inline {
+    width: 100%;
   }
 }

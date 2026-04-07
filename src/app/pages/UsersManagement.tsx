@@ -133,11 +133,11 @@ export default function UsersManagement() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-[#d3dce7] px-[30px] pb-6 pt-[18px]">
+    <div className="min-h-[calc(100vh-4rem)] bg-[#d3dce7] px-4 pb-6 pt-[18px] sm:px-6 lg:px-[30px]">
       <div className="mb-4 flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
         <h1 className="text-[26px] font-normal leading-none text-[#1f2933]">Gestion de Usuarios</h1>
 
-        <div className="flex items-center gap-2 pt-[3px] text-[12px] text-[#1f2933]">
+        <div className="flex flex-wrap items-center gap-2 pt-[3px] text-[12px] text-[#1f2933]">
           <span>Dashboard</span>
           <span>/</span>
           <span>Ajustes</span>
@@ -147,7 +147,7 @@ export default function UsersManagement() {
       </div>
 
       <section className="overflow-hidden rounded-[2px] border border-[#d7dfe8] bg-white shadow-sm">
-        <div className="flex items-center justify-between border-b border-[#d7dfe8] px-4 py-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#d7dfe8] px-4 py-3">
           <p className="text-[14px] text-[#1f2933]">Lista de usuarios</p>
 
           <div className="flex items-center gap-2">
@@ -173,8 +173,8 @@ export default function UsersManagement() {
         </div>
 
         {isCreateUserOpen ? (
-          <div className="border-b border-[#d7dfe8] bg-[#f8fafc] px-4 py-4">
-            <div className="mb-4 flex items-center justify-between gap-3">
+          <div className="border-b border-[#d7dfe8] bg-[#f8fafc] px-4 py-4 sm:px-5">
+            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <h2 className="text-[16px] font-medium text-[#111827]">Nuevo usuario</h2>
                 <p className="text-[13px] text-[#6b7280]">El formulario inicia vacio y sin datos mock.</p>
@@ -190,7 +190,7 @@ export default function UsersManagement() {
               </button>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-3">
               <label className="flex flex-col gap-1 text-[13px] text-[#374151]">
                 ID de usuario
                 <input
@@ -289,16 +289,20 @@ export default function UsersManagement() {
               </label>
             </div>
 
-            <div className="mt-4 flex items-center justify-end gap-2">
+            <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-end">
               <Button
                 type="button"
                 variant="outline"
-                className="border-[#cfd8e3] text-[#111827] hover:bg-white"
+                className="w-full border-[#cfd8e3] text-[#111827] hover:bg-white sm:w-auto"
                 onClick={handleCloseForm}
               >
                 Cancelar
               </Button>
-              <Button type="button" className="bg-[#10b8d4] text-white hover:bg-[#0ea5c0]" onClick={handleSaveUser}>
+              <Button
+                type="button"
+                className="w-full bg-[#10b8d4] text-white hover:bg-[#0ea5c0] sm:w-auto"
+                onClick={handleSaveUser}
+              >
                 Guardar usuario
               </Button>
             </div>
@@ -346,16 +350,18 @@ export default function UsersManagement() {
               </Button>
             </div>
 
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(event) => {
-                setSearchTerm(event.target.value);
-                setCurrentPage(1);
-              }}
-              placeholder="Buscar..."
-              className="h-[34px] w-full rounded-[4px] border border-[#d7dfe8] px-3 text-[14px] text-[#111827] outline-none placeholder:text-[#c0c7d1] xl:w-[200px]"
-            />
+            <div className="w-full xl:w-auto">
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(event) => {
+                  setSearchTerm(event.target.value);
+                  setCurrentPage(1);
+                }}
+                placeholder="Buscar..."
+                className="h-[34px] w-full rounded-[4px] border border-[#d7dfe8] px-3 text-[14px] text-[#111827] outline-none placeholder:text-[#c0c7d1] sm:max-w-[240px] xl:w-[200px]"
+              />
+            </div>
           </div>
 
           <div className="overflow-x-auto">
@@ -428,7 +434,7 @@ export default function UsersManagement() {
           </div>
         </div>
 
-        <div className="flex items-center justify-between px-4 pb-4 pt-2 text-[14px] text-[#556274]">
+        <div className="flex flex-col gap-3 px-4 pb-4 pt-2 text-[14px] text-[#556274] sm:flex-row sm:items-center sm:justify-between">
           <span>
             {filteredRecords.length === 0
               ? 'Mostrando 0 registros'

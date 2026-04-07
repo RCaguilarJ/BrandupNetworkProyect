@@ -46,13 +46,13 @@ export default function PlanForm() {
   };
 
   return (
-    <div>
+    <div className="px-4 pb-6 pt-2 sm:px-6">
       {/* Header */}
-      <div className="flex items-center gap-4 mb-6">
+      <div className="mb-6 flex flex-wrap items-start gap-3 sm:items-center sm:gap-4">
         <Button variant="outline" size="sm" onClick={() => navigate('/plans')}>
           <ArrowLeft className="w-4 h-4" />
         </Button>
-        <div>
+        <div className="min-w-0">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
             {isEditing ? 'Editar Plan' : 'Nuevo Plan de Servicio'}
           </h1>
@@ -63,11 +63,11 @@ export default function PlanForm() {
       </div>
 
       {/* Formulario */}
-      <Card className="max-w-3xl dark:bg-gray-800">
+      <Card className="max-w-4xl dark:bg-gray-800">
         <CardHeader>
           <CardTitle className="dark:text-white">Información del Plan</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 sm:p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <Label htmlFor="name" className="dark:text-gray-200">Nombre del Plan *</Label>
@@ -155,11 +155,11 @@ export default function PlanForm() {
               </div>
             </div>
 
-            <div className="flex justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
-              <Button type="button" variant="outline" onClick={() => navigate('/plans')}>
+            <div className="flex flex-col-reverse gap-3 border-t border-gray-200 pt-6 dark:border-gray-700 sm:flex-row sm:justify-end">
+              <Button type="button" variant="outline" onClick={() => navigate('/plans')} className="w-full sm:w-auto">
                 Cancelar
               </Button>
-              <Button type="submit">
+              <Button type="submit" className="w-full sm:w-auto">
                 {isEditing ? 'Actualizar Plan' : 'Crear Plan'}
               </Button>
             </div>

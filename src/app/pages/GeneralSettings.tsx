@@ -119,6 +119,13 @@ function loadStoredGeneralSettings(storageKey: string): GeneralSettingsStorageDa
   }
 }
 
+function controlA11yProps(label: string) {
+  return {
+    'aria-label': label,
+    title: label,
+  } as const;
+}
+
 /**
  * Convierte un archivo local a data URL para que la vista pueda previsualizarlo
  * y persistirlo localmente mientras backend no este integrado.
@@ -204,8 +211,8 @@ function FormRow({
 }) {
   return (
     <div className={`grid items-start gap-4 ${labelWidth}`}>
-      <label className="pt-2 text-right text-[14px] text-slate-900">{label}</label>
-      <div>{children}</div>
+      <label className="pt-0 text-left text-[14px] text-slate-900 md:pt-2 md:text-right">{label}</label>
+      <div className="min-w-0">{children}</div>
     </div>
   );
 }
@@ -429,7 +436,7 @@ export default function GeneralSettings() {
         <GeneralPanel title="Datos de la empresa">
           <div className="px-4 py-4">
             <div className="space-y-[10px]">
-              <FormRow label="Empresa" labelWidth="md:grid-cols-[260px_minmax(0,1fr)]">
+              <FormRow label="Empresa" labelWidth="lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[260px_minmax(0,1fr)]">
                 <Input
                   value={settings.company.companyName}
                   onChange={(event) => handleCompanyFieldChange('companyName', event.target.value)}
@@ -437,7 +444,7 @@ export default function GeneralSettings() {
                 />
               </FormRow>
 
-              <FormRow label="Direccion" labelWidth="md:grid-cols-[260px_minmax(0,1fr)]">
+              <FormRow label="Direccion" labelWidth="lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[260px_minmax(0,1fr)]">
                 <Input
                   value={settings.company.address}
                   onChange={(event) => handleCompanyFieldChange('address', event.target.value)}
@@ -445,7 +452,7 @@ export default function GeneralSettings() {
                 />
               </FormRow>
 
-              <FormRow label="Telefonos" labelWidth="md:grid-cols-[260px_minmax(0,1fr)]">
+              <FormRow label="Telefonos" labelWidth="lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[260px_minmax(0,1fr)]">
                 <Input
                   value={settings.company.phoneNumbers}
                   onChange={(event) => handleCompanyFieldChange('phoneNumbers', event.target.value)}
@@ -453,7 +460,7 @@ export default function GeneralSettings() {
                 />
               </FormRow>
 
-              <FormRow label="Identificacion" labelWidth="md:grid-cols-[260px_minmax(0,1fr)]">
+              <FormRow label="Identificacion" labelWidth="lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[260px_minmax(0,1fr)]">
                 <div>
                   <Input
                     value={settings.company.identification}
@@ -466,7 +473,7 @@ export default function GeneralSettings() {
             </div>
           </div>
 
-          <div className="flex justify-end border-t border-slate-200 px-6 py-3">
+          <div className="flex justify-end border-t border-slate-200 px-4 py-3 sm:px-6">
             <SectionSaveButton onClick={handleSaveCompanySection} />
           </div>
         </GeneralPanel>
@@ -474,11 +481,12 @@ export default function GeneralSettings() {
         <GeneralPanel title="Configuracion basica">
           <div className="px-4 py-4">
             <div className="space-y-[10px]">
-              <FormRow label="Zona Horaria" labelWidth="md:grid-cols-[270px_minmax(0,1fr)]">
+              <FormRow label="Zona Horaria" labelWidth="lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[270px_minmax(0,1fr)]">
                 <select
                   value={settings.basicConfig.timezone}
                   onChange={(event) => handleBasicConfigFieldChange('timezone', event.target.value)}
                   className="h-9 w-full rounded-[4px] border border-[#cbd5e1] bg-white px-3 text-[14px] text-slate-900 outline-none"
+                  {...controlA11yProps('Zona Horaria')}
                 >
                   {TIMEZONE_OPTIONS.map((option) => (
                     <option key={option} value={option}>
@@ -488,7 +496,7 @@ export default function GeneralSettings() {
                 </select>
               </FormRow>
 
-              <FormRow label="Email backup" labelWidth="md:grid-cols-[270px_minmax(0,1fr)]">
+              <FormRow label="Email backup" labelWidth="lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[270px_minmax(0,1fr)]">
                 <Input
                   type="email"
                   value={settings.basicConfig.backupEmail}
@@ -497,7 +505,7 @@ export default function GeneralSettings() {
                 />
               </FormRow>
 
-              <FormRow label="Email Soporte" labelWidth="md:grid-cols-[270px_minmax(0,1fr)]">
+              <FormRow label="Email Soporte" labelWidth="lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[270px_minmax(0,1fr)]">
                 <Input
                   type="email"
                   value={settings.basicConfig.supportEmail}
@@ -506,7 +514,7 @@ export default function GeneralSettings() {
                 />
               </FormRow>
 
-              <FormRow label="Email Facturacion" labelWidth="md:grid-cols-[270px_minmax(0,1fr)]">
+              <FormRow label="Email Facturacion" labelWidth="lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[270px_minmax(0,1fr)]">
                 <div>
                   <Input
                     type="email"
@@ -518,7 +526,7 @@ export default function GeneralSettings() {
                 </div>
               </FormRow>
 
-              <FormRow label="Validar Cedula/DNI/Rut/Cuit" labelWidth="md:grid-cols-[270px_minmax(0,1fr)]">
+              <FormRow label="Validar Cedula/DNI/Rut/Cuit" labelWidth="lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[270px_minmax(0,1fr)]">
                 <div className="flex items-center gap-3 pt-2">
                   <CircleHelp className="h-4 w-4 text-slate-500" />
                   <Switch
@@ -531,7 +539,7 @@ export default function GeneralSettings() {
             </div>
           </div>
 
-          <div className="flex justify-end border-t border-slate-200 px-6 py-3">
+          <div className="flex justify-end border-t border-slate-200 px-4 py-3 sm:px-6">
             <SectionSaveButton onClick={handleSaveBasicConfigSection} />
           </div>
         </GeneralPanel>
@@ -539,7 +547,7 @@ export default function GeneralSettings() {
         <GeneralPanel title="Notificaciones del sistema" className="xl:min-h-[340px]">
           <div className="px-4 py-4">
             <div className="space-y-[10px]">
-              <FormRow label="Correo Emisor/Router Caido" labelWidth="md:grid-cols-[260px_minmax(0,1fr)]">
+              <FormRow label="Correo Emisor/Router Caido" labelWidth="lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[260px_minmax(0,1fr)]">
                 <div>
                   <Input
                     type="email"
@@ -562,7 +570,7 @@ export default function GeneralSettings() {
                 </div>
               </FormRow>
 
-              <FormRow label="Correo reporte pago" labelWidth="md:grid-cols-[260px_minmax(0,1fr)]">
+              <FormRow label="Correo reporte pago" labelWidth="lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[260px_minmax(0,1fr)]">
                 <div>
                   <Input
                     type="email"
@@ -576,7 +584,7 @@ export default function GeneralSettings() {
             </div>
           </div>
 
-          <div className="flex justify-end border-t border-slate-200 px-6 py-3">
+          <div className="flex justify-end border-t border-slate-200 px-4 py-3 sm:px-6">
             <SectionSaveButton onClick={handleSaveNotificationsSection} />
           </div>
         </GeneralPanel>
@@ -602,6 +610,7 @@ export default function GeneralSettings() {
                 accept=".png,image/png"
                 className="hidden"
                 onChange={(event) => void handleLogoUpload('mainLogo', event)}
+                {...controlA11yProps('Subir Logo principal')}
               />
 
               <Button
@@ -636,6 +645,7 @@ export default function GeneralSettings() {
                 accept=".png,image/png"
                 className="hidden"
                 onChange={(event) => void handleLogoUpload('invoiceLogo', event)}
+                {...controlA11yProps('Subir Logo factura')}
               />
 
               <Button
@@ -658,11 +668,12 @@ export default function GeneralSettings() {
 
         <GeneralPanel title="Imagen Login administrador" className="xl:col-span-1">
           <div className="px-4 py-4">
-            <FormRow label="seleccionar imagen" labelWidth="md:grid-cols-[260px_minmax(0,1fr)]">
+            <FormRow label="seleccionar imagen" labelWidth="lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[260px_minmax(0,1fr)]">
               <select
                 value={settings.loginImage.selectedImageId}
                 onChange={(event) => handleLoginImageSelection(event.target.value)}
                 className="h-9 w-full rounded-[4px] border border-[#cbd5e1] bg-white px-3 text-[14px] text-slate-900 outline-none"
+                {...controlA11yProps('Seleccionar imagen de login')}
               >
                 <option value="">Seleccionar imagen</option>
                 {settings.loginImage.images.map((option) => (
@@ -681,10 +692,11 @@ export default function GeneralSettings() {
               accept="image/*"
               className="hidden"
               onChange={(event) => void handleLoginImageUpload(event)}
+              {...controlA11yProps('Subir imagen de login')}
             />
 
             <div className="mt-3 space-y-3">
-              <div className="flex flex-wrap items-center justify-end gap-2">
+              <div className="flex flex-wrap items-center justify-start gap-2 sm:justify-end">
                 <Button
                   type="button"
                   variant="outline"
@@ -726,7 +738,7 @@ export default function GeneralSettings() {
             </div>
           </div>
 
-          <div className="flex justify-end border-t border-slate-200 px-6 py-3">
+          <div className="flex justify-end border-t border-slate-200 px-4 py-3 sm:px-6">
             <SectionSaveButton onClick={handleSaveLoginImageSection} />
           </div>
         </GeneralPanel>

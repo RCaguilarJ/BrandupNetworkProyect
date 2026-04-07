@@ -76,7 +76,7 @@ function FieldLabel({
   helper?: boolean;
 }) {
   return (
-    <label className="flex items-center justify-end gap-1 pt-3 text-right text-[15px] text-[#374151]">
+    <label className="flex items-center justify-start gap-1 pt-1 text-left text-[15px] text-[#374151] md:pt-3 md:justify-end md:text-right">
       <span>{children}</span>
       {helper ? <CircleHelp className="h-4 w-4 text-[#1f2933]" /> : null}
     </label>
@@ -128,7 +128,7 @@ export default function MailServerSettings() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-[#d3dce7] px-[30px] pb-8 pt-[18px]">
+    <div className="min-h-[calc(100vh-4rem)] bg-[#d3dce7] px-4 pb-8 pt-[18px] sm:px-6 lg:px-[30px]">
       <div className="mb-6 flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
         <h1 className="text-[26px] font-normal leading-none text-[#1f2933]">Configuración correo</h1>
 
@@ -136,21 +136,21 @@ export default function MailServerSettings() {
       </div>
 
       <section className="overflow-hidden rounded-[2px] border border-[#d8e0ea] bg-white shadow-sm">
-        <div className="flex items-center gap-4 bg-[#20262a] px-6 py-4">
+        <div className="flex flex-wrap items-center gap-3 bg-[#20262a] px-4 py-4 sm:px-6">
           <h2 className="text-[18px] font-semibold text-white">Datos del servidor correo</h2>
           <span className="text-[12px] font-medium text-[#f6a63c]">Alcance: Subcuenta #10</span>
         </div>
 
-        <div className="space-y-6 px-5 py-6">
-          <div className="rounded-[6px] border border-[#7ed1f5] bg-[#d9f1fb] px-6 py-4 text-center text-[17px] leading-8 text-[#215a75]">
+        <div className="space-y-6 px-4 py-5 sm:px-5 sm:py-6 lg:px-6">
+          <div className="rounded-[6px] border border-[#7ed1f5] bg-[#d9f1fb] px-4 py-4 text-center text-[15px] leading-7 text-[#215a75] sm:px-6 sm:text-[17px] sm:leading-8">
             Cada subcuenta conserva su propio modo de envío, remitente, firma y validación de dominio. Agency siempre puede ver y configurar estos bloques aunque el cliente no los tenga habilitados.
           </div>
 
-          <div className="rounded-[6px] border border-[#f4ad42] bg-[#fde3bd] px-6 py-4 text-center text-[17px] leading-8 text-[#915e11]">
+          <div className="rounded-[6px] border border-[#f4ad42] bg-[#fde3bd] px-4 py-4 text-center text-[15px] leading-7 text-[#915e11] sm:px-6 sm:text-[17px] sm:leading-8">
             Esta vista muestra solo la configuración propia de la subcuenta. Si el cliente deja campos vacíos, el sistema aún puede usar el fallback operativo de Agency al momento de enviar, pero aquí no se exponen esos datos heredados.
           </div>
 
-          <div className="grid gap-x-10 gap-y-3 xl:grid-cols-[320px_minmax(0,1fr)]">
+          <div className="grid gap-x-10 gap-y-3 lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[320px_minmax(0,1fr)]">
             <FieldLabel>Modo de envío</FieldLabel>
             <SelectBase
               value={form.deliveryMode}
@@ -162,9 +162,9 @@ export default function MailServerSettings() {
             </SelectBase>
           </div>
 
-          <div className="grid gap-6 xl:grid-cols-2">
-            <div className="space-y-3">
-              <div className="grid gap-x-6 gap-y-3 xl:grid-cols-[168px_minmax(0,1fr)]">
+          <div className="grid gap-6 2xl:grid-cols-2">
+            <div className="min-w-0 space-y-3">
+              <div className="grid gap-x-6 gap-y-3 lg:grid-cols-[168px_minmax(0,1fr)]">
                 <FieldLabel>Tipo de autenticación</FieldLabel>
                 <SelectBase
                   value={form.authType}
@@ -176,7 +176,7 @@ export default function MailServerSettings() {
                 </SelectBase>
               </div>
 
-              <div className="grid gap-x-6 gap-y-3 xl:grid-cols-[168px_minmax(0,1fr)]">
+              <div className="grid gap-x-6 gap-y-3 lg:grid-cols-[168px_minmax(0,1fr)]">
                 <FieldLabel>Host/servidor</FieldLabel>
                 <InputBase
                   value={form.host}
@@ -184,7 +184,7 @@ export default function MailServerSettings() {
                 />
               </div>
 
-              <div className="grid gap-x-6 gap-y-3 xl:grid-cols-[168px_minmax(0,1fr)]">
+              <div className="grid gap-x-6 gap-y-3 lg:grid-cols-[168px_minmax(0,1fr)]">
                 <FieldLabel>Seguridad</FieldLabel>
                 <SelectBase
                   value={form.security}
@@ -197,7 +197,7 @@ export default function MailServerSettings() {
                 </SelectBase>
               </div>
 
-              <div className="grid gap-x-6 gap-y-3 xl:grid-cols-[168px_minmax(0,1fr)]">
+              <div className="grid gap-x-6 gap-y-3 lg:grid-cols-[168px_minmax(0,1fr)]">
                 <FieldLabel>Usuario/Correo</FieldLabel>
                 <InputBase
                   value={form.username}
@@ -205,7 +205,7 @@ export default function MailServerSettings() {
                 />
               </div>
 
-              <div className="grid gap-x-6 gap-y-3 xl:grid-cols-[168px_minmax(0,1fr)]">
+              <div className="grid gap-x-6 gap-y-3 lg:grid-cols-[168px_minmax(0,1fr)]">
                 <FieldLabel>ID Cliente</FieldLabel>
                 <InputBase
                   value={form.clientId}
@@ -213,7 +213,7 @@ export default function MailServerSettings() {
                 />
               </div>
 
-              <div className="grid gap-x-6 gap-y-3 xl:grid-cols-[168px_minmax(0,1fr)]">
+              <div className="grid gap-x-6 gap-y-3 lg:grid-cols-[168px_minmax(0,1fr)]">
                 <FieldLabel>Secret Cliente</FieldLabel>
                 <InputBase
                   value={form.clientSecret}
@@ -221,7 +221,7 @@ export default function MailServerSettings() {
                 />
               </div>
 
-              <div className="grid gap-x-6 gap-y-3 xl:grid-cols-[168px_minmax(0,1fr)]">
+              <div className="grid gap-x-6 gap-y-3 lg:grid-cols-[168px_minmax(0,1fr)]">
                 <FieldLabel>Refresh token</FieldLabel>
                 <div className="space-y-3">
                   <InputBase
@@ -239,7 +239,7 @@ export default function MailServerSettings() {
                 </div>
               </div>
 
-              <div className="grid gap-x-6 gap-y-3 xl:grid-cols-[168px_minmax(0,1fr)]">
+              <div className="grid gap-x-6 gap-y-3 lg:grid-cols-[168px_minmax(0,1fr)]">
                 <FieldLabel>Contraseña</FieldLabel>
                 <InputBase
                   type="password"
@@ -249,8 +249,8 @@ export default function MailServerSettings() {
               </div>
             </div>
 
-            <div className="space-y-3">
-              <div className="grid gap-x-6 gap-y-3 xl:grid-cols-[168px_minmax(0,1fr)]">
+            <div className="min-w-0 space-y-3">
+              <div className="grid gap-x-6 gap-y-3 lg:grid-cols-[168px_minmax(0,1fr)]">
                 <FieldLabel>Puerto</FieldLabel>
                 <InputBase
                   value={form.port}
@@ -258,7 +258,7 @@ export default function MailServerSettings() {
                 />
               </div>
 
-              <div className="grid gap-x-6 gap-y-3 xl:grid-cols-[168px_minmax(0,1fr)]">
+              <div className="grid gap-x-6 gap-y-3 lg:grid-cols-[168px_minmax(0,1fr)]">
                 <FieldLabel>Autentificación</FieldLabel>
                 <SelectBase
                   value={form.authenticationEnabled}
@@ -269,7 +269,7 @@ export default function MailServerSettings() {
                 </SelectBase>
               </div>
 
-              <div className="grid gap-x-6 gap-y-3 xl:grid-cols-[168px_minmax(0,1fr)]">
+              <div className="grid gap-x-6 gap-y-3 lg:grid-cols-[168px_minmax(0,1fr)]">
                 <FieldLabel helper>Límite de envío</FieldLabel>
                 <SelectBase
                   value={form.sendingLimitType}
@@ -281,7 +281,7 @@ export default function MailServerSettings() {
                 </SelectBase>
               </div>
 
-              <div className="grid gap-x-6 gap-y-3 xl:grid-cols-[168px_minmax(0,1fr)]">
+              <div className="grid gap-x-6 gap-y-3 lg:grid-cols-[168px_minmax(0,1fr)]">
                 <FieldLabel helper>Límite de correos</FieldLabel>
                 <div>
                   <InputBase
@@ -294,7 +294,7 @@ export default function MailServerSettings() {
             </div>
           </div>
 
-          <div className="grid gap-x-10 gap-y-3 xl:grid-cols-[220px_minmax(0,1fr)]">
+          <div className="grid gap-x-10 gap-y-3 lg:grid-cols-[180px_minmax(0,1fr)] xl:grid-cols-[220px_minmax(0,1fr)]">
             <FieldLabel helper>Logo correo</FieldLabel>
             <InputBase
               value={form.mailLogo}
@@ -313,12 +313,12 @@ export default function MailServerSettings() {
           </div>
         </div>
 
-        <div className="flex justify-end gap-4 border-t border-[#e5ebf2] px-6 py-5">
+        <div className="flex flex-col-reverse gap-3 border-t border-[#e5ebf2] px-4 py-5 sm:flex-row sm:justify-end sm:px-6">
           <Button
             type="button"
             variant="outline"
             onClick={handleTest}
-            className="h-[52px] rounded-full border-[#3399f4] px-7 text-[16px] font-medium text-[#1788eb] hover:bg-[#eff7ff]"
+            className="h-[52px] w-full rounded-full border-[#3399f4] px-7 text-[16px] font-medium text-[#1788eb] hover:bg-[#eff7ff] sm:w-auto"
           >
             <Send className="mr-2 h-4 w-4" />
             Probar configuración
@@ -327,7 +327,7 @@ export default function MailServerSettings() {
             type="button"
             variant="outline"
             onClick={handleSave}
-            className="h-[52px] rounded-full border-[#3399f4] px-7 text-[16px] font-medium text-[#1788eb] hover:bg-[#eff7ff]"
+            className="h-[52px] w-full rounded-full border-[#3399f4] px-7 text-[16px] font-medium text-[#1788eb] hover:bg-[#eff7ff] sm:w-auto"
           >
             <Save className="mr-2 h-4 w-4" />
             Guardar cambios
