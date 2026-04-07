@@ -9,8 +9,11 @@ import {
   RefreshCw,
   Search,
 } from 'lucide-react';
-import { useNavigate } from 'react-router';
 import { useViewTheme } from '../context/ViewThemeContext';
+import { TicketFormModal } from '../components/forms/TicketFormModal';
+import { ServiceProcessingDialog } from './services/serviceShared';
+import { useTicketCreationFlow } from './services/serviceShared';
+import { MOCK_CLIENTS } from '../data/mockData';
 
 const mikrosystemTicketColumns = [
   'N°',
@@ -196,9 +199,20 @@ function TicketTable({
 
 export default function Tickets() {
   const { viewTheme } = useViewTheme();
-  const navigate = useNavigate();
+  const ticketFlow = useTicketCreationFlow();
   const [searchTerm, setSearchTerm] = useState('');
   const [pageSize] = useState(viewTheme === 'wisphub' ? 10 : 15);
+  const [tickets, setTickets] = useState<any[]>([]);
+
+  const handleCreateTicket = (data: any) => {
+    const newTicket = {
+      id: String(tickets.length + 1),
+      ...data,
+      createdAt: new Date().toISOString(),
+      status: 'open',
+    };
+    setTickets((prev) => [newTicket, ...prev]);
+  };
 
   if (viewTheme === 'wisphub') {
     return (
@@ -215,15 +229,26 @@ export default function Tickets() {
   }
 
   return (
-    <TicketTable
-      pageSize={pageSize}
-      panelTitle="Lista de Ticket Abiertos"
-      pageTitle="Ticket Abiertos"
-      panelColor="#00acac"
-      breadcrumbLabel="soporte"
-      searchTerm={searchTerm}
-      onSearchChange={setSearchTerm}
-      onCreate={() => navigate('/tickets/new')}
-    />
+    <>
+      <TicketTable
+        pageSize={pageSize}
+        panelTitle="Lista de Ticket Abiertos"
+        pageTitle="Ticket Abiertos"
+        panelColor="#00acac"
+        breadcrumbLabel="soporte"
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        onCreate={ticketFlow.openSequence}
+      />
+
+      <ServiceProcessingDialog open={ticketFlow.processingOpen} />
+
+      <TicketFormModal
+        open={ticketFlow.formOpen}
+        onClose={ticketFlow.closeAll}
+        onSubmit={handleCreateTicket}
+        clients={MOCK_CLIENTS}
+      />
+    </>
   );
 }
