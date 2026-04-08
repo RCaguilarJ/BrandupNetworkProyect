@@ -260,11 +260,11 @@ export default function HotspotRouters() {
         <div className="px-5 py-5">
           <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
             <div className="flex flex-wrap items-center gap-3">
-              <div className="flex overflow-hidden rounded-[6px] border border-[#d7dde5] bg-white">
+              <div className="inline-flex items-stretch overflow-hidden rounded-[6px] border border-[#d7dde5] bg-white align-middle">
                 <select
                   value={pageSize}
                   onChange={(event) => setPageSize(Number(event.target.value))}
-                  className={`${controlClass} min-w-[58px] rounded-none border-0 border-r border-[#d7dde5] px-4`}
+                  className={`${controlClass} min-w-[58px] appearance-none rounded-none border-0 border-r border-[#d7dde5] px-4 leading-none`}
                   aria-label="Cantidad de registros"
                 >
                   <option value={15}>15</option>
@@ -273,14 +273,14 @@ export default function HotspotRouters() {
                 </select>
                 <button
                   type="button"
-                  className={`${iconButtonClass} rounded-none border-0 border-r border-[#d7dde5]`}
+                  className={`${iconButtonClass} shrink-0 rounded-none border-0 border-r border-[#d7dde5]`}
                   aria-label="Vista de lista"
                 >
                   <List className="h-4 w-4" />
                 </button>
                 <button
                   type="button"
-                  className={`${iconButtonClass} rounded-none border-0`}
+                  className={`${iconButtonClass} shrink-0 rounded-none border-0`}
                   aria-label="Guardar configuración"
                 >
                   <Save className="h-4 w-4" />

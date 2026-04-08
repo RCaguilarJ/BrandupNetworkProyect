@@ -386,11 +386,11 @@ export default function Tasks() {
       <div className={isWispHub ? 'px-5 py-5' : 'px-6 py-6'}>
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div className="flex flex-wrap items-center gap-3">
-            <div className="flex overflow-hidden rounded-[6px] border border-[#d7dde5] bg-white">
+            <div className="inline-flex items-stretch overflow-hidden rounded-[6px] border border-[#d7dde5] bg-white align-middle">
               <select
                 value={pageSize}
                 onChange={(event) => setPageSize(event.target.value)}
-                className={`appearance-none bg-white outline-none ${
+                className={`appearance-none bg-white leading-none outline-none ${
                   isWispHub
                     ? 'h-[42px] min-w-[56px] border-r border-[#d7dde5] px-4 text-[18px] font-medium text-[#223448]'
                     : 'h-[48px] min-w-[56px] border-r border-[#d5dde7] px-4 text-[18px] font-medium text-[#223448]'
@@ -400,10 +400,10 @@ export default function Tasks() {
                 <option value="25">25</option>
                 <option value="50">50</option>
               </select>
-              <button type="button" className={`inline-flex items-center justify-center border-r bg-white ${isWispHub ? 'h-[42px] w-[52px] border-[#d7dde5] text-[#4e637c]' : 'h-[48px] w-[56px] border-[#d5dde7] text-[#334a62]'}`}>
+              <button type="button" className={`inline-flex shrink-0 items-center justify-center border-r bg-white ${isWispHub ? 'h-[42px] w-[52px] border-[#d7dde5] text-[#4e637c]' : 'h-[48px] w-[56px] border-[#d5dde7] text-[#334a62]'}`}>
                 <List className={isWispHub ? 'h-4 w-4' : 'h-5 w-5'} />
               </button>
-              <button type="button" className={`inline-flex items-center justify-center bg-white ${isWispHub ? 'h-[42px] w-[52px] text-[#4e637c]' : 'h-[48px] w-[56px] text-[#334a62]'}`}>
+              <button type="button" className={`inline-flex shrink-0 items-center justify-center bg-white ${isWispHub ? 'h-[42px] w-[52px] text-[#4e637c]' : 'h-[48px] w-[56px] text-[#334a62]'}`}>
                 <Save className={isWispHub ? 'h-4 w-4' : 'h-5 w-5'} />
               </button>
             </div>

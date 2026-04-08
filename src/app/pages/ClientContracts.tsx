@@ -275,11 +275,11 @@ export default function ClientContracts() {
           <div className="px-6 py-6">
             <div className="flex flex-col gap-4 2xl:flex-row 2xl:items-center 2xl:justify-between">
               <div className="flex flex-wrap items-center gap-3">
-                <div className="flex overflow-hidden rounded-[4px] border border-[#cdd8e4] bg-white">
+                <div className="inline-flex items-stretch overflow-hidden rounded-[4px] border border-[#cdd8e4] bg-white align-middle">
                   <select
                     value={pageSize}
                     onChange={(event) => setPageSize(Number(event.target.value))}
-                    className={`${controlClass} min-w-[56px] rounded-none border-0 border-r border-[#cdd8e4] px-4`}
+                    className={`${controlClass} min-w-[56px] appearance-none rounded-none border-0 border-r border-[#cdd8e4] px-4 leading-none`}
                     aria-label="Cantidad de registros"
                   >
                     <option value={15}>15</option>
@@ -288,14 +288,14 @@ export default function ClientContracts() {
                   </select>
                   <button
                     type="button"
-                    className={`${iconButtonClass} rounded-none border-0 border-r border-[#cdd8e4]`}
+                    className={`${iconButtonClass} shrink-0 rounded-none border-0 border-r border-[#cdd8e4]`}
                     aria-label="Vista lista"
                   >
                     <List className="h-5 w-5" />
                   </button>
                   <button
                     type="button"
-                    className={`${iconButtonClass} rounded-none border-0`}
+                    className={`${iconButtonClass} shrink-0 rounded-none border-0`}
                     aria-label="Guardar configuracion"
                   >
                     <Save className="h-5 w-5" />

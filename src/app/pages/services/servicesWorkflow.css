@@ -42,10 +42,12 @@
 
 .service-toolbar__cluster {
   display: inline-flex;
+  align-items: stretch;
   overflow: visible;
   border: 1px solid #d7dde5;
   border-radius: 4px;
   background: #ffffff;
+  vertical-align: middle;
 }
 
 .service-toolbar__select,
@@ -59,10 +61,13 @@
 
 .service-toolbar__select {
   min-width: 52px;
+  appearance: none;
   padding: 0 12px;
+  line-height: 1;
 }
 
 .service-toolbar__icon-button {
+  flex: 0 0 auto;
   width: 38px;
   display: inline-flex;
   align-items: center;

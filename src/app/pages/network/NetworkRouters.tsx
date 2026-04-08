@@ -513,11 +513,11 @@ export default function NetworkRouters() {
           <div className="px-5 py-5">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
               <div className="flex flex-wrap items-center gap-3">
-                <div className="relative flex overflow-visible rounded-[6px] border border-[#d7dde5] bg-white">
+                <div className="relative inline-flex items-stretch overflow-visible rounded-[6px] border border-[#d7dde5] bg-white align-middle">
                   <select
                     value={pageSize}
                     onChange={(event) => setPageSize(Number(event.target.value))}
-                    className={`min-w-[58px] border-0 border-r border-[#d7dde5] bg-white px-4 text-[14px] outline-none ${
+                    className={`min-w-[58px] appearance-none border-0 border-r border-[#d7dde5] bg-white px-4 text-[14px] leading-none outline-none ${
                       isWispHub ? 'h-[42px] rounded-none text-[#20324a]' : 'h-[48px] rounded-none text-[#24364b]'
                     }`}
                     aria-label="Cantidad de registros por pagina"
@@ -530,7 +530,7 @@ export default function NetworkRouters() {
                   <div className="relative" ref={columnMenuRef}>
                     <button
                       type="button"
-                      className={`inline-flex items-center justify-center border-0 border-r border-[#d7dde5] bg-white text-[#394b60] ${
+                      className={`inline-flex shrink-0 items-center justify-center border-0 border-r border-[#d7dde5] bg-white text-[#394b60] ${
                         isWispHub ? 'h-[42px] w-[42px]' : 'h-[48px] w-[48px]'
                       }`}
                       aria-label="Vista de lista"
@@ -567,7 +567,7 @@ export default function NetworkRouters() {
                   <div className="relative" ref={exportMenuRef}>
                     <button
                       type="button"
-                      className={`inline-flex items-center justify-center border-0 bg-white text-[#394b60] ${
+                      className={`inline-flex shrink-0 items-center justify-center border-0 bg-white text-[#394b60] ${
                         isWispHub ? 'h-[42px] w-[42px]' : 'h-[48px] w-[48px]'
                       }`}
                       aria-label="Guardar configuracion"

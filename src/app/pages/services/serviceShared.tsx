@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
-  ChevronsUpDown,
+  ChevronUp,
   FileDown,
   FileSpreadsheet,
   List,
@@ -266,6 +267,7 @@ export function ServiceListView<T>({
   const exportMenuRef = useRef<HTMLDivElement | null>(null);
   const [listMenuOpen, setListMenuOpen] = useState(false);
   const [exportMenuOpen, setExportMenuOpen] = useState(false);
+  const [headerDirection, setHeaderDirection] = useState<'up' | 'down'>('up');
   const exportableColumns = useMemo(() => buildExportColumns(columns), [columns]);
   const defaultSearchKeys = useMemo(
     () => exportableColumns.map((column) => column.key),
@@ -310,7 +312,10 @@ export function ServiceListView<T>({
     );
   }, [activeSearchKeys, exportableColumns, rows, searchTerm]);
 
-  const visibleRows = filteredRows.slice(0, pageSize);
+  const visibleRows =
+    headerDirection === 'down'
+      ? filteredRows.slice(Math.max(filteredRows.length - pageSize, 0))
+      : filteredRows.slice(0, pageSize);
   const summary =
     filteredRows.length === 0
       ? 'Mostrando 0 registros'
@@ -351,6 +356,10 @@ export function ServiceListView<T>({
   function handleExportPdf() {
     openPrintableTable(`${title} - PDF`, exportableColumns, filteredRows, true);
     setExportMenuOpen(false);
+  }
+
+  function toggleHeaderDirection() {
+    setHeaderDirection((current) => (current === 'up' ? 'down' : 'up'));
   }
 
   return (
@@ -473,7 +482,22 @@ export function ServiceListView<T>({
                     >
                       <span>{column.header}</span>
                       {!column.hideSortIcon ? (
-                        <ChevronsUpDown className="h-4 w-4 text-[#cad4de]" />
+                        <button
+                          type="button"
+                          onClick={toggleHeaderDirection}
+                          className="text-[#cad4de] transition hover:text-[#3f93e7]"
+                          aria-label={
+                            headerDirection === 'up'
+                              ? 'Ir a los ultimos registros'
+                              : 'Ir a los primeros registros'
+                          }
+                        >
+                          {headerDirection === 'up' ? (
+                            <ChevronUp className="h-4 w-4" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4" />
+                          )}
+                        </button>
                       ) : null}
                     </div>
                   </th>

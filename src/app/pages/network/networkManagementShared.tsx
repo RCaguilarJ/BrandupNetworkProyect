@@ -4,7 +4,7 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  ChevronsUpDown,
+  ChevronUp,
   Expand,
   Info,
   List,
@@ -194,11 +194,11 @@ export function PageSizeCluster({
     : 'inline-flex h-[48px] w-[48px] items-center justify-center rounded-[4px] border border-[#d7dde5] bg-white text-[#394b60]';
 
   return (
-    <div className="flex overflow-hidden rounded-[6px] border border-[#d7dde5] bg-white">
+    <div className="inline-flex items-stretch overflow-hidden rounded-[6px] border border-[#d7dde5] bg-white align-middle">
       <select
         value={pageSize}
         onChange={(event) => onChange(Number(event.target.value))}
-        className={`${controlClass} min-w-[58px] rounded-none border-0 border-r border-[#d7dde5] px-4`}
+        className={`${controlClass} min-w-[58px] appearance-none rounded-none border-0 border-r border-[#d7dde5] px-4 leading-none`}
         aria-label="Cantidad de registros por pagina"
       >
         <option value={15}>15</option>
@@ -207,14 +207,14 @@ export function PageSizeCluster({
       </select>
       <button
         type="button"
-        className={`${iconButtonClass} rounded-none border-0 border-r border-[#d7dde5]`}
+        className={`${iconButtonClass} shrink-0 rounded-none border-0 border-r border-[#d7dde5]`}
         aria-label="Vista de lista"
       >
         <List className="h-4 w-4" />
       </button>
       <button
         type="button"
-        className={`${iconButtonClass} rounded-none border-0`}
+        className={`${iconButtonClass} shrink-0 rounded-none border-0`}
         aria-label="Guardar configuracion"
       >
         <Save className="h-4 w-4" />
@@ -387,7 +387,16 @@ export function NetworkTable<T>({
   emptyMessage?: string;
   loadingMessage?: string;
 }) {
+  const [headerDirection, setHeaderDirection] = useState<'up' | 'down'>('up');
   const message = loadingMessage ?? emptyMessage ?? 'Ningun registro disponible';
+  const visibleRows =
+    headerDirection === 'down'
+      ? rows.slice(Math.max(rows.length - 15, 0))
+      : rows.slice(0, 15);
+
+  const toggleHeaderDirection = () => {
+    setHeaderDirection((current) => (current === 'up' ? 'down' : 'up'));
+  };
 
   return (
     <div className="overflow-hidden border border-[#d7dde5] bg-white">
@@ -411,7 +420,22 @@ export function NetworkTable<T>({
                   >
                     <span>{column.header}</span>
                     {!column.hideSortIcon ? (
-                      <ChevronsUpDown className="h-4 w-4 text-[#c3ccd6]" />
+                      <button
+                        type="button"
+                        onClick={toggleHeaderDirection}
+                        className="text-[#c3ccd6] transition hover:text-[#3f93e7]"
+                        aria-label={
+                          headerDirection === 'up'
+                            ? 'Ir a los ultimos registros'
+                            : 'Ir a los primeros registros'
+                        }
+                      >
+                        {headerDirection === 'up' ? (
+                          <ChevronUp className="h-4 w-4" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4" />
+                        )}
+                      </button>
                     ) : null}
                   </div>
                 </th>
@@ -419,7 +443,7 @@ export function NetworkTable<T>({
             </tr>
           </thead>
           <tbody>
-            {rows.length === 0 ? (
+            {visibleRows.length === 0 ? (
               <tr>
                 <td
                   colSpan={columns.length}
@@ -428,8 +452,8 @@ export function NetworkTable<T>({
                   {message}
                 </td>
               </tr>
-            ) : (
-              rows.map((row, index) => (
+              ) : (
+              visibleRows.map((row, index) => (
                 <tr key={index} className="bg-white">
                   {columns.map((column) => (
                     <td
