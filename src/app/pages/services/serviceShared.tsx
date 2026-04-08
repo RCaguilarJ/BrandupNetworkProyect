@@ -1,10 +1,13 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
   ChevronLeft,
   ChevronRight,
   ChevronsUpDown,
+  FileDown,
+  FileSpreadsheet,
   List,
   LoaderCircle,
+  Printer,
   Save,
   Search,
   SquarePen,
@@ -29,6 +32,152 @@ function getAlignClass(align: DataColumn<unknown>['align']) {
       return 'text-right';
     default:
       return 'text-left';
+  }
+}
+
+type ServiceExportColumn<T> = {
+  key: string;
+  header: string;
+  getValue: (row: T) => string;
+};
+
+function sanitizeExportValue(value: string) {
+  return value.replace(/\s+/g, ' ').trim();
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function escapeCsvValue(value: string) {
+  const normalized = sanitizeExportValue(value).replace(/"/g, '""');
+  return `"${normalized}"`;
+}
+
+function downloadBlob(filename: string, content: BlobPart, type: string) {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
+function buildExportColumns<T>(columns: DataColumn<T>[]): ServiceExportColumn<T>[] {
+  return columns
+    .filter((column) => column.header.trim().length > 0 && column.key !== 'actions')
+    .map((column) => ({
+      key: column.key,
+      header: column.header,
+      getValue: (row: T) => {
+        const record = row as Record<string, unknown>;
+        const rawValue = record[column.key];
+        if (rawValue === null || rawValue === undefined) {
+          return '';
+        }
+
+        return sanitizeExportValue(String(rawValue));
+      },
+    }));
+}
+
+function exportRowsToCsv<T>(filename: string, columns: ServiceExportColumn<T>[], rows: T[]) {
+  const lines = [
+    columns.map((column) => escapeCsvValue(column.header)).join(','),
+    ...rows.map((row) => columns.map((column) => escapeCsvValue(column.getValue(row))).join(',')),
+  ];
+
+  downloadBlob(filename, `\uFEFF${lines.join('\n')}`, 'text/csv;charset=utf-8;');
+}
+
+function exportRowsToExcel<T>(filename: string, title: string, columns: ServiceExportColumn<T>[], rows: T[]) {
+  const tableHeader = columns.map((column) => `<th>${escapeHtml(column.header)}</th>`).join('');
+  const tableRows = rows
+    .map(
+      (row) =>
+        `<tr>${columns
+          .map((column) => `<td>${escapeHtml(column.getValue(row))}</td>`)
+          .join('')}</tr>`,
+    )
+    .join('');
+
+  const documentHtml = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <style>
+    body { font-family: Arial, sans-serif; padding: 24px; color: #223448; }
+    h1 { font-size: 18px; margin: 0 0 16px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #cfd8e3; padding: 8px 10px; font-size: 12px; text-align: left; }
+    th { background: #f3f7fb; }
+  </style>
+</head>
+<body>
+  <h1>${escapeHtml(title)}</h1>
+  <table>
+    <thead><tr>${tableHeader}</tr></thead>
+    <tbody>${tableRows}</tbody>
+  </table>
+</body>
+</html>`;
+
+  downloadBlob(filename, `\uFEFF${documentHtml}`, 'application/vnd.ms-excel;charset=utf-8;');
+}
+
+function openPrintableTable<T>(title: string, columns: ServiceExportColumn<T>[], rows: T[], autoPrint: boolean) {
+  const tableHeader = columns.map((column) => `<th>${escapeHtml(column.header)}</th>`).join('');
+  const tableRows = rows.length
+    ? rows
+        .map(
+          (row) =>
+            `<tr>${columns
+              .map((column) => `<td>${escapeHtml(column.getValue(row))}</td>`)
+              .join('')}</tr>`,
+        )
+        .join('')
+    : `<tr><td colspan="${columns.length}">No hay datos para mostrar</td></tr>`;
+
+  const printWindow = window.open('', '_blank', 'width=1100,height=800');
+  if (!printWindow) {
+    return;
+  }
+
+  printWindow.document.write(`<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>${escapeHtml(title)}</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 24px; color: #223448; }
+    h1 { font-size: 20px; margin: 0 0 16px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #d7dde5; padding: 8px 10px; font-size: 12px; text-align: left; }
+    th { background: #f5f7fb; }
+    @page { margin: 16mm; }
+  </style>
+</head>
+<body>
+  <h1>${escapeHtml(title)}</h1>
+  <table>
+    <thead><tr>${tableHeader}</tr></thead>
+    <tbody>${tableRows}</tbody>
+  </table>
+</body>
+</html>`);
+  printWindow.document.close();
+  printWindow.focus();
+
+  if (autoPrint) {
+    printWindow.print();
   }
 }
 
@@ -99,8 +248,7 @@ export function ServiceListView<T>({
   onOpenNew,
   columns,
   rows,
-  summary,
-  emptyMessage = 'Ningún registro disponible',
+  emptyMessage = 'Ningun registro disponible',
 }: {
   title: string;
   breadcrumb: string;
@@ -112,10 +260,98 @@ export function ServiceListView<T>({
   onOpenNew: () => void;
   columns: DataColumn<T>[];
   rows: T[];
-  summary: string;
   emptyMessage?: string;
 }) {
-  const visibleRows = rows.slice(0, pageSize);
+  const listMenuRef = useRef<HTMLDivElement | null>(null);
+  const exportMenuRef = useRef<HTMLDivElement | null>(null);
+  const [listMenuOpen, setListMenuOpen] = useState(false);
+  const [exportMenuOpen, setExportMenuOpen] = useState(false);
+  const exportableColumns = useMemo(() => buildExportColumns(columns), [columns]);
+  const defaultSearchKeys = useMemo(
+    () => exportableColumns.map((column) => column.key),
+    [exportableColumns],
+  );
+  const [selectedSearchKeys, setSelectedSearchKeys] = useState<string[]>(defaultSearchKeys);
+  const activeSearchKeys = useMemo(() => {
+    const nextKeys = selectedSearchKeys.filter((key) => defaultSearchKeys.includes(key));
+    return nextKeys.length > 0 ? nextKeys : defaultSearchKeys;
+  }, [defaultSearchKeys, selectedSearchKeys]);
+
+  useEffect(() => {
+    function handlePointerDown(event: MouseEvent) {
+      const target = event.target as Node;
+
+      if (listMenuRef.current && !listMenuRef.current.contains(target)) {
+        setListMenuOpen(false);
+      }
+
+      if (exportMenuRef.current && !exportMenuRef.current.contains(target)) {
+        setExportMenuOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handlePointerDown);
+    return () => document.removeEventListener('mousedown', handlePointerDown);
+  }, []);
+
+  const filteredRows = useMemo(() => {
+    const query = searchTerm.trim().toLowerCase();
+    if (!query) {
+      return rows;
+    }
+
+    const activeColumns = exportableColumns.filter((column) => activeSearchKeys.includes(column.key));
+    if (activeColumns.length === 0) {
+      return rows;
+    }
+
+    return rows.filter((row) =>
+      activeColumns.some((column) => column.getValue(row).toLowerCase().includes(query)),
+    );
+  }, [activeSearchKeys, exportableColumns, rows, searchTerm]);
+
+  const visibleRows = filteredRows.slice(0, pageSize);
+  const summary =
+    filteredRows.length === 0
+      ? 'Mostrando 0 registros'
+      : `Mostrando de 1 al ${Math.min(pageSize, filteredRows.length)} de un total de ${filteredRows.length}`;
+
+  function toggleSearchColumn(columnKey: string) {
+    setSelectedSearchKeys((current) => {
+      const baseKeys = current.filter((key) => defaultSearchKeys.includes(key));
+      const nextKeys = baseKeys.length > 0 ? baseKeys : defaultSearchKeys;
+
+      if (nextKeys.includes(columnKey)) {
+        return nextKeys.length === 1 ? nextKeys : nextKeys.filter((key) => key !== columnKey);
+      }
+
+      return [...nextKeys, columnKey];
+    });
+  }
+
+  function createExportFilename(extension: string) {
+    return `${title.toLowerCase().replace(/\s+/g, '-')}.${extension}`;
+  }
+
+  function handlePrint() {
+    openPrintableTable(title, exportableColumns, filteredRows, true);
+    setExportMenuOpen(false);
+  }
+
+  function handleExportCsv() {
+    exportRowsToCsv(createExportFilename('csv'), exportableColumns, filteredRows);
+    setExportMenuOpen(false);
+  }
+
+  function handleExportExcel() {
+    exportRowsToExcel(createExportFilename('xls'), title, exportableColumns, filteredRows);
+    setExportMenuOpen(false);
+  }
+
+  function handleExportPdf() {
+    openPrintableTable(`${title} - PDF`, exportableColumns, filteredRows, true);
+    setExportMenuOpen(false);
+  }
 
   return (
     <ServiceShell title={title} breadcrumb={breadcrumb}>
@@ -126,18 +362,76 @@ export function ServiceListView<T>({
               value={pageSize}
               onChange={(event) => onPageSizeChange(Number(event.target.value))}
               className="service-toolbar__select"
-              aria-label="Cantidad de registros por página"
+              aria-label="Cantidad de registros por pagina"
             >
               <option value={15}>15</option>
               <option value={25}>25</option>
               <option value={50}>50</option>
             </select>
-            <button type="button" className="service-toolbar__icon-button" aria-label="Vista de lista">
-              <List className="h-4 w-4" />
-            </button>
-            <button type="button" className="service-toolbar__icon-button" aria-label="Guardar configuración">
-              <Save className="h-4 w-4" />
-            </button>
+
+            <div className="service-toolbar__menu-wrap" ref={listMenuRef}>
+              <button
+                type="button"
+                className="service-toolbar__icon-button"
+                aria-label="Filtrar columnas de busqueda"
+                onClick={() => {
+                  setListMenuOpen((current) => !current);
+                  setExportMenuOpen(false);
+                }}
+              >
+                <List className="h-4 w-4" />
+              </button>
+
+              {listMenuOpen ? (
+                <div className="service-toolbar__menu service-toolbar__menu--columns">
+                  {exportableColumns.map((column) => (
+                    <label key={column.key} className="service-toolbar__menu-checkbox">
+                      <input
+                        type="checkbox"
+                        checked={activeSearchKeys.includes(column.key)}
+                        onChange={() => toggleSearchColumn(column.key)}
+                      />
+                      <span>{column.header}</span>
+                    </label>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+
+            <div className="service-toolbar__menu-wrap" ref={exportMenuRef}>
+              <button
+                type="button"
+                className="service-toolbar__icon-button"
+                aria-label="Opciones de descarga"
+                onClick={() => {
+                  setExportMenuOpen((current) => !current);
+                  setListMenuOpen(false);
+                }}
+              >
+                <Save className="h-4 w-4" />
+              </button>
+
+              {exportMenuOpen ? (
+                <div className="service-toolbar__menu service-toolbar__menu--exports">
+                  <button type="button" className="service-toolbar__menu-item" onClick={handlePrint}>
+                    <Printer className="h-4 w-4" />
+                    Imprimir
+                  </button>
+                  <button type="button" className="service-toolbar__menu-item" onClick={handleExportCsv}>
+                    <FileDown className="h-4 w-4" />
+                    Exportar csv
+                  </button>
+                  <button type="button" className="service-toolbar__menu-item" onClick={handleExportExcel}>
+                    <FileSpreadsheet className="h-4 w-4" />
+                    Exportar a Excel
+                  </button>
+                  <button type="button" className="service-toolbar__menu-item" onClick={handleExportPdf}>
+                    <FileDown className="h-4 w-4" />
+                    Exportar a PDF
+                  </button>
+                </div>
+              ) : null}
+            </div>
           </div>
 
           <button type="button" className="service-toolbar__primary-button" onClick={onOpenNew}>
@@ -212,15 +506,15 @@ export function ServiceListView<T>({
       <div className="service-footer">
         <div className="service-footer__summary">{summary}</div>
         <div className="service-footer__pagination">
-          <button type="button" className="service-footer__page-button" aria-label="Página anterior">
+          <button type="button" className="service-footer__page-button" aria-label="Pagina anterior">
             <ChevronLeft className="h-4 w-4" />
           </button>
-          {rows.length > 0 ? (
+          {filteredRows.length > 0 ? (
             <button type="button" className="service-footer__page-button service-footer__page-button--active">
               1
             </button>
           ) : null}
-          <button type="button" className="service-footer__page-button" aria-label="Página siguiente">
+          <button type="button" className="service-footer__page-button" aria-label="Pagina siguiente">
             <ChevronRight className="h-4 w-4" />
           </button>
         </div>

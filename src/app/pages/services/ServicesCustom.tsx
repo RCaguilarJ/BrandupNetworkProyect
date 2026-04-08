@@ -60,17 +60,6 @@ export default function ServicesCustom() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<CustomFormState>(() => createEmptyForm(rows.length + 1));
 
-  const filteredRows = rows.filter((row) => {
-    const query = searchTerm.trim().toLowerCase();
-    if (!query) {
-      return true;
-    }
-
-    return [row.id, row.name, row.description, row.price, row.tax].some((value) =>
-      value.toLowerCase().includes(query),
-    );
-  });
-
   const columns: DataColumn<CustomServiceRecord>[] = [
     { key: 'id', header: 'ID', width: '70px', render: (row) => row.id },
     { key: 'name', header: 'NOMBRE', render: (row) => row.name },
@@ -178,12 +167,7 @@ export default function ServicesCustom() {
         onSearchTermChange={setSearchTerm}
         onOpenNew={handleOpenNew}
         columns={columns}
-        rows={filteredRows}
-        summary={
-          filteredRows.length === 0
-            ? 'Mostrando 0 registros'
-            : `Mostrando de 1 al ${Math.min(pageSize, filteredRows.length)} de un total de ${filteredRows.length}`
-        }
+        rows={rows}
       />
 
       <ServiceProcessingDialog open={flow.processingOpen} />

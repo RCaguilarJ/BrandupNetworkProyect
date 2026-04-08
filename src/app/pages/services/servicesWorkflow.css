@@ -42,7 +42,7 @@
 
 .service-toolbar__cluster {
   display: inline-flex;
-  overflow: hidden;
+  overflow: visible;
   border: 1px solid #d7dde5;
   border-radius: 4px;
   background: #ffffff;
@@ -68,6 +68,67 @@
   align-items: center;
   justify-content: center;
   border-left: 1px solid #d7dde5;
+}
+
+.service-toolbar__menu-wrap {
+  position: relative;
+}
+
+.service-toolbar__menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 30;
+  min-width: 176px;
+  border: 1px solid #d7dde5;
+  background: #ffffff;
+  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.16);
+}
+
+.service-toolbar__menu--columns {
+  padding: 10px 0;
+}
+
+.service-toolbar__menu--exports {
+  padding: 8px 0;
+}
+
+.service-toolbar__menu-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 14px;
+  color: #334b63;
+  font-size: 13px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.service-toolbar__menu-checkbox:hover {
+  background: #f7fafc;
+}
+
+.service-toolbar__menu-checkbox input {
+  width: 13px;
+  height: 13px;
+  accent-color: #2f3033;
+}
+
+.service-toolbar__menu-item {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  background: transparent;
+  padding: 8px 14px;
+  color: #4d5b68;
+  font-size: 13px;
+  text-align: left;
+}
+
+.service-toolbar__menu-item:hover {
+  background: #f3f7fb;
 }
 
 .service-toolbar__primary-button {

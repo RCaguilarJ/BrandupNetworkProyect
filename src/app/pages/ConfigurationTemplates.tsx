@@ -1,6 +1,16 @@
 import { useMemo, useState } from 'react';
 import { Bell, FileText, Save } from 'lucide-react';
 import { Button } from '../components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+} from '../components/ui/select';
 import { toast } from 'sonner';
 
 type BillingTemplateSettings = {
@@ -20,6 +30,16 @@ type BillingTemplateSettings = {
   tax3: string;
 };
 
+type ReminderOption = {
+  value: string;
+  label: string;
+};
+
+type ReminderGroup = {
+  label: string;
+  options: ReminderOption[];
+};
+
 type NotificationTemplateSettings = {
   newInvoiceNotice: string;
   onScreenNotice: string;
@@ -27,6 +47,8 @@ type NotificationTemplateSettings = {
   reminder1: string;
   reminder2: string;
   reminder3: string;
+  reminderBeforeDays: string;
+  reminderAfterDays: string;
 };
 
 type ConfigurationTemplatesState = {
@@ -35,6 +57,31 @@ type ConfigurationTemplatesState = {
 };
 
 const CONFIGURATION_TEMPLATES_STORAGE_KEY = 'brandup_configuration_templates';
+const BEFORE_DUE_LABEL = 'Antes del vencimiento';
+const AFTER_DUE_LABEL = 'Despues del vencimiento';
+
+const REMINDER_GROUPS: ReminderGroup[] = [
+  {
+    label: BEFORE_DUE_LABEL,
+    options: Array.from({ length: 10 }, (_, index) => {
+      const day = index + 1;
+      return {
+        value: `${day} ${day === 1 ? 'Dia' : 'Dias'} antes`,
+        label: `${day} ${day === 1 ? 'Dia' : 'Dias'} antes`,
+      };
+    }),
+  },
+  {
+    label: AFTER_DUE_LABEL,
+    options: Array.from({ length: 25 }, (_, index) => {
+      const day = index + 1;
+      return {
+        value: `${day} ${day === 1 ? 'Dia' : 'Dias'} despues`,
+        label: `${day} ${day === 1 ? 'Dia' : 'Dias'} despues`,
+      };
+    }),
+  },
+];
 
 function createDefaultState(): ConfigurationTemplatesState {
   return {
@@ -61,6 +108,8 @@ function createDefaultState(): ConfigurationTemplatesState {
       reminder1: 'Desactivado',
       reminder2: 'Desactivado',
       reminder3: 'Desactivado',
+      reminderBeforeDays: 'Desactivado',
+      reminderAfterDays: 'Desactivado',
     },
   };
 }
@@ -138,6 +187,47 @@ function SelectRow({
   );
 }
 
+function NotificationSelectRow({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  options: string[];
+}) {
+  return (
+    <div className="grid gap-x-6 gap-y-2 xl:grid-cols-[220px_minmax(0,1fr)]">
+      <label className="pt-3 text-right text-[15px] text-[#374151]">{label}</label>
+      <div>
+        <Select value={value} onValueChange={onChange}>
+          <SelectTrigger className="h-[46px] rounded-[4px] border border-[#d7dfe8] bg-white px-4 text-[15px] text-[#24364b] shadow-none focus-visible:border-[#3399f4] focus-visible:ring-0">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent
+            position="popper"
+            className="max-h-[240px] overflow-hidden rounded-[4px] border border-[#3399f4] bg-white p-0 text-[#24364b] shadow-[0_14px_28px_rgba(15,23,42,0.16)]"
+          >
+            <div className="max-h-[240px] overflow-y-auto py-0">
+              {options.map((option) => (
+                <SelectItem
+                  key={option}
+                  value={option}
+                  className="rounded-none px-4 py-[10px] text-[14px] font-medium data-[state=checked]:bg-[#3399f4] data-[state=checked]:text-white focus:bg-[#eef6ff] focus:text-[#24364b]"
+                >
+                  {option}
+                </SelectItem>
+              ))}
+            </div>
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
+  );
+}
+
 function InputRow({
   label,
   value,
@@ -196,6 +286,60 @@ function ToggleRow({
           </span>
         </label>
         {helper ? <p className="mt-2 text-[13px] text-[#ff9b26]">{helper}</p> : null}
+      </div>
+    </div>
+  );
+}
+
+function ReminderPicker({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div className="grid gap-x-6 gap-y-2 xl:grid-cols-[220px_minmax(0,1fr)]">
+      <label className="pt-3 text-right text-[15px] text-[#374151]">{label}</label>
+      <div>
+        <Select value={value} onValueChange={onChange}>
+          <SelectTrigger className="h-[46px] rounded-[4px] border border-[#d7dfe8] bg-white px-4 text-[15px] text-[#24364b] shadow-none focus-visible:border-[#3399f4] focus-visible:ring-0">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent
+            position="popper"
+            className="max-h-[240px] overflow-hidden rounded-[4px] border border-[#3399f4] bg-white p-0 text-[#24364b] shadow-[0_14px_28px_rgba(15,23,42,0.16)]"
+          >
+            <div className="max-h-[240px] overflow-y-auto py-0">
+              <SelectItem
+                value="Desactivado"
+                className="rounded-none px-4 py-[10px] text-[14px] font-medium data-[state=checked]:bg-[#3399f4] data-[state=checked]:text-white focus:bg-[#eef6ff] focus:text-[#24364b]"
+              >
+                Desactivado
+              </SelectItem>
+
+              {REMINDER_GROUPS.map((group, index) => (
+                <SelectGroup key={group.label}>
+                  {index > 0 ? <SelectSeparator className="my-0" /> : null}
+                  <SelectLabel className="rounded-none bg-[#1f1f23] px-4 py-4 text-center text-[13px] font-semibold text-white">
+                    {group.label}
+                  </SelectLabel>
+                  {group.options.map((option) => (
+                    <SelectItem
+                      key={option.value}
+                      value={option.value}
+                      className="rounded-none px-4 py-[10px] text-[14px] font-medium data-[state=checked]:bg-[#3399f4] data-[state=checked]:text-white focus:bg-[#eef6ff] focus:text-[#24364b]"
+                    >
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              ))}
+            </div>
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );
@@ -361,41 +505,38 @@ export default function ConfigurationTemplates() {
               <HeaderPanel title="Notificaciones" icon={Bell} />
 
               <div className="space-y-4 px-5 py-5">
-                <SelectRow
+                <NotificationSelectRow
                   label="Aviso nueva factura"
                   value={state.notifications.newInvoiceNotice}
                   onChange={(value) => updateNotificationField('newInvoiceNotice', value)}
-                  options={['Desactivado', 'Correo', 'SMS', 'Telegram']}
+                  options={['Desactivado', 'Correo', 'SMS', 'Telegram', 'Correo + Telegram', 'Correo + SMS', 'Telegram + SMS']}
                 />
-                <SelectRow
+                <NotificationSelectRow
                   label="Aviso en Pantalla"
                   value={state.notifications.onScreenNotice}
                   onChange={(value) => updateNotificationField('onScreenNotice', value)}
                   options={['Desactivado', 'Activado']}
                 />
-                <SelectRow
+                <NotificationSelectRow
                   label="Recordatorios de pago"
                   value={state.notifications.paymentReminders}
                   onChange={(value) => updateNotificationField('paymentReminders', value)}
                   options={['Desactivado', 'Activado']}
                 />
-                <SelectRow
+                <ReminderPicker
                   label="Recordatorio #1"
                   value={state.notifications.reminder1}
                   onChange={(value) => updateNotificationField('reminder1', value)}
-                  options={['Desactivado', '3 Dias antes', '1 Dia antes', 'Mismo dia']}
                 />
-                <SelectRow
+                <ReminderPicker
                   label="Recordatorio #2"
                   value={state.notifications.reminder2}
                   onChange={(value) => updateNotificationField('reminder2', value)}
-                  options={['Desactivado', '1 Dia despues', '3 Dias despues', '5 Dias despues']}
                 />
-                <SelectRow
+                <ReminderPicker
                   label="Recordatorio #3"
                   value={state.notifications.reminder3}
                   onChange={(value) => updateNotificationField('reminder3', value)}
-                  options={['Desactivado', '7 Dias despues', '10 Dias despues', '15 Dias despues']}
                 />
 
                 <div className="flex flex-wrap gap-4 pt-3">

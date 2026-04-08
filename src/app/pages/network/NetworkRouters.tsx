@@ -1,9 +1,14 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import {
   Edit,
+  FileDown,
+  FileSpreadsheet,
+  List,
   Plus,
+  Printer,
   Router,
+  Save,
   Trash2,
   Users,
   UserCog,
@@ -25,7 +30,6 @@ import {
   NetworkPanel,
   NetworkFormDialog,
   NetworkTable,
-  PageSizeCluster,
   PaginationBar,
   SearchField,
   type DataColumn,
@@ -33,6 +37,70 @@ import {
 } from './networkManagementShared';
 
 type RouterRow = (typeof NETWORK_ROUTERS)[number];
+
+type RouterSearchField = {
+  key:
+    | 'folio'
+    | 'name'
+    | 'ip'
+    | 'webPort'
+    | 'model'
+    | 'version'
+    | 'clients'
+    | 'status'
+    | 'actions';
+  label: string;
+  getValue: (row: RouterRow) => string;
+};
+
+const ROUTER_SEARCH_FIELDS: RouterSearchField[] = [
+  { key: 'folio', label: 'Folio', getValue: (row) => String(row.folio) },
+  { key: 'name', label: 'Nombre', getValue: (row) => `${row.name} ${row.subtitle}`.trim() },
+  { key: 'ip', label: 'IP', getValue: (row) => row.ip },
+  { key: 'webPort', label: 'Puerto web', getValue: () => '' },
+  { key: 'model', label: 'Modelo', getValue: (row) => row.model || '-' },
+  { key: 'version', label: 'Versión', getValue: (row) => row.version },
+  { key: 'clients', label: 'Clientes', getValue: (row) => String(row.clients) },
+  { key: 'status', label: 'Estado', getValue: (row) => row.status },
+  { key: 'actions', label: 'Acciones', getValue: () => '' },
+];
+
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function escapeCsvValue(value: string) {
+  return `"${value.replace(/\s+/g, ' ').trim().replace(/"/g, '""')}"`;
+}
+
+function downloadBlob(filename: string, content: BlobPart, type: string) {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
+function buildRouterExportRows(rows: RouterRow[]) {
+  return rows.map((row) => ({
+    FOLIO: String(row.folio),
+    NOMBRE: row.name,
+    IP: row.ip,
+    MODELO: row.model || '-',
+    VERSION: row.version,
+    CLIENTES: String(row.clients),
+    ESTADO: row.status,
+  }));
+}
 
 const securityOptions = [
   'Ninguno / Accounting API',
@@ -47,11 +115,18 @@ export default function NetworkRouters() {
   const { viewTheme } = useViewTheme();
   const navigate = useNavigate();
   const isWispHub = viewTheme === 'wisphub';
+  const columnMenuRef = useRef<HTMLDivElement | null>(null);
+  const exportMenuRef = useRef<HTMLDivElement | null>(null);
 
   const [pageSize, setPageSize] = useState(15);
   const [searchTerm, setSearchTerm] = useState('');
+  const [columnMenuOpen, setColumnMenuOpen] = useState(false);
+  const [exportMenuOpen, setExportMenuOpen] = useState(false);
   const [routerRows, setRouterRows] = useState(() =>
     filterByCompany(NETWORK_ROUTERS, user?.role, user?.companyId),
+  );
+  const [selectedSearchFields, setSelectedSearchFields] = useState<string[]>(
+    ROUTER_SEARCH_FIELDS.map((field) => field.key),
   );
   const [form, setForm] = useState({
     folio: String(routerRows.length + 1),
@@ -63,15 +138,38 @@ export default function NetworkRouters() {
   });
   const dialog = useNetworkDialog();
 
-  const filteredRouters = routerRows.filter((router) => {
+  const activeSearchFields = useMemo(() => {
+    const filtered = ROUTER_SEARCH_FIELDS.filter((field) => selectedSearchFields.includes(field.key));
+    return filtered.length > 0 ? filtered : ROUTER_SEARCH_FIELDS;
+  }, [selectedSearchFields]);
+
+  useEffect(() => {
+    function handlePointerDown(event: MouseEvent) {
+      const target = event.target as Node;
+
+      if (columnMenuRef.current && !columnMenuRef.current.contains(target)) {
+        setColumnMenuOpen(false);
+      }
+
+      if (exportMenuRef.current && !exportMenuRef.current.contains(target)) {
+        setExportMenuOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handlePointerDown);
+    return () => document.removeEventListener('mousedown', handlePointerDown);
+  }, []);
+
+  const filteredRouters = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
-    if (!query) return true;
-    return (
-      router.name.toLowerCase().includes(query) ||
-      router.ip.toLowerCase().includes(query) ||
-      router.status.toLowerCase().includes(query)
+    if (!query) {
+      return routerRows;
+    }
+
+    return routerRows.filter((router) =>
+      activeSearchFields.some((field) => field.getValue(router).toLowerCase().includes(query)),
     );
-  });
+  }, [activeSearchFields, routerRows, searchTerm]);
 
   const openNewRouterDialog = () => {
     setForm({
@@ -83,6 +181,141 @@ export default function NetworkRouters() {
       ip: '',
     });
     dialog.openDialog();
+  };
+
+  const toggleSearchField = (fieldKey: string) => {
+    setSelectedSearchFields((current) => {
+      if (current.includes(fieldKey)) {
+        return current.length === 1 ? current : current.filter((key) => key !== fieldKey);
+      }
+
+      return [...current, fieldKey];
+    });
+  };
+
+  const exportRows = buildRouterExportRows(filteredRouters);
+
+  const openPrintPreview = (title: string, autoPrint: boolean) => {
+    const headers = Object.keys(exportRows[0] ?? {
+      FOLIO: '',
+      NOMBRE: '',
+      IP: '',
+      MODELO: '',
+      VERSION: '',
+      CLIENTES: '',
+      ESTADO: '',
+    });
+    const bodyRows = exportRows.length
+      ? exportRows
+          .map(
+            (row) =>
+              `<tr>${headers.map((header) => `<td>${escapeHtml(row[header as keyof typeof row])}</td>`).join('')}</tr>`,
+          )
+          .join('')
+      : `<tr><td colspan="${headers.length}">No hay datos para mostrar</td></tr>`;
+
+    const printWindow = window.open('', '_blank', 'width=1100,height=800');
+    if (!printWindow) {
+      return;
+    }
+
+    printWindow.document.write(`<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>${escapeHtml(title)}</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 24px; color: #223448; }
+    h1 { font-size: 20px; margin: 0 0 16px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #d7dde5; padding: 8px 10px; font-size: 12px; text-align: left; }
+    th { background: #f5f7fb; }
+  </style>
+</head>
+<body>
+  <h1>${escapeHtml(title)}</h1>
+  <table>
+    <thead><tr>${headers.map((header) => `<th>${escapeHtml(header)}</th>`).join('')}</tr></thead>
+    <tbody>${bodyRows}</tbody>
+  </table>
+</body>
+</html>`);
+    printWindow.document.close();
+    printWindow.focus();
+
+    if (autoPrint) {
+      printWindow.print();
+    }
+  };
+
+  const handlePrint = () => {
+    openPrintPreview('Lista de Router', true);
+    setExportMenuOpen(false);
+  };
+
+  const handleExportCsv = () => {
+    const headers = Object.keys(exportRows[0] ?? {
+      FOLIO: '',
+      NOMBRE: '',
+      IP: '',
+      MODELO: '',
+      VERSION: '',
+      CLIENTES: '',
+      ESTADO: '',
+    });
+    const lines = [
+      headers.map(escapeCsvValue).join(','),
+      ...exportRows.map((row) => headers.map((header) => escapeCsvValue(row[header as keyof typeof row])).join(',')),
+    ];
+    downloadBlob('routers.csv', `\uFEFF${lines.join('\n')}`, 'text/csv;charset=utf-8;');
+    setExportMenuOpen(false);
+  };
+
+  const handleExportExcel = () => {
+    const headers = Object.keys(exportRows[0] ?? {
+      FOLIO: '',
+      NOMBRE: '',
+      IP: '',
+      MODELO: '',
+      VERSION: '',
+      CLIENTES: '',
+      ESTADO: '',
+    });
+    const tableRows = exportRows
+      .map(
+        (row) =>
+          `<tr>${headers.map((header) => `<td>${escapeHtml(row[header as keyof typeof row])}</td>`).join('')}</tr>`,
+      )
+      .join('');
+
+    const documentHtml = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <style>
+    body { font-family: Arial, sans-serif; padding: 24px; color: #223448; }
+    h1 { font-size: 18px; margin: 0 0 16px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #cfd8e3; padding: 8px 10px; font-size: 12px; text-align: left; }
+    th { background: #f3f7fb; }
+  </style>
+</head>
+<body>
+  <h1>Lista de Router</h1>
+  <table>
+    <thead><tr>${headers.map((header) => `<th>${escapeHtml(header)}</th>`).join('')}</tr></thead>
+    <tbody>${tableRows}</tbody>
+  </table>
+</body>
+</html>`;
+
+    downloadBlob('routers.xls', `\uFEFF${documentHtml}`, 'application/vnd.ms-excel;charset=utf-8;');
+    setExportMenuOpen(false);
+  };
+
+  const handleExportPdf = () => {
+    openPrintPreview('Lista de Router - PDF', true);
+    setExportMenuOpen(false);
   };
 
   const handleEditRouter = (router: RouterRow) => {
@@ -280,11 +513,110 @@ export default function NetworkRouters() {
           <div className="px-5 py-5">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
               <div className="flex flex-wrap items-center gap-3">
-                <PageSizeCluster
-                  isWispHub={isWispHub}
-                  pageSize={pageSize}
-                  onChange={setPageSize}
-                />
+                <div className="relative flex overflow-visible rounded-[6px] border border-[#d7dde5] bg-white">
+                  <select
+                    value={pageSize}
+                    onChange={(event) => setPageSize(Number(event.target.value))}
+                    className={`min-w-[58px] border-0 border-r border-[#d7dde5] bg-white px-4 text-[14px] outline-none ${
+                      isWispHub ? 'h-[42px] rounded-none text-[#20324a]' : 'h-[48px] rounded-none text-[#24364b]'
+                    }`}
+                    aria-label="Cantidad de registros por pagina"
+                  >
+                    <option value={15}>15</option>
+                    <option value={25}>25</option>
+                    <option value={50}>50</option>
+                  </select>
+
+                  <div className="relative" ref={columnMenuRef}>
+                    <button
+                      type="button"
+                      className={`inline-flex items-center justify-center border-0 border-r border-[#d7dde5] bg-white text-[#394b60] ${
+                        isWispHub ? 'h-[42px] w-[42px]' : 'h-[48px] w-[48px]'
+                      }`}
+                      aria-label="Vista de lista"
+                      onClick={() => {
+                        setColumnMenuOpen((current) => !current);
+                        setExportMenuOpen(false);
+                      }}
+                    >
+                      <List className="h-4 w-4" />
+                    </button>
+
+                    {columnMenuOpen ? (
+                      <div className="absolute left-0 top-[calc(100%+8px)] z-30 min-w-[170px] border border-[#d7dde5] bg-white shadow-[0_16px_32px_rgba(15,23,42,0.16)]">
+                        <div className="max-h-[260px] overflow-y-auto py-2">
+                          {ROUTER_SEARCH_FIELDS.map((field) => (
+                            <label
+                              key={field.key}
+                              className="flex cursor-pointer items-center gap-3 px-4 py-[7px] text-[13px] text-[#334b63] hover:bg-[#f7fafc]"
+                            >
+                              <input
+                                type="checkbox"
+                                checked={activeSearchFields.some((activeField) => activeField.key === field.key)}
+                                onChange={() => toggleSearchField(field.key)}
+                                className="h-[13px] w-[13px] accent-[#2f3033]"
+                              />
+                              <span>{field.label}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+
+                  <div className="relative" ref={exportMenuRef}>
+                    <button
+                      type="button"
+                      className={`inline-flex items-center justify-center border-0 bg-white text-[#394b60] ${
+                        isWispHub ? 'h-[42px] w-[42px]' : 'h-[48px] w-[48px]'
+                      }`}
+                      aria-label="Guardar configuracion"
+                      onClick={() => {
+                        setExportMenuOpen((current) => !current);
+                        setColumnMenuOpen(false);
+                      }}
+                    >
+                      <Save className="h-4 w-4" />
+                    </button>
+
+                    {exportMenuOpen ? (
+                      <div className="absolute left-0 top-[calc(100%+8px)] z-30 min-w-[170px] border border-[#d7dde5] bg-white py-2 shadow-[0_16px_32px_rgba(15,23,42,0.16)]">
+                        <button
+                          type="button"
+                          onClick={handlePrint}
+                          className="flex w-full items-center gap-3 px-4 py-[7px] text-left text-[13px] text-[#4d5b68] hover:bg-[#f3f7fb]"
+                        >
+                          <Printer className="h-4 w-4" />
+                          Imprimir
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleExportCsv}
+                          className="flex w-full items-center gap-3 px-4 py-[7px] text-left text-[13px] text-[#4d5b68] hover:bg-[#f3f7fb]"
+                        >
+                          <FileDown className="h-4 w-4" />
+                          Exportar csv
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleExportExcel}
+                          className="flex w-full items-center gap-3 px-4 py-[7px] text-left text-[13px] text-[#4d5b68] hover:bg-[#f3f7fb]"
+                        >
+                          <FileSpreadsheet className="h-4 w-4" />
+                          Exportar a Excel
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleExportPdf}
+                          className="flex w-full items-center gap-3 px-4 py-[7px] text-left text-[13px] text-[#4d5b68] hover:bg-[#f3f7fb]"
+                        >
+                          <FileDown className="h-4 w-4" />
+                          Exportar a PDF
+                        </button>
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
                 <ActionButton
                   isWispHub={isWispHub}
                   icon={<Plus className="h-5 w-5" />}

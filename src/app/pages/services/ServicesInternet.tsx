@@ -140,22 +140,6 @@ export default function ServicesInternet() {
   const burstThresholdRxKbps = parseNumericValue(form.uploadKbps) * burstThresholdRatio;
   const burstThresholdTxKbps = parseNumericValue(form.downloadKbps) * burstThresholdRatio;
 
-  const filteredRows = rows.filter((row) => {
-    const query = searchTerm.trim().toLowerCase();
-    if (!query) {
-      return true;
-    }
-
-    return [
-      row.id,
-      row.name,
-      row.description,
-      row.downloadKbps,
-      row.uploadKbps,
-      row.price,
-    ].some((value) => value.toLowerCase().includes(query));
-  });
-
   const columns: DataColumn<InternetServiceRecord>[] = [
     {
       key: 'id',
@@ -332,12 +316,7 @@ export default function ServicesInternet() {
         onSearchTermChange={setSearchTerm}
         onOpenNew={handleOpenNew}
         columns={columns}
-        rows={filteredRows}
-        summary={
-          filteredRows.length === 0
-            ? 'Mostrando 0 registros'
-            : `Mostrando de 1 al ${Math.min(pageSize, filteredRows.length)} de un total de ${filteredRows.length}`
-        }
+        rows={rows}
       />
 
       <ServiceProcessingDialog open={flow.processingOpen} />
