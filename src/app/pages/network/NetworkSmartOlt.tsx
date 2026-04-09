@@ -31,10 +31,8 @@ import {
   NetworkPageShell,
   NetworkPanel,
   NetworkTable,
-  PageSizeCluster,
   PaginationBar,
   SearchField,
-  SelectField,
   TopTabs,
   type DataColumn,
   useNetworkDialog,
@@ -88,6 +86,11 @@ type OdbSearchField = {
   key: 'odbName' | 'actions';
   label: string;
   getValue: (row: OdbRow) => string;
+};
+
+type OnusSearchField = {
+  key: 'cliente' | 'sn' | 'olt' | 'estado' | 'board' | 'port' | 'signal' | 'rx' | 'acciones';
+  label: string;
 };
 
 const wisphubPageClassName =
@@ -191,6 +194,18 @@ const ODB_SEARCH_FIELDS: OdbSearchField[] = [
   { key: 'actions', label: 'Acciones', getValue: () => '' },
 ];
 
+const ONUS_SEARCH_FIELDS: OnusSearchField[] = [
+  { key: 'cliente', label: 'Cliente' },
+  { key: 'sn', label: 'SN' },
+  { key: 'olt', label: 'OLT' },
+  { key: 'estado', label: 'Estado' },
+  { key: 'board', label: 'Board' },
+  { key: 'port', label: 'Port' },
+  { key: 'signal', label: 'Signal' },
+  { key: 'rx', label: 'RX Signal' },
+  { key: 'acciones', label: 'Acciones' },
+];
+
 function escapeHtml(value: string) {
   return value
     .replace(/&/g, '&amp;')
@@ -202,6 +217,18 @@ function escapeHtml(value: string) {
 
 function escapeCsvValue(value: string) {
   return `"${value.replace(/\s+/g, ' ').trim().replace(/"/g, '""')}"`;
+}
+
+function getDatasetHeaders(rows: Record<string, string>[], fallbackHeaders?: string[]) {
+  if (rows.length > 0) {
+    return Object.keys(rows[0]);
+  }
+
+  if (fallbackHeaders && fallbackHeaders.length > 0) {
+    return fallbackHeaders;
+  }
+
+  return ['Registro'];
 }
 
 function downloadBlob(filename: string, content: BlobPart, type: string) {
@@ -346,6 +373,11 @@ export default function NetworkSmartOlt() {
   const activeProfileSearchFields = useMemo(() => {
     const filtered = PROFILE_SEARCH_FIELDS.filter((field) => selectedSearchFields.includes(field.key));
     return filtered.length > 0 ? filtered : PROFILE_SEARCH_FIELDS;
+  }, [selectedSearchFields]);
+
+  const activeOnusColumns = useMemo(() => {
+    const filtered = onusColumns.filter((column) => selectedSearchFields.includes(column.key));
+    return filtered.length > 0 ? filtered : onusColumns;
   }, [selectedSearchFields]);
 
   const activeOdbSearchFields = useMemo(() => {
@@ -560,6 +592,7 @@ export default function NetworkSmartOlt() {
   const odbExportRows = filteredOdbs.map((row) => ({
     'Nombre odb': row.odbName,
   }));
+  const onusExportHeaders = activeOnusColumns.map((column) => column.header);
 
   const toggleSearchField = (fieldKey: string) => {
     setSelectedSearchFields((current) => {
@@ -574,10 +607,16 @@ export default function NetworkSmartOlt() {
   const handleTabChange = (value: SmartTab) => {
     setActiveTab(value);
     setSearchTerm('');
+    setFilterValue('todos');
     setCurrentPage(1);
     setHeaderDirection('up');
     setColumnMenuOpen(false);
     setExportMenuOpen(false);
+
+    if (value === 'onus') {
+      setSelectedSearchFields(ONUS_SEARCH_FIELDS.map((field) => field.key));
+      return;
+    }
 
     if (value === 'vlans') {
       setSelectedSearchFields(VLAN_SEARCH_FIELDS.map((field) => field.key));
@@ -796,8 +835,13 @@ export default function NetworkSmartOlt() {
     setExportMenuOpen(false);
   };
 
-  const openDatasetPrintPreview = (title: string, rows: Record<string, string>[], autoPrint: boolean) => {
-    const headers = Object.keys(rows[0] ?? { Registro: '' });
+  const openDatasetPrintPreview = (
+    title: string,
+    rows: Record<string, string>[],
+    autoPrint: boolean,
+    fallbackHeaders?: string[],
+  ) => {
+    const headers = getDatasetHeaders(rows, fallbackHeaders);
     const bodyRows = rows.length
       ? rows
           .map(
@@ -821,13 +865,17 @@ export default function NetworkSmartOlt() {
     }
   };
 
-  const handleDatasetPrint = (title: string, rows: Record<string, string>[]) => {
-    openDatasetPrintPreview(title, rows, true);
+  const handleDatasetPrint = (title: string, rows: Record<string, string>[], fallbackHeaders?: string[]) => {
+    openDatasetPrintPreview(title, rows, true, fallbackHeaders);
     setExportMenuOpen(false);
   };
 
-  const handleDatasetExportCsv = (filename: string, rows: Record<string, string>[]) => {
-    const headers = Object.keys(rows[0] ?? { Registro: '' });
+  const handleDatasetExportCsv = (
+    filename: string,
+    rows: Record<string, string>[],
+    fallbackHeaders?: string[],
+  ) => {
+    const headers = getDatasetHeaders(rows, fallbackHeaders);
     const lines = [
       headers.map(escapeCsvValue).join(','),
       ...rows.map((row) => headers.map((header) => escapeCsvValue(row[header as keyof typeof row])).join(',')),
@@ -836,8 +884,13 @@ export default function NetworkSmartOlt() {
     setExportMenuOpen(false);
   };
 
-  const handleDatasetExportExcel = (title: string, filename: string, rows: Record<string, string>[]) => {
-    const headers = Object.keys(rows[0] ?? { Registro: '' });
+  const handleDatasetExportExcel = (
+    title: string,
+    filename: string,
+    rows: Record<string, string>[],
+    fallbackHeaders?: string[],
+  ) => {
+    const headers = getDatasetHeaders(rows, fallbackHeaders);
     const rowsHtml = rows
       .map(
         (row) =>
@@ -849,8 +902,8 @@ export default function NetworkSmartOlt() {
     setExportMenuOpen(false);
   };
 
-  const handleDatasetExportPdf = (title: string, rows: Record<string, string>[]) => {
-    openDatasetPrintPreview(`${title} - PDF`, rows, true);
+  const handleDatasetExportPdf = (title: string, rows: Record<string, string>[], fallbackHeaders?: string[]) => {
+    openDatasetPrintPreview(`${title} - PDF`, rows, true, fallbackHeaders);
     setExportMenuOpen(false);
   };
 
@@ -1856,18 +1909,135 @@ export default function NetworkSmartOlt() {
               <div className="px-5 py-5">
                 <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                   <div className="flex flex-wrap items-center gap-3">
-                    <PageSizeCluster
-                      isWispHub={isWispHub}
-                      pageSize={pageSize}
-                      onChange={setPageSize}
-                    />
-                    <SelectField
-                      isWispHub={isWispHub}
-                      value={filterValue}
-                      onChange={setFilterValue}
-                      options={filterOptions}
-                      className="min-w-[260px]"
-                    />
+                    <div className="relative inline-flex items-stretch overflow-visible rounded-[6px] border border-[#d7dde5] bg-white align-middle">
+                      <select
+                        value={pageSize}
+                        onChange={(event) => {
+                          setPageSize(Number(event.target.value));
+                          setCurrentPage(1);
+                        }}
+                        className={`min-w-[58px] appearance-none border-0 border-r border-[#d7dde5] bg-white px-4 text-[14px] leading-none outline-none ${
+                          isWispHub ? 'h-[42px] rounded-none text-[#20324a]' : 'h-[48px] rounded-none text-[#24364b]'
+                        }`}
+                        aria-label="Cantidad de registros por pagina"
+                      >
+                        <option value={15}>15</option>
+                        <option value={25}>25</option>
+                        <option value={50}>50</option>
+                      </select>
+
+                      <div className="relative" ref={columnMenuRef}>
+                        <button
+                          type="button"
+                          className={`inline-flex shrink-0 items-center justify-center border-0 border-r border-[#d7dde5] bg-white text-[#394b60] ${
+                            isWispHub ? 'h-[42px] w-[42px]' : 'h-[48px] w-[48px]'
+                          }`}
+                          aria-label="Vista de lista"
+                          onClick={() => {
+                            setColumnMenuOpen((current) => !current);
+                            setExportMenuOpen(false);
+                          }}
+                        >
+                          <List className="h-4 w-4" />
+                        </button>
+
+                        {columnMenuOpen ? (
+                          <div className="absolute left-0 top-[calc(100%+8px)] z-30 min-w-[170px] border border-[#d7dde5] bg-white shadow-[0_16px_32px_rgba(15,23,42,0.16)]">
+                            <div className="py-2">
+                              {ONUS_SEARCH_FIELDS.map((field) => (
+                                <label
+                                  key={field.key}
+                                  className="flex cursor-pointer items-center gap-3 px-4 py-[7px] text-[13px] text-[#334b63] hover:bg-[#f7fafc]"
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={activeOnusColumns.some((column) => column.key === field.key)}
+                                    onChange={() => toggleSearchField(field.key)}
+                                    className="h-[13px] w-[13px] accent-[#2f3033]"
+                                  />
+                                  <span>{field.label}</span>
+                                </label>
+                              ))}
+                            </div>
+                          </div>
+                        ) : null}
+                      </div>
+
+                      <div className="relative" ref={exportMenuRef}>
+                        <button
+                          type="button"
+                          className={`inline-flex shrink-0 items-center justify-center border-0 bg-white text-[#394b60] ${
+                            isWispHub ? 'h-[42px] w-[42px]' : 'h-[48px] w-[48px]'
+                          }`}
+                          aria-label="Guardar configuracion"
+                          onClick={() => {
+                            setExportMenuOpen((current) => !current);
+                            setColumnMenuOpen(false);
+                          }}
+                        >
+                          <Save className="h-4 w-4" />
+                        </button>
+
+                        {exportMenuOpen ? (
+                          <div className="absolute left-0 top-[calc(100%+8px)] z-30 min-w-[170px] border border-[#d7dde5] bg-white py-2 shadow-[0_16px_32px_rgba(15,23,42,0.16)]">
+                            <button
+                              type="button"
+                              onClick={() => handleDatasetPrint('ONUS Configurados Smart Olt', [], onusExportHeaders)}
+                              className="flex w-full items-center gap-3 px-4 py-[7px] text-left text-[13px] text-[#4d5b68] hover:bg-[#f3f7fb]"
+                            >
+                              <Printer className="h-4 w-4" />
+                              Imprimir
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDatasetExportCsv('smart-olt-onus-configurados.csv', [], onusExportHeaders)}
+                              className="flex w-full items-center gap-3 px-4 py-[7px] text-left text-[13px] text-[#4d5b68] hover:bg-[#f3f7fb]"
+                            >
+                              <FileDown className="h-4 w-4" />
+                              Exportar csv
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleDatasetExportExcel(
+                                  'ONUS Configurados Smart Olt',
+                                  'smart-olt-onus-configurados.xls',
+                                  [],
+                                  onusExportHeaders,
+                                )
+                              }
+                              className="flex w-full items-center gap-3 px-4 py-[7px] text-left text-[13px] text-[#4d5b68] hover:bg-[#f3f7fb]"
+                            >
+                              <FileSpreadsheet className="h-4 w-4" />
+                              Exportar a Excel
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDatasetExportPdf('ONUS Configurados Smart Olt', [], onusExportHeaders)}
+                              className="flex w-full items-center gap-3 px-4 py-[7px] text-left text-[13px] text-[#4d5b68] hover:bg-[#f3f7fb]"
+                            >
+                              <FileDown className="h-4 w-4" />
+                              Exportar a PDF
+                            </button>
+                          </div>
+                        ) : null}
+                      </div>
+                    </div>
+
+                    <div className="w-full sm:w-auto">
+                      <select
+                        value={filterValue}
+                        onChange={(event) => setFilterValue(event.target.value)}
+                        className={`${isWispHub ? 'h-[42px] rounded-[6px]' : 'h-[48px] rounded-[4px]'} min-w-[190px] border border-[#d7dde5] bg-white px-4 text-[14px] text-[#24364b] outline-none`}
+                        aria-label="Filtrar ONUS"
+                      >
+                        {filterOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                   <SearchField
                     isWispHub={isWispHub}
@@ -1878,7 +2048,7 @@ export default function NetworkSmartOlt() {
               </div>
 
               <div className="px-5 pb-5">
-                <NetworkTable columns={onusColumns} rows={[]} emptyMessage="Ningun registro disponible" />
+                <NetworkTable columns={activeOnusColumns} rows={[]} emptyMessage="Ningun registro disponible" />
                 <PaginationBar
                   isWispHub={isWispHub}
                   summary="Mostrando 0 registros"
