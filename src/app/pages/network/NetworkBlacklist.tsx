@@ -12,10 +12,6 @@ import {
 import { toast } from 'sonner';
 import { useViewTheme } from '../../context/ViewThemeContext';
 import {
-  mikrosystemPageStyle,
-  wisphubPageStyle,
-} from './networkManagementData';
-import {
   NetworkFormDialog,
   NetworkPageShell,
   NetworkPanel,
@@ -37,21 +33,21 @@ type BlacklistColumn = {
   key: BlacklistColumnKey;
   header: string;
   label: string;
-  width?: string;
+  widthClassName?: string;
   getValue: (row: BlacklistRow) => string;
 };
 
 const BLACKLIST_COLUMNS: BlacklistColumn[] = [
-  { key: 'id', header: 'ID', label: 'ID', width: '60px', getValue: (row) => row.id },
-  { key: 'nombre', header: 'NOMBRE', label: 'Nombre', width: '230px', getValue: (row) => row.nombre },
-  { key: 'ip', header: 'IP', label: 'IP', width: '120px', getValue: (row) => row.ip },
-  { key: 'estado', header: 'ESTADO', label: 'Estado', width: '190px', getValue: (row) => row.estado },
-  { key: 'listado', header: 'LISTADO EN', label: 'Listado en', width: '300px', getValue: (row) => row.listado },
+  { key: 'id', header: 'ID', label: 'ID', widthClassName: 'w-[60px]', getValue: (row) => row.id },
+  { key: 'nombre', header: 'NOMBRE', label: 'Nombre', widthClassName: 'w-[230px]', getValue: (row) => row.nombre },
+  { key: 'ip', header: 'IP', label: 'IP', widthClassName: 'w-[120px]', getValue: (row) => row.ip },
+  { key: 'estado', header: 'ESTADO', label: 'Estado', widthClassName: 'w-[190px]', getValue: (row) => row.estado },
+  { key: 'listado', header: 'LISTADO EN', label: 'Listado en', widthClassName: 'w-[300px]', getValue: (row) => row.listado },
   {
     key: 'actualizado',
     header: 'ACTUALIZADO',
     label: 'Actualizado',
-    width: '280px',
+    widthClassName: 'w-[280px]',
     getValue: (row) => row.actualizado,
   },
 ];
@@ -299,7 +295,13 @@ export default function NetworkBlacklist() {
   };
 
   return (
-    <div style={isWispHub ? wisphubPageStyle : mikrosystemPageStyle}>
+    <div
+      className={
+        isWispHub
+          ? 'min-h-full border-t-4 border-[#45bf63] bg-[radial-gradient(circle_at_top_right,rgba(69,191,99,0.08),transparent_28%),#ffffff] pb-8 font-["Trebuchet_MS","Segoe_UI",Tahoma,Geneva,Verdana,sans-serif] text-[#17273d]'
+          : 'min-h-full bg-[#d9e7f3] px-[22px] pb-[26px] pt-[18px] font-["Segoe_UI",Tahoma,Geneva,Verdana,sans-serif] text-[#223448]'
+      }
+    >
       <NetworkPageShell
         title="Monitor IPs Lista Negra"
         breadcrumb="Monitor BlackList"
@@ -445,8 +447,7 @@ export default function NetworkBlacklist() {
                       {visibleColumns.map((column) => (
                         <th
                           key={column.key}
-                          className="border-b border-r border-[#d7dde5] px-3 py-3 text-left text-[13px] font-semibold uppercase text-[#24364b] last:border-r-0"
-                          style={column.width ? { width: column.width } : undefined}
+                          className={`border-b border-r border-[#d7dde5] px-3 py-3 text-left text-[13px] font-semibold uppercase text-[#24364b] last:border-r-0 ${column.widthClassName ?? ''}`}
                         >
                           {column.header}
                         </th>
