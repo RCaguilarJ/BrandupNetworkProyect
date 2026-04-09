@@ -19,9 +19,7 @@ import { useViewTheme } from '../../context/ViewThemeContext';
 import { toast } from 'sonner';
 import {
   filterByCompany,
-  mikrosystemPageStyle,
   NETWORK_ROUTERS,
-  wisphubPageStyle,
 } from './networkManagementData';
 import {
   ActionButton,
@@ -503,7 +501,13 @@ export default function NetworkRouters() {
   ];
 
   return (
-    <div style={isWispHub ? wisphubPageStyle : mikrosystemPageStyle}>
+    <div
+      className={
+        isWispHub
+          ? 'min-h-full border-t-4 border-[#45bf63] bg-[radial-gradient(circle_at_top_right,rgba(69,191,99,0.08),transparent_28%),#ffffff] pb-8 font-["Trebuchet_MS","Segoe_UI",Tahoma,Geneva,Verdana,sans-serif] text-[#17273d]'
+          : 'min-h-full bg-[#d9e7f3] px-[22px] pb-[26px] pt-[18px] font-["Segoe_UI",Tahoma,Geneva,Verdana,sans-serif] text-[#223448]'
+      }
+    >
       <NetworkPageShell
         title="Lista de Router"
         breadcrumb="Routers"

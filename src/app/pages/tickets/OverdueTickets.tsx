@@ -38,6 +38,13 @@ const mikrosystemPageClassName =
 const mikrosystemPanelClassName =
   'overflow-hidden rounded-[4px] border border-[#d6dee8] bg-white shadow-[0_1px_0_rgba(15,23,42,0.04)]';
 
+function controlA11yProps(label: string) {
+  return {
+    'aria-label': label,
+    title: label,
+  } as const;
+}
+
 export default function OverdueTickets() {
   const { viewTheme } = useViewTheme();
   const ticketFlow = useTicketCreationFlow();
@@ -89,18 +96,21 @@ export default function OverdueTickets() {
             <button
               type="button"
               className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/10 text-white"
+              {...controlA11yProps('Recargar tickets respondidos')}
             >
               <RefreshCw className="h-3.5 w-3.5" />
             </button>
             <button
               type="button"
               className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/10 text-white"
+              {...controlA11yProps('Panel anterior')}
             >
               <ChevronRight className="h-3.5 w-3.5 rotate-180" />
             </button>
             <button
               type="button"
               className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/10 text-white"
+              {...controlA11yProps('Panel siguiente')}
             >
               <ChevronRight className="h-3.5 w-3.5" />
             </button>
@@ -114,6 +124,7 @@ export default function OverdueTickets() {
                 value={pageSize}
                 disabled
                 className="h-8 rounded border border-[#cfd7e2] bg-white px-3 text-[12px] text-[#24364b] outline-none"
+                {...controlA11yProps('Cantidad de registros por pagina')}
               >
                 <option value={15}>{pageSize}</option>
               </select>
@@ -121,6 +132,7 @@ export default function OverdueTickets() {
               <button
                 type="button"
                 className="inline-flex h-8 w-10 items-center justify-center rounded border border-[#cfd7e2] bg-white text-[12px] text-[#24364b]"
+                {...controlA11yProps('Seleccionar columnas visibles')}
               >
                 <List className="h-3.5 w-3.5" />
               </button>
@@ -129,6 +141,7 @@ export default function OverdueTickets() {
                 type="button"
                 onClick={ticketFlow.openSequence}
                 className="inline-flex h-8 items-center justify-center gap-1.5 rounded border border-[#cfd7e2] bg-white px-3 text-[12px] text-[#24364b]"
+                {...controlA11yProps('Nuevo ticket')}
               >
                 <Plus className="h-3.5 w-3.5" />
                 <span>Nuevo</span>
@@ -190,6 +203,7 @@ export default function OverdueTickets() {
                 type="button"
                 disabled
                 className="inline-flex h-8 w-8 items-center justify-center rounded border border-[#d7e0ea] bg-white text-[#9aa8b7]"
+                {...controlA11yProps('Pagina anterior')}
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
@@ -197,6 +211,7 @@ export default function OverdueTickets() {
                 type="button"
                 disabled
                 className="inline-flex h-8 w-8 items-center justify-center rounded border border-[#d7e0ea] bg-white text-[#9aa8b7]"
+                {...controlA11yProps('Pagina siguiente')}
               >
                 <ChevronRight className="h-4 w-4" />
               </button>
